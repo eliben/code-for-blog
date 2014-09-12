@@ -1,0 +1,10 @@
+this is first :tt:`some text` paragraph.
+
+
+
+second I paragraph followIed Iby a single line
+that will be I, pasted :dos:`thanks : 2`
+
+third and final is :tt:`captured or is it?` by tt
+
+

@@ -1,0 +1,10 @@
+Code to accompany the "Plugins in C" article in my blog. Comes with a
+Makefile for Linux (tested with gcc 4.6 on Ubuntu 12.04), though it should
+be easy to adapt to other Unix and Linux systems.
+
+After building with "make", run "htmlize_main < sampletext.txt"
+
+This code is in the public domain - http://unlicense.org/
+
+Eli Bendersky (eliben@gmail.com)
+http://eli.thegreenplace.net
