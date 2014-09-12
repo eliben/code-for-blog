@@ -3,7 +3,7 @@ This repository collects code samples linked from `my blog
 in the public domain (see the ``LICENSE`` file in this repository for more
 details).
 
-I'm making this code available publicly in good faith; this does not mean the
-code is supported in any way, however. I'm quite unlikely to provide significant
+I'm making this code available publicly in good faith; note that this does not
+mean the code is supported in any way. I'm unlikely to provide significant
 support for code in old articles, for example, because sometimes I no longer
 have the environment required to run and test the code.
