@@ -1,0 +1,1 @@
+g++ -ansi -Wall -pedantic -o regex *.cpp
