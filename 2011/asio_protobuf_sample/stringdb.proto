@@ -1,0 +1,48 @@
+//
+// stringdb.proto: protobuf definition file for the protocol
+//
+// Eli Bendersky (eliben@gmail.com)
+// This code is in the public domain
+//
+package stringdb;
+
+
+// The request has a type and then the relevant optional field is 
+// filled.
+//
+message Request {
+    enum RequestType {
+        GET_VALUE = 1;
+        SET_VALUE = 2;
+        COUNT_VALUES = 3;
+    }
+
+    required RequestType type = 1;
+
+    message RequestGetValue {
+        required string key = 1;
+    }
+    optional RequestGetValue request_get_value = 21;
+
+    message RequestSetValue {
+        required string key = 1;
+        required string value = 2;
+    }
+    optional RequestSetValue request_set_value = 22;
+
+    message RequestCountValues {
+        
+    }
+    optional RequestCountValues request_count_values = 23;
+}
+
+
+// The response is a simple string
+// For GET_VALUE, the value is returned (or empty string if no such value)
+// For SET_VALUE, the value is returned
+// For COUNT_VALUES, the count is returned as a string
+//
+message Response {
+    required string value = 1;
+}
+
