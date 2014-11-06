@@ -1,11 +1,3 @@
-pyelftools is in the public domain (see below if you need more details).
-
-pyelftools uses the construct library for structured parsing of a binary
-stream. construct is packaged in pyelftools/construct - see its LICENSE
-file for the license.
-
--------------------------------------------------------------------------------
-
 This is free and unencumbered software released into the public domain.
 
 Anyone is free to copy, modify, publish, use, compile, sell, or
