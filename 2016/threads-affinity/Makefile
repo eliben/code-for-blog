@@ -9,16 +9,21 @@ LDFLAGS = -lpthread -pthread
 # Some of the samples require the Google benchmark library to run their
 # benchmarks [https://github.com/google/benchmark].
 # Point BENCH_PATH to where you have the library installed/built.
+# If you have no way to install/build the benchmark library, don't compile the
+# samples that use them (or comment the benchmarking code out of them...)
 BENCH_PATH = $$HOME/test/benchmark
 BENCH_INCLUDE = $(BENCH_PATH)/include
 BENCH_LIBPATH = $(BENCH_PATH)/src
 BENCH_ARCHIVE = $(BENCH_LIBPATH)/libbenchmark.a
 
-EXECUTABLES = launch-thread-per-cpu
+EXECUTABLES = launch-thread-per-cpu launch-threads-report-cpu
 
 all: $(EXECUTABLES)
 
 launch-thread-per-cpu: launch-thread-per-cpu.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+launch-threads-report-cpu: launch-threads-report-cpu.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
