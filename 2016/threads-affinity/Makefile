@@ -16,14 +16,22 @@ BENCH_INCLUDE = $(BENCH_PATH)/include
 BENCH_LIBPATH = $(BENCH_PATH)/src
 BENCH_ARCHIVE = $(BENCH_LIBPATH)/libbenchmark.a
 
-EXECUTABLES = launch-thread-per-cpu launch-threads-report-cpu
+EXECUTABLES = \
+	launch-thread-per-cpu launch-threads-report-cpu thread-id-native-handle \
+	set-affinity
 
 all: $(EXECUTABLES)
+
+thread-id-native-handle: thread-id-native-handle.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 launch-thread-per-cpu: launch-thread-per-cpu.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 launch-threads-report-cpu: launch-threads-report-cpu.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+set-affinity: set-affinity.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
