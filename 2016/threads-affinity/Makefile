@@ -18,7 +18,7 @@ BENCH_ARCHIVE = $(BENCH_LIBPATH)/libbenchmark.a
 
 EXECUTABLES = \
 	launch-thread-per-cpu launch-threads-report-cpu thread-id-native-handle \
-	set-affinity
+	set-affinity thread-workload-benchmark
 
 all: $(EXECUTABLES)
 
@@ -32,6 +32,9 @@ launch-threads-report-cpu: launch-threads-report-cpu.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 set-affinity: set-affinity.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+thread-workload-benchmark: thread-workload-benchmark.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
