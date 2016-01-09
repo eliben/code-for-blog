@@ -1,3 +1,16 @@
+// Comprehensive benchmark demonstrating sharing of cores for different
+// workloads.
+//
+// When built, accepts an arbitrary number of argument pairs: (workload, cpu)
+// and launches the given workloads in separate threads on the given CPUs.
+//
+// For example:
+//
+//   ./thread-workload-benchmark accum 0 sin 1
+//
+// Launches the "accum" workload in on (logical) CPU 0, and the "sin" workload
+// in parallel on CPU 1. Each workload is given its own (separately allocated)
+// vector of 100 million floats.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -210,6 +223,12 @@ int main(int argc, const char** argv) {
 
   constexpr size_t INPUT_SIZE = 100 * 1000 * 1000;
   auto t1 = hires_clock::now();
+
+  // Allocate and initialize one extra input array - not used by any workload.
+  // This makes sure none of the actual working inputs stays in L3 cache (which
+  // is fairly sizable), giving one of the workloads an unfair advantage. The
+  // lower cache layers are so small compared to the input size that their
+  // pre-seeding advantage is negligible.
   std::vector<std::vector<float>> inputs(num_workloads + 1);
   for (int i = 0; i < num_workloads; ++i) {
     inputs[i] = make_input_array(INPUT_SIZE);

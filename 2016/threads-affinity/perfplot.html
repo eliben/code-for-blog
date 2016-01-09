@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <script type='text/javascript' src='https://www.google.com/jsapi'></script>
+    <script type='text/javascript'>
+        google.load("visualization", "1", {packages:["corechart"]});
+        google.setOnLoadCallback(drawChart);
+        function drawChart() {
+          var data = new google.visualization.DataTable();
+          
+          data.addColumn('string', 'Type');
+          data.addColumn('number', 'Time');
+          
+          data.addRows([
+            ['single', 540],
+            ['different cores', 544],
+            ['same core', 945],
+            ]);
+          
+          // Create and draw the visualization.
+          new google.visualization.BarChart(document.getElementById('chart_div')).
+              draw(data,
+                   {width:650,
+                    height:400,
+                    legend: {position: 'none'},
+                    colors: ['darkorange'],
+                    vAxis: {gridlines: {count: 6}},
+                    hAxis: {title: 'accum execution time (ms)', baseline: 0, gridlines: {count: 8}}}
+              );      
+        }
+    </script>
+  </head>
+
+  <body>
+    <div id='chart_div'></div>
+  </body>
+</html>
