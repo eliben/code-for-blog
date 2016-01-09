@@ -3,6 +3,7 @@
 // This code is in the public domain.
 #include <algorithm>
 #include <chrono>
+#include <cmath>
 #include <iostream>
 #include <mutex>
 #include <pthread.h>
@@ -20,9 +21,10 @@ using duration_ms = std::chrono::duration<double, std::milli>;
 std::mutex iomutex;
 
 void workload_fpchurn(const std::vector<float>& data, float& result) {
+  constexpr size_t NUM_ITERS = 10 * 1000 * 1000;
   auto t1 = hires_clock::now();
   float rt = 0;
-  for (size_t i = 0; i < 10 * 1000 * 1000; ++i) {
+  for (size_t i = 0; i < NUM_ITERS; ++i) {
     float item = data[i];
     float l = std::log(item);
     if (l > rt) {
@@ -43,26 +45,122 @@ void workload_fpchurn(const std::vector<float>& data, float& result) {
   {
     auto t2 = hires_clock::now();
     std::lock_guard<std::mutex> iolock(iomutex);
-    std::cout << "workload_fpchurn [CPU " << sched_getcpu()
-              << "] elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << __func__ << " [CPU " << sched_getcpu() << "]:\n";
+    std::cout << "  elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
   }
 }
 
-void workload_accum(const std::vector<float>& data, float& result) {
+void workload_sin(const std::vector<float>& data, float& result) {
   auto t1 = hires_clock::now();
   float rt = 0;
-  for (size_t count = 0; count < 5; ++count) {
-    for (size_t i = 0; i < data.size(); ++i) {
-      rt += data[i];
-    }
+  for (size_t i = 0; i < data.size(); ++i) {
+    rt += std::sin(data[i]);
   }
   result = rt;
 
   {
     auto t2 = hires_clock::now();
     std::lock_guard<std::mutex> iolock(iomutex);
-    std::cout << "workload_accum [CPU " << sched_getcpu()
-              << "] elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << __func__ << " [cpu " << sched_getcpu() << "]:\n";
+    std::cout << "  processed items: " << data.size() << "\n";
+    std::cout << "  elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << "  result: " << result << "\n";
+  }
+}
+
+void workload_accum(const std::vector<float>& data, float& result) {
+  auto t1 = hires_clock::now();
+  float rt = 0;
+  for (size_t i = 0; i < data.size(); ++i) {
+    rt += data[i];
+  }
+  result = rt;
+
+  {
+    auto t2 = hires_clock::now();
+    std::lock_guard<std::mutex> iolock(iomutex);
+    std::cout << __func__ << " [cpu " << sched_getcpu() << "]:\n";
+    std::cout << "  processed items: " << data.size() << "\n";
+    std::cout << "  elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << "  result: " << result << "\n";
+  }
+}
+
+void workload_unrollaccum4(const std::vector<float>& data, float& result) {
+  auto t1 = hires_clock::now();
+  if (data.size() % 4 != 0) {
+    std::cerr
+        << "ERROR in " << __func__ << ": data.size " << data.size() << "\n";
+  }
+  float rt0 = 0;
+  float rt1 = 0;
+  float rt2 = 0;
+  float rt3 = 0;
+  for (size_t i = 0; i < data.size(); i += 4) {
+    rt0 += data[i];
+    rt1 += data[i + 1];
+    rt2 += data[i + 2];
+    rt3 += data[i + 3];
+  }
+  result = rt0 + rt1 + rt2 + rt3;
+
+  {
+    auto t2 = hires_clock::now();
+    std::lock_guard<std::mutex> iolock(iomutex);
+    std::cout << __func__ << " [cpu " << sched_getcpu() << "]:\n";
+    std::cout << "  processed items: " << data.size() << "\n";
+    std::cout << "  elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << "  result: " << result << "\n";
+  }
+}
+
+void workload_unrollaccum8(const std::vector<float>& data, float& result) {
+  auto t1 = hires_clock::now();
+  if (data.size() % 8 != 0) {
+    std::cerr
+        << "ERROR in " << __func__ << ": data.size " << data.size() << "\n";
+  }
+  float rt0 = 0;
+  float rt1 = 0;
+  float rt2 = 0;
+  float rt3 = 0;
+  float rt4 = 0;
+  float rt5 = 0;
+  float rt6 = 0;
+  float rt7 = 0;
+  for (size_t i = 0; i < data.size(); i += 8) {
+    rt0 += data[i];
+    rt1 += data[i + 1];
+    rt2 += data[i + 2];
+    rt3 += data[i + 3];
+    rt4 += data[i + 4];
+    rt5 += data[i + 5];
+    rt6 += data[i + 6];
+    rt7 += data[i + 7];
+  }
+  result = rt0 + rt1 + rt2 + rt3 + rt4 + rt5 + rt6 + rt7;
+
+  {
+    auto t2 = hires_clock::now();
+    std::lock_guard<std::mutex> iolock(iomutex);
+    std::cout << __func__ << " [cpu " << sched_getcpu() << "]:\n";
+    std::cout << "  processed items: " << data.size() << "\n";
+    std::cout << "  elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << "  result: " << result << "\n";
+  }
+}
+
+void workload_stdaccum(const std::vector<float>& data, float& result) {
+  auto t1 = hires_clock::now();
+  result = std::accumulate(data.begin(), data.end(), 0.0f);
+
+  {
+    auto t2 = hires_clock::now();
+    std::lock_guard<std::mutex> iolock(iomutex);
+    std::cout << __func__ << " [cpu " << sched_getcpu() << "]:\n";
+    std::cout << "  processed items: " << data.size() << "\n";
+    std::cout << "  elapsed: " << duration_ms(t2 - t1).count() << " ms\n";
+    std::cout << "  result: " << result << "\n";
   }
 }
 
@@ -97,11 +195,8 @@ void pin_thread_to_cpu(std::thread& t, int cpu_num) {
 }
 
 int main(int argc, const char** argv) {
-  auto t1 = hires_clock::now();
-  std::vector<float> vf = make_input_array(100 * 1000 * 1000);
-  std::cout << "Created input array of size " << vf.size()
-            << "; elapsed: " << duration_ms(hires_clock::now() - t1).count()
-            << " ms\n";
+  // Set locale for comma-separation in large numbers.
+  std::cout.imbue(std::locale(""));
   
   // argv[0] is the program name
   // argv[1] is workload name, with cpu number at argv[2]
@@ -113,13 +208,34 @@ int main(int argc, const char** argv) {
   do_not_optimize(results.data());
   std::vector<std::thread> threads(num_workloads);
 
+  constexpr size_t INPUT_SIZE = 100 * 1000 * 1000;
+  auto t1 = hires_clock::now();
+  std::vector<std::vector<float>> inputs(num_workloads + 1);
+  for (int i = 0; i < num_workloads; ++i) {
+    inputs[i] = make_input_array(INPUT_SIZE);
+  }
+  std::cout << "Created " << num_workloads + 1 << " input arrays"
+            << "; elapsed: " << duration_ms(hires_clock::now() - t1).count()
+            << " ms\n";
+
   for (int i = 1; i < argc; i += 2) {
     WorkloadFunc func;
     std::string workload_name = argv[i];
     if (workload_name == "fpchurn") {
       func = workload_fpchurn;
+    } else if (workload_name == "sin") {
+      func = workload_sin;
     } else if (workload_name == "accum") {
       func = workload_accum;
+    } else if (workload_name == "unrollaccum4") {
+      func = workload_unrollaccum4;
+    } else if (workload_name == "unrollaccum8") {
+      func = workload_unrollaccum8;
+    } else if (workload_name == "stdaccum") {
+      func = workload_stdaccum;
+    } else {
+      std::cerr << "unknown workload: " << argv[i] << "\n";
+      return 1;
     }
 
     int cpu_num;
@@ -136,8 +252,8 @@ int main(int argc, const char** argv) {
     }
 
     int nworkload = i / 2;
-    threads[nworkload] =
-        std::thread(func, std::cref(vf), std::ref(results[nworkload]));
+    threads[nworkload] = std::thread(func, std::cref(inputs[nworkload]),
+                                     std::ref(results[nworkload]));
     pin_thread_to_cpu(threads[nworkload], cpu_num);
   }
 
