@@ -27,5 +27,16 @@ set-affinity: set-affinity.cpp
 thread-workload-benchmark: thread-workload-benchmark.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
+# The following example requires HWLOC
+# [https://www.open-mpi.org/projects/hwloc/] to be built and installed in
+# HWLOC_INSTALL_PATH. It's not in EXECUTABLES so the default 'make' command
+# skips it. Build explicitly if you have HWLOC installed.
+
+HWLOC_INSTALL_PATH = $$HOME/test/hwloc/build
+
+hwloc-example: hwloc-example.cpp
+	$(CXX) $(CXXFLAGS) -I$(HWLOC_INSTALL_PATH)/include $^ -o $@ $(LDFLAGS) \
+		-L$(HWLOC_INSTALL_PATH)/lib -lhwloc
+
 clean:
-	rm -f $(EXECUTABLES)
+	rm -f $(EXECUTABLES) hwloc-example
