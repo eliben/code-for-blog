@@ -85,6 +85,12 @@ void workload_accum(const std::vector<float>& data, float& result) {
   auto t1 = hires_clock::now();
   float rt = 0;
   for (size_t i = 0; i < data.size(); ++i) {
+    // This should generate a loop of data.size ADDSS instructions, all adding
+    // up into the same xmm register. If built with -Ofast (-ffast-math), the
+    // compiler will be willing to perform unsafe FP optimizations and will
+    // vectorize the loop into data.size/4 addps instructions. Note that this
+    // changes the order in which the floats are added, which is unsafe because
+    // FP addition is not associative.
     rt += data[i];
   }
   result = rt;
@@ -110,6 +116,10 @@ void workload_unrollaccum4(const std::vector<float>& data, float& result) {
   float rt2 = 0;
   float rt3 = 0;
   for (size_t i = 0; i < data.size(); i += 4) {
+    // This unrolling performs manual break-down of dependencies on a single xmm
+    // register that happens in workload_accum. It should be faster because
+    // distinct ADDSS instructions will accumulate into separate registers. It
+    // is also unsafe for the same reasons as described above.
     rt0 += data[i];
     rt1 += data[i + 1];
     rt2 += data[i + 2];
