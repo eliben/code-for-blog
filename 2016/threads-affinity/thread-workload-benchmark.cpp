@@ -28,6 +28,7 @@
 // a single float result.
 using WorkloadFunc = std::function<void(const std::vector<float>&, float&)>;
 
+// Some aliases to make std::chrono calls shorter.
 using hires_clock = std::chrono::high_resolution_clock;
 using duration_ms = std::chrono::duration<double, std::milli>;
 
@@ -85,12 +86,12 @@ void workload_accum(const std::vector<float>& data, float& result) {
   auto t1 = hires_clock::now();
   float rt = 0;
   for (size_t i = 0; i < data.size(); ++i) {
-    // This should generate a loop of data.size ADDSS instructions, all adding
-    // up into the same xmm register. If built with -Ofast (-ffast-math), the
-    // compiler will be willing to perform unsafe FP optimizations and will
-    // vectorize the loop into data.size/4 addps instructions. Note that this
-    // changes the order in which the floats are added, which is unsafe because
-    // FP addition is not associative.
+    // On x86-64, this should generate a loop of data.size ADDSS instructions,
+    // all adding up into the same xmm register. If built with -Ofast
+    // (-ffast-math), the compiler will be willing to perform unsafe FP
+    // optimizations and will vectorize the loop into data.size/4 ADDPS
+    // instructions. Note that this changes the order in which the floats are
+    // added, which is unsafe because FP addition is not associative.
     rt += data[i];
   }
   result = rt;
@@ -187,6 +188,8 @@ void workload_stdaccum(const std::vector<float>& data, float& result) {
   }
 }
 
+// Create a vector filled with N floats uniformly distributed in the range
+// (-1.0,1.0)
 std::vector<float> make_input_array(int N) {
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -206,6 +209,8 @@ void do_not_optimize(void* p) {
   asm volatile("" : : "g"(p) : "memory");
 }
 
+// Set the given thread's affinity to be exclusively on the given logical CPU
+// number.
 void pin_thread_to_cpu(std::thread& t, int cpu_num) {
   cpu_set_t cpuset;
   CPU_ZERO(&cpuset);
@@ -221,10 +226,12 @@ int main(int argc, const char** argv) {
   // Set locale for comma-separation in large numbers.
   std::cout.imbue(std::locale(""));
   
-  // argv[0] is the program name
-  // argv[1] is workload name, with cpu number at argv[2]
-  // argv[3] is workload name, with cpu number at argv[4]
-  // ... etc.
+  // Command-line invocation:
+  //
+  //  argv[0] is the program name
+  //  argv[1] is workload name, with cpu number at argv[2]
+  //  argv[3] is workload name, with cpu number at argv[4]
+  //  ... etc.
 
   int num_workloads = argc / 2;
   std::vector<float> results(num_workloads);
@@ -286,6 +293,8 @@ int main(int argc, const char** argv) {
     pin_thread_to_cpu(threads[nworkload], cpu_num);
   }
 
+  // All the threads were launched in parallel in the loop above. Now wait for
+  // all of them to finish.
   std::for_each(threads.begin(), threads.end(),
                 std::mem_fn(&std::thread::join));
   return 0;
