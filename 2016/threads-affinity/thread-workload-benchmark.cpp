@@ -295,7 +295,8 @@ int main(int argc, const char** argv) {
 
   // All the threads were launched in parallel in the loop above. Now wait for
   // all of them to finish.
-  std::for_each(threads.begin(), threads.end(),
-                std::mem_fn(&std::thread::join));
+  for (auto& t : threads) {
+    t.join();
+  }
   return 0;
 }

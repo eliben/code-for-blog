@@ -14,8 +14,7 @@ int main(int argc, const char** argv) {
   unsigned num_cpus = std::thread::hardware_concurrency();
   std::cout << "Launching " << num_cpus << " threads\n";
 
-  // std::cout is not guaranteed to be thread safe, so we protect it with a
-  // mutex.
+  // A mutex ensures orderly access to std::cout from multiple threads.
   std::mutex iomutex;
   std::vector<std::thread> threads(num_cpus);
   for (unsigned i = 0; i < num_cpus; ++i) {
@@ -33,8 +32,9 @@ int main(int argc, const char** argv) {
     });
   }
 
-  std::for_each(threads.begin(), threads.end(),
-                std::mem_fn(&std::thread::join));
+  for (auto& t : threads) {
+    t.join();
+  }
 
   return 0;
 }
