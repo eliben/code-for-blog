@@ -15,8 +15,7 @@
 
 int main(int argc, const char** argv) {
   constexpr unsigned num_threads = 4;
-  // std::cout is not guaranteed to be thread safe, so we protect it with a
-  // mutex.
+  // A mutex ensures orderly access to std::cout from multiple threads.
   std::mutex iomutex;
   std::vector<std::thread> threads(num_threads);
   for (unsigned i = 0; i < num_threads; ++i) {
@@ -47,8 +46,9 @@ int main(int argc, const char** argv) {
     }
   }
 
-  std::for_each(threads.begin(), threads.end(),
-                std::mem_fn(&std::thread::join));
+  for (auto& t : threads) {
+    t.join();
+  }
 
   return 0;
 }
