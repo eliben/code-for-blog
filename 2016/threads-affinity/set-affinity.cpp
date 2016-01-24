@@ -49,6 +49,5 @@ int main(int argc, const char** argv) {
   for (auto& t : threads) {
     t.join();
   }
-
   return 0;
 }
