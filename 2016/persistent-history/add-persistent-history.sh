@@ -3,6 +3,14 @@
 # See http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
 # for details.
 #
+# Note, HISTTIMEFORMAT has to be set and end with at least one space; for
+# example:
+#
+#   export HISTTIMEFORMAT="%F %T  "
+#
+# If your format is set differently, you'll need to change the regex that
+# matches history lines below.
+#
 # Eli Bendersky (http://eli.thegreenplace.net)
 # This code is in the public domain
 
