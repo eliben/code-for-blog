@@ -139,4 +139,5 @@ if __name__ == '__main__':
     print('all nodes')
     print(list(gg.nodes()))
 
-    print('post', postorder_3color(gg, 'x'))
+    print('post', postorder(gg, 'x'))
+    print('post_3color', postorder_3color(gg, 'x'))
