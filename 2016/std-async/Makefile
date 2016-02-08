@@ -7,11 +7,17 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG -pthread
 LDFLAGS = -lpthread -pthread
 
 EXECUTABLES = \
-	accum-thread-vs-async
+	accum-thread-vs-async using-std-future thread-exception
 
 all: $(EXECUTABLES)
 
 accum-thread-vs-async: accum-thread-vs-async.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+using-std-future: using-std-future.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+thread-exception: thread-exception.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
