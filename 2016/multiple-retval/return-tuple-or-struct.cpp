@@ -1,3 +1,7 @@
+// Example of returning tuples or structs.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <iostream>
 #include <string>
 #include <tuple>
