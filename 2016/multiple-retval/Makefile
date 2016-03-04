@@ -7,9 +7,12 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG -pthread
 LDFLAGS = -lpthread -pthread
 
 EXECUTABLES = \
-	getline map-return-pair
+	getline map-return-pair return-tuple-or-struct
 
 all: $(EXECUTABLES)
+
+return-tuple-or-struct: return-tuple-or-struct.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 map-return-pair: map-return-pair.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
