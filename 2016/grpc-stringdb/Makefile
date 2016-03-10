@@ -20,7 +20,7 @@ GRPC_PYTHON_PLUGIN_PATH ?= `which $(GRPC_PYTHON_PLUGIN)`
 
 EXECUTABLES = db_server
 
-all: $(EXECUTABLES)
+all: $(EXECUTABLES) stringdb_pb2.py
 
 .PRECIOUS: %.grpc.pb.cc
 %.grpc.pb.cc: %.proto
@@ -33,6 +33,7 @@ all: $(EXECUTABLES)
 db_server: stringdb.pb.o stringdb.grpc.pb.o db_server.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
+# Rule for producing the Python protobuf bindings
 stringdb_pb2.py: stringdb.proto
 	$(PROTOC) --python_out=. --grpc_out=. \
 		--plugin=protoc-gen-grpc=$(GRPC_PYTHON_PLUGIN_PATH) $<
