@@ -1,16 +1,26 @@
+// Sample server code implementing the string database, using the gRPC service
+// defined in stringdb.proto
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include <grpc++/grpc++.h>
 #include "stringdb.grpc.pb.h"
 
+// Implementation of the StringDb service. We have to implement all of the
+// service's methods - these will be invoked by the running gRPC server.
 class StringDbImpl final : public stringdb::StringDb::Service {
 public:
   grpc::Status GetValue(grpc::ServerContext* context,
                         const stringdb::GetValueRequest* request,
                         stringdb::GetValueReply* reply) override {
+    std::lock_guard<std::mutex> lock(db_mutex_);
+
     auto it = string_db_.find(request->key());
     if (it == string_db_.end()) {
       reply->set_value("");
@@ -23,14 +33,18 @@ public:
   grpc::Status SetValue(grpc::ServerContext* context,
                         const stringdb::SetValueRequest* request,
                         stringdb::SetValueReply* reply) override {
+    std::lock_guard<std::mutex> lock(db_mutex_);
+
     string_db_[request->key()] = request->value();
     reply->set_value(request->value());
     return grpc::Status::OK;
   }
 
   grpc::Status CountValue(grpc::ServerContext* context,
-                        const stringdb::CountValueRequest* request,
-                        stringdb::CountValueReply* reply) override {
+                          const stringdb::CountValueRequest* request,
+                          stringdb::CountValueReply* reply) override {
+    std::lock_guard<std::mutex> lock(db_mutex_);
+
     auto it = string_db_.find(request->key());
     if (it == string_db_.end()) {
       reply->set_count(-1);
@@ -41,7 +55,11 @@ public:
   }
 
 private:
+  // The actual database.
   std::map<std::string, std::string> string_db_;
+
+  // Mutex serializing access to the map.
+  std::mutex db_mutex_;
 };
 
 void RunServer() {

@@ -1,3 +1,8 @@
+// gRPC service definition for a "string database", with string key/value pairs
+// kept on the server.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 syntax = "proto3";
 
 package stringdb;

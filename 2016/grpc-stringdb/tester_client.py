@@ -1,3 +1,7 @@
+# Sample Python client that sends commands to a server.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 from grpc.beta import implementations
 
 import stringdb_pb2
@@ -26,6 +30,8 @@ def main():
   channel = implementations.insecure_channel('localhost', PORT)
   stub = stringdb_pb2.beta_create_StringDb_stub(channel)
 
+  # some sample data for testing
+  print 'Running sample data...'
   set_value(stub, 'foo', 'bar')
   set_value(stub, 'baz', 'anaconda is here')
   print get_value(stub, 'foo')
