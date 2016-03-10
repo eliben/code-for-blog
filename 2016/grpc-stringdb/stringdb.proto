@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package stringdb;
+
+service StringDb {
+  // Get the value stored on the server for a given key
+  rpc GetValue (GetValueRequest) returns (GetValueReply) {}
+
+  // Set the server's value for a given key
+  rpc SetValue (SetValueRequest) returns (SetValueReply) {}
+
+  // Count the size of the server's value for a given key
+  rpc CountValue (CountValueRequest) returns (CountValueReply) {}
+}
+
+message GetValueRequest {
+  string key = 1;
+}
+
+message GetValueReply {
+  // Empty string returned when key not found on the server.
+  string value = 1;
+}
+
+message SetValueRequest {
+  string key = 1;
+  string value = 2;
+}
+
+message SetValueReply {
+  // Returns the value.
+  string value = 1;
+}
+
+message CountValueRequest {
+  string key = 1;
+}
+
+message CountValueReply {
+  // Returns the size of the value, in bytes. If key isn't found on the server,
+  // returns -1.
+  int64 count = 1;
+}
