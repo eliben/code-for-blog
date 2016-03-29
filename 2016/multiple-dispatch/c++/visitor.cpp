@@ -68,6 +68,6 @@ int main(int argc, const char** argv) {
   // Rectangle::Intersect has the dynamic type Ellipse* but static type Shape*.
   pr1->Intersect(pe.get());
   pr1->Intersect(pr2.get());
-  
+
   return 0;
 }
