@@ -5,9 +5,12 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG
 LDFLAGS =
 
 EXECUTABLES = \
-	doesntwork visitor
+	doesntwork visitor bruteforce
 
 all: $(EXECUTABLES)
+
+bruteforce: bruteforce.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 doesntwork: doesntwork.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
