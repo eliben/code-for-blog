@@ -3,13 +3,16 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <typeinfo>
 
 class Rectangle;
 class Ellipse;
 
 class Shape {
 public:
+  virtual std::string name() const { return typeid(*this).name(); }
 
+  // Dispatcher that should be called by clients to intersect different shapes.
   virtual void Intersect(const Shape*) const {}
 
   virtual void IntersectWith(const Shape*) const {}
@@ -30,22 +33,25 @@ public:
   }
 
   virtual void IntersectWith(const Shape* s) const {
-    std::cout << "Rectangle x Shape\n";
+    std::cout << "Rectangle x Shape [names this=" << this->name()
+              << ", s=" << s->name() << "]\n";
   }
 
   virtual void IntersectWith(const Rectangle* r) const {
-    std::cout << "Rectangle x Rectangle\n";
-  }
-
-  virtual void IntersectWith(const Ellipse* e) const {
-    std::cout << "Rectangle x Ellipse\n";
+    std::cout << "Rectangle x Rectangle [names this=" << this->name()
+              << ", r=" << r->name() << "]\n";
   }
 };
 
 class Ellipse : public Shape {
 public:
+  virtual void Intersect(const Shape* s) const {
+    s->IntersectWith(this);
+  }
+
   virtual void IntersectWith(const Rectangle* r) const {
-    std::cout << "Ellipse x Rectangle\n";
+    std::cout << "Ellipse x Rectangle [names this=" << this->name()
+              << ", r=" << r->name() << "]\n";
   }
 };
 

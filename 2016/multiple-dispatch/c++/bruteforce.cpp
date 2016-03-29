@@ -18,34 +18,25 @@ class Ellipse : public Shape {};
 
 class Triangle : public Shape {};
 
-// Overloaded Intersect methods.
-void Intersect(const Rectangle* r, const Ellipse* e) {
-  std::cout << "Rectangle x Ellipse [names r=" << r->name()
-            << ", e=" << e->name() << "]\n";
-}
-
-void Intersect(const Rectangle* r1, const Rectangle* r2) {
-  std::cout << "Rectangle x Rectangle [names r1=" << r1->name()
-            << ", r2=" << r2->name() << "]\n";
-}
-
-// ...
-
 void Intersect(const Shape* s1, const Shape* s2) {
-  std::cout << "Shape x Shape [names s1=" << s1->name() << ", s2=" << s2->name()
-            << "]\n";
+  if (const Rectangle* r1 = dynamic_cast<const Rectangle*>(s1)) {
+    if (const Rectangle* r2 = dynamic_cast<const Rectangle*>(s2)) {
+      std::cout << "Rectangle x Rectangle [names r1=" << r1->name()
+                << ", r2=" << r2->name() << "]\n";
+    } else if (const Ellipse* e2 = dynamic_cast<const Ellipse*>(s2)) {
+      std::cout << "Rectangle x Ellipse [names r1=" << r1->name()
+                << ", e2=" << e2->name() << "]\n";
+
+    } else {
+      std::cout << "Rectangle x Shape [names r1=" << r1->name()
+                << ", s2=" << s2->name() << "]\n";
+    }
+  } else if (/*const Ellipse* e1 = */dynamic_cast<const Ellipse*>(s1)) {
+    // Handle Ellipse x ... dispatches.
+  }
 }
 
 int main(int argc, const char** argv) {
-  Rectangle r1, r2;
-  Ellipse e;
-  Triangle t;
-
-  std::cout << "Static type dispatch\n";
-  Intersect(&r1, &e);
-  Intersect(&r1, &r2);
-  Intersect(&r1, &t);
-
   std::unique_ptr<Shape> pr1(new Rectangle);
   std::unique_ptr<Shape> pr2(new Rectangle);
   std::unique_ptr<Shape> pe(new Ellipse);
@@ -58,3 +49,4 @@ int main(int argc, const char** argv) {
   
   return 0;
 }
+
