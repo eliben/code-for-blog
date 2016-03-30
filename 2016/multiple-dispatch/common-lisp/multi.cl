@@ -1,5 +1,7 @@
 ; I tested this code with GNU CLISP 2.49 running on x64 Ubuntu.
 ;
+; $ clisp multi.cl
+;
 ; Eli Bendersky [http://eli.thegreenplace.net]
 ; This code is in the public domain.
 (defclass Shape () ())
