@@ -1,28 +1,26 @@
-; I tested this code with GNU CLISP 2.49 running on x64 Ubuntu.
-;
-; $ clisp multi.cl
-;
-; Eli Bendersky [http://eli.thegreenplace.net]
-; This code is in the public domain.
+;;; I tested this code with GNU CLISP 2.49 running on x64 Ubuntu.
+;;;
+;;; $ clisp multi.cl
+;;;
+;;; Eli Bendersky [http://eli.thegreenplace.net]
+;;; This code is in the public domain.
+
 (defclass Shape () ())
-
 (defclass Rectangle (Shape) ())
-
 (defclass Ellipse (Shape) ())
-
 (defclass Triangle (Shape) ())
 
-(defmethod name ((shape Shape))
-  (type-of shape))
-
 (defmethod intersect ((r Rectangle) (e Ellipse))
-  (format t "Rectangle x Ellipse [names r=~a, e=~a]~&" (name r) (name e)))
+  (format t "Rectangle x Ellipse [names r=~a, e=~a]~&"
+          (type-of r) (type-of e)))
 
 (defmethod intersect ((r1 Rectangle) (r2 Rectangle))
-  (format t "Rectangle x Rectangle [names r1=~a, r2=~a]~&" (name r1) (name r2)))
+  (format t "Rectangle x Rectangle [names r1=~a, r2=~a]~&"
+          (type-of r1) (type-of r2)))
 
 (defmethod intersect ((r Rectangle) (s Shape))
-  (format t "Rectangle x Shape [names r=~a, s=~a]~&" (name r) (name s)))
+  (format t "Rectangle x Shape [names r=~a, s=~a]~&"
+          (type-of r) (type-of s)))
 
 (setf r1 (make-instance 'Rectangle))
 (setf r2 (make-instance 'Rectangle))
