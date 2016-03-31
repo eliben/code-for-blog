@@ -12,6 +12,7 @@
 
 class Rectangle;
 class Ellipse;
+class Triangle;
 
 class Shape {
 public:
@@ -25,9 +26,10 @@ public:
   // Specific interesection methods implemented by subclasses. If subclass A
   // has a special way to intersect with subclass B, it should implement
   // InteresectWith(const B*).
-  virtual void IntersectWith(const Shape*) const {}
-  virtual void IntersectWith(const Rectangle*) const {}
-  virtual void IntersectWith(const Ellipse*) const {}
+  virtual void IntersectWith(const Shape*) const;
+  virtual void IntersectWith(const Rectangle*) const;
+  virtual void IntersectWith(const Ellipse*) const;
+  virtual void IntersectWith(const Triangle*) const;
 };
 
 class Rectangle : public Shape {
@@ -36,7 +38,7 @@ public:
     s->IntersectWith(this);
   }
 
-  virtual void IntersectWith(const Shape* s) const override;
+  virtual void IntersectWith(const Shape*) const override;
   virtual void IntersectWith(const Rectangle*) const override;
   virtual void IntersectWith(const Ellipse*) const override;
 };
@@ -47,9 +49,18 @@ public:
     s->IntersectWith(this);
   }
 
-  virtual void IntersectWith(const Shape* s) const override;
+  virtual void IntersectWith(const Shape*) const override;
   virtual void IntersectWith(const Rectangle*) const override;
-  virtual void IntersectWith(const Ellipse*) const override;
+
+  // Ellipse does not define intersection with Ellipse, so the calls will be
+  // routed to IntersectWith(const Shape*) instead.
+};
+
+class Triangle : public Shape {
+public:
+  virtual void Intersect(const Shape* s) const override {
+    s->IntersectWith(this);
+  }
 };
 
 #endif // VISITOR_FULL_H
