@@ -9,34 +9,24 @@
 #include <iostream>
 #include <memory>
 
-namespace {
-
-// All intersections between rectangles and ellipses dispatch here: symmatrical!
-void IntersectRectangleEllipse(const Rectangle* r, const Ellipse* e) {
-  std::cout << "IntersectRectangleEllipse [names r=" << r->name()
-            << ", e=" << e->name() << "]\n";
-}
-
-}
-
 void Shape::IntersectWith(const Shape* s) const {
   std::cout << "Shape x Shape [names this=" << this->name()
             << ", s=" << s->name() << "]\n";
 }
 
+// All specific shape intersects are dispatching to the Shape x Shape
+// intersection. They have to be implemented for the compiling & linking to
+// succeed, but they can be trivially inlined by the compiler.
 void Shape::IntersectWith(const Rectangle* r) const {
-  std::cout << "Shape x Rectangle [names this=" << this->name()
-            << ", r=" << r->name() << "]\n";
+  IntersectWith(static_cast<const Shape*>(r));
 }
 
 void Shape::IntersectWith(const Ellipse* e) const {
-  std::cout << "Shape x Ellipse [names this=" << this->name()
-            << ", e=" << e->name() << "]\n";
+  IntersectWith(static_cast<const Shape*>(e));
 }
 
 void Shape::IntersectWith(const Triangle* t) const {
-  std::cout << "Shape x Triangle [names this=" << this->name()
-            << ", t=" << t->name() << "]\n";
+  IntersectWith(static_cast<const Shape*>(t));
 }
 
 void Rectangle::IntersectWith(const Rectangle* r) const {
@@ -44,12 +34,21 @@ void Rectangle::IntersectWith(const Rectangle* r) const {
             << ", r=" << r->name() << "]\n";
 }
 
+namespace {
+
+// All intersections between rectangles and ellipses dispatch here.
+void SymmetricIntersectRectangleEllipse(const Rectangle* r, const Ellipse* e) {
+  std::cout << "IntersectRectangleEllipse [names r=" << r->name()
+            << ", e=" << e->name() << "]\n";
+}
+}
+
 void Rectangle::IntersectWith(const Ellipse* e) const {
-  IntersectRectangleEllipse(this, e);
+  SymmetricIntersectRectangleEllipse(this, e);
 }
 
 void Ellipse::IntersectWith(const Rectangle* r) const {
-  IntersectRectangleEllipse(r, this);
+  SymmetricIntersectRectangleEllipse(r, this);
 }
 
 #define LOG(x)                                                                 \

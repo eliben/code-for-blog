@@ -1,3 +1,5 @@
+// "Brute-force" approach based on if-else dynamic checks.
+//
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <iostream>
@@ -31,8 +33,13 @@ void Intersect(const Shape* s1, const Shape* s2) {
       std::cout << "Rectangle x Shape [names r1=" << r1->name()
                 << ", s2=" << s2->name() << "]\n";
     }
-  } else if (/*const Ellipse* e1 = */dynamic_cast<const Ellipse*>(s1)) {
-    // Handle Ellipse x ... dispatches.
+  } else if (const Ellipse* e1 = dynamic_cast<const Ellipse*>(s1)) {
+    if (const Ellipse* e2 = dynamic_cast<const Ellipse*>(s2)) {
+      std::cout << "Ellipse x Ellipse [names e1=" << e1->name()
+                << ", e2=" << e2->name() << "]\n";
+    } else {
+      // Handle other Ellipse x ... dispatches.
+    }
   }
 }
 
