@@ -1,4 +1,0 @@
-(doc deftype)
-(defrecord Person [name phone])
-(Person. "Joe" "12")
-(class (Person. "Joe" "12"))
