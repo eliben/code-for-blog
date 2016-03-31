@@ -35,5 +35,6 @@
 (deftype Ellipse [])
 (deftype Triangle [])
 
+(derive Rectangle ::myshape)
 (derive Rectangle Shape)
 
