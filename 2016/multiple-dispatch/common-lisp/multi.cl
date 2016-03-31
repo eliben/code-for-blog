@@ -22,11 +22,13 @@
   (format t "Rectangle x Shape [names r=~a, s=~a]~&"
           (type-of r) (type-of s)))
 
+;; Create some objects
 (setf r1 (make-instance 'Rectangle))
 (setf r2 (make-instance 'Rectangle))
 (setf e1 (make-instance 'Ellipse))
 (setf t1 (make-instance 'Triangle))
 
+;; Do intersects
 (intersect r1 e1)
 (intersect r1 r2)
 (intersect r1 t1)
