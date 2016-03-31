@@ -34,5 +34,3 @@
 ; TODO: use 'derive' to define relationships between the types?
 ; see the java/collection stuff at: http://clojure.org/reference/multimethods
 
-
-
