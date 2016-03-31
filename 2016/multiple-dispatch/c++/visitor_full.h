@@ -25,7 +25,8 @@ public:
 
   // Specific interesection methods implemented by subclasses. If subclass A
   // has a special way to intersect with subclass B, it should implement
-  // InteresectWith(const B*).
+  // InteresectWith(const B*). Otherwise, the IntersectWith(const B*) method
+  // of Shape will be called.
   virtual void IntersectWith(const Shape*) const;
   virtual void IntersectWith(const Rectangle*) const;
   virtual void IntersectWith(const Ellipse*) const;
@@ -38,7 +39,6 @@ public:
     s->IntersectWith(this);
   }
 
-  virtual void IntersectWith(const Shape*) const override;
   virtual void IntersectWith(const Rectangle*) const override;
   virtual void IntersectWith(const Ellipse*) const override;
 };
@@ -49,7 +49,6 @@ public:
     s->IntersectWith(this);
   }
 
-  virtual void IntersectWith(const Shape*) const override;
   virtual void IntersectWith(const Rectangle*) const override;
 
   // Ellipse does not define intersection with Ellipse, so the calls will be
