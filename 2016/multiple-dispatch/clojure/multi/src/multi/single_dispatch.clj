@@ -3,9 +3,7 @@
 (ns multi.single-dispatch)
 
 ; Single-dispatch multimethod, dispatching on the class of the argument.
-(defmulti describe-thing
-  (fn [thing]
-    (class thing)))
+(defmulti describe-thing class)
 
 ; Define dispatcher methods for built-in Long and String values.
 (defmethod describe-thing java.lang.Long
