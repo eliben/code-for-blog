@@ -29,3 +29,11 @@
 ; isa? also accepts a vector and checks isa?-ness for each element
 (isa? [::square ::rect] [::rect ::shape])
 (isa? [::square ::rect] [::rect ::ellipse])
+
+(deftype Shape [])
+(deftype Rectangle [])
+(deftype Ellipse [])
+(deftype Triangle [])
+
+(derive Rectangle Shape)
+
