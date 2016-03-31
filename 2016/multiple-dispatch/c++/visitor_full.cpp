@@ -39,11 +39,6 @@ void Shape::IntersectWith(const Triangle* t) const {
             << ", t=" << t->name() << "]\n";
 }
 
-void Rectangle::IntersectWith(const Shape* s) const {
-  // For symmetry call Shape::IntersectWith(Rectangle)
-  s->IntersectWith(this);
-}
-
 void Rectangle::IntersectWith(const Rectangle* r) const {
   std::cout << "Rectangle x Rectangle [names this=" << this->name()
             << ", r=" << r->name() << "]\n";
@@ -51,11 +46,6 @@ void Rectangle::IntersectWith(const Rectangle* r) const {
 
 void Rectangle::IntersectWith(const Ellipse* e) const {
   IntersectRectangleEllipse(this, e);
-}
-
-void Ellipse::IntersectWith(const Shape* s) const {
-  // For symmetry call Shape::IntersectWith(Rectangle)
-  s->IntersectWith(this);
 }
 
 void Ellipse::IntersectWith(const Rectangle* r) const {
