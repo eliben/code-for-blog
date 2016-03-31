@@ -30,7 +30,3 @@
 ; This is an error: Triangle is in no way related to Shape, and no method is
 ; defined to dispatch [Rectangle Triangle]
 ;(intersect (Rectangle.) (Triangle.))
-
-; TODO: use 'derive' to define relationships between the types?
-; see the java/collection stuff at: http://clojure.org/reference/multimethods
-
