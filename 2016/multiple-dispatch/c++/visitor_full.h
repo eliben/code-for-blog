@@ -51,8 +51,8 @@ public:
 
   virtual void IntersectWith(const Rectangle*) const override;
 
-  // Ellipse does not define intersection with Ellipse, so the calls will be
-  // routed to IntersectWith(const Shape*) instead.
+  // As an example, Ellipse does not define intersection with Ellipse, so the
+  // calls will be routed to IntersectWith(const Shape*) instead.
 };
 
 class Triangle : public Shape {
@@ -60,6 +60,10 @@ public:
   virtual void Intersect(const Shape* s) const override {
     s->IntersectWith(this);
   }
+
+  // Triangle has no IntersectWith methods and the other shapes have no
+  // IntersectWith(Triangle) overloads; therefore, Triangle intersections will
+  // always be deferred to Shape.
 };
 
 #endif // VISITOR_FULL_H

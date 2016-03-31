@@ -1,3 +1,7 @@
+// Implementing multiple (double, to be precise) dispatch in C++ with the
+// "inverted visitor" pattern, where two virtual dispatches are chained to
+// achieve the desired effect.
+//
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <iostream>
