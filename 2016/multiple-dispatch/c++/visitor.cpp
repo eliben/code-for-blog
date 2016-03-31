@@ -10,11 +10,16 @@ class Ellipse;
 
 class Shape {
 public:
-  virtual std::string name() const { return typeid(*this).name(); }
+  virtual std::string name() const {
+    return typeid(*this).name();
+  }
 
   // Dispatcher that should be called by clients to intersect different shapes.
-  virtual void Intersect(const Shape*) const {}
+  virtual void Intersect(const Shape*) const = 0;
 
+  // Specific interesection methods implemented by subclasses. If subclass A
+  // has a special way to intersect with subclass B, it should implement
+  // InteresectWith(const B*).
   virtual void IntersectWith(const Shape*) const {}
   virtual void IntersectWith(const Rectangle*) const {}
   virtual void IntersectWith(const Ellipse*) const {}
@@ -22,7 +27,7 @@ public:
 
 class Rectangle : public Shape {
 public:
-  virtual void Intersect(const Shape* s) const {
+  virtual void Intersect(const Shape* s) const override {
     // Virtual dispatch #2: the static shape of s is Shape*. However, as
     // IntersectWith is a virtual method, the compiler should emit a virtual
     // dispatch that will be routed to the IntersectWith method of the dynamic
@@ -32,12 +37,12 @@ public:
     s->IntersectWith(this);
   }
 
-  virtual void IntersectWith(const Shape* s) const {
+  virtual void IntersectWith(const Shape* s) const override {
     std::cout << "Rectangle x Shape [names this=" << this->name()
               << ", s=" << s->name() << "]\n";
   }
 
-  virtual void IntersectWith(const Rectangle* r) const {
+  virtual void IntersectWith(const Rectangle* r) const override {
     std::cout << "Rectangle x Rectangle [names this=" << this->name()
               << ", r=" << r->name() << "]\n";
   }
@@ -45,13 +50,20 @@ public:
 
 class Ellipse : public Shape {
 public:
-  virtual void Intersect(const Shape* s) const {
+  virtual void Intersect(const Shape* s) const override {
     s->IntersectWith(this);
   }
 
-  virtual void IntersectWith(const Rectangle* r) const {
+  virtual void IntersectWith(const Rectangle* r) const override {
     std::cout << "Ellipse x Rectangle [names this=" << this->name()
               << ", r=" << r->name() << "]\n";
+  }
+};
+
+class Triangle : public Shape {
+public:
+  virtual void Intersect(const Shape* s) const override {
+    s->IntersectWith(this);
   }
 };
 
@@ -59,6 +71,7 @@ int main(int argc, const char** argv) {
   std::unique_ptr<Shape> pr1(new Rectangle);
   std::unique_ptr<Shape> pr2(new Rectangle);
   std::unique_ptr<Shape> pe(new Ellipse);
+  std::unique_ptr<Shape> pt(new Triangle);
 
   std::cout << "Dynamic type dispatch\n";
 
@@ -68,6 +81,7 @@ int main(int argc, const char** argv) {
   // Rectangle::Intersect has the dynamic type Ellipse* but static type Shape*.
   pr1->Intersect(pe.get());
   pr1->Intersect(pr2.get());
+  pt->Intersect(pr1.get());
 
   return 0;
 }

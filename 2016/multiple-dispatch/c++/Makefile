@@ -5,7 +5,7 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG
 LDFLAGS =
 
 EXECUTABLES = \
-	doesntwork visitor bruteforce singledispatch
+	doesntwork visitor visitor_full bruteforce singledispatch
 
 all: $(EXECUTABLES)
 
@@ -20,6 +20,9 @@ doesntwork: doesntwork.cpp
 
 visitor: visitor.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+visitor_full: visitor_full.cpp visitor_full.h
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)
 
 clean:
 	rm -f $(EXECUTABLES)
