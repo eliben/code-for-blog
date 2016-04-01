@@ -1,8 +1,14 @@
 # Based on Guido's sample in https://www.artima.com/weblogs/viewpost.jsp?thread=101605
+# with some small tweaks, and ported to Python 3.
+#
 # Tested with Python 3.4
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
+
+#
+# This part is the multimethod "library".
+#
 
 class _MultiMethod:
     """Maps tuples of argument types to function to call for these types."""
@@ -37,6 +43,10 @@ def multimethod(*types):
         return mm
     return register
 
+#
+# From here on an example of client code: using multimethods for dispatching
+# shape intersections.
+#
 
 class Shape:
     @property
@@ -69,4 +79,5 @@ if __name__ == '__main__':
     e = Ellipse()
 
     intersect(r1, e)
+    intersect(e, r1)
     intersect(r1, r2)
