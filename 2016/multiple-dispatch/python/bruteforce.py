@@ -4,6 +4,7 @@
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
+
 class Shape:
     @property
     def name(self):
@@ -34,6 +35,3 @@ if __name__ == '__main__':
     intersect(r1, e)
     intersect(r1, r2)
     intersect(t, e)
-
-
-

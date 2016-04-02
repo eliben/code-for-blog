@@ -20,7 +20,7 @@ class _MultiMethod:
         self.typemap = {}
 
     def __call__(self, *args):
-        types = tuple(arg.__class__ for arg in args)
+        types = tuple(sorted(arg.__class__ for arg in args))
         try:
             return self.typemap[types](*args)
         except KeyError:
@@ -28,6 +28,7 @@ class _MultiMethod:
         return function(*args)
 
     def register_function_for_types(self, types, function):
+        types = tuple(sorted(types))
         if types in self.typemap:
             raise TypeError("duplicate registration")
         self.typemap[types] = function
@@ -51,7 +52,11 @@ def multimethod(*types):
 # shape intersections.
 #
 
-class Shape:
+class _ComparableTypeById(type):
+    def __lt__(self, other):
+        return id(self) < id(other)
+
+class Shape(metaclass=_ComparableTypeById):
     @property
     def name(self):
         return self.__class__
@@ -83,4 +88,4 @@ if __name__ == '__main__':
 
     intersect(r1, e)
     intersect(e, r1)
-    #intersect(r1, r2)
+    intersect(r1, r2)
