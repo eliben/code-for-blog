@@ -20,15 +20,19 @@ class _MultiMethod:
         self.typemap = {}
 
     def __call__(self, *args):
-        types = tuple(sorted(arg.__class__ for arg in args))
+        args_with_types = sorted(
+            zip(args, (arg.__class__ for arg in args)),
+            key=lambda pair: id(pair[1]))
+        types = tuple(ty for _, ty in args_with_types)
         try:
+            args = (arg for arg, _ in args_with_types)
             return self.typemap[types](*args)
         except KeyError:
             raise TypeError('no match %s for types %s' % (self.name, types))
         return function(*args)
 
     def register_function_for_types(self, types, function):
-        types = tuple(sorted(types))
+        types = tuple(sorted(types, key=id))
         if types in self.typemap:
             raise TypeError("duplicate registration")
         self.typemap[types] = function
@@ -51,12 +55,7 @@ def multimethod(*types):
 # From here on an example of client code: using multimethods for dispatching
 # shape intersections.
 #
-
-class _ComparableTypeById(type):
-    def __lt__(self, other):
-        return id(self) < id(other)
-
-class Shape(metaclass=_ComparableTypeById):
+class Shape:
     @property
     def name(self):
         return self.__class__
