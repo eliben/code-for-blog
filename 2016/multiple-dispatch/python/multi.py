@@ -10,9 +10,6 @@
 # This part is the multimethod "library".
 #
 
-import functools
-
-
 class _MultiMethod:
     """Maps tuples of argument types to function to call for these types."""
     def __init__(self, name):
