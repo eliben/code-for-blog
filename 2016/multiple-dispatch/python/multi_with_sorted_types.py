@@ -1,5 +1,5 @@
-# Based on Guido's sample in https://www.artima.com/weblogs/viewpost.jsp?thread=101605
-# with some small tweaks, and ported to Python 3.
+# Variation of multi.py supporting type-sorting on multimethod dispatch.
+# This lets invocations be symmetric.
 #
 # Tested with Python 3.4
 #
@@ -20,6 +20,9 @@ class _MultiMethod:
         self.typemap = {}
 
     def __call__(self, *args):
+        # Find the right function to call based on a sorted tuple of types. We
+        # have to sort the call arguments themselves together with the types,
+        # so that the handler function can get them in the order it expects.
         args_with_types = sorted(
             zip(args, (arg.__class__ for arg in args)),
             key=lambda pair: id(pair[1]))
@@ -32,6 +35,7 @@ class _MultiMethod:
         return function(*args)
 
     def register_function_for_types(self, types, function):
+        # Sort the tuple of types before setting it in the dispatch map.
         types = tuple(sorted(types, key=id))
         if types in self.typemap:
             raise TypeError("duplicate registration")
@@ -67,6 +71,10 @@ class Ellipse(Shape): pass
 class Triangle(Shape): pass
 
 
+# Will handle (Rectangle, Ellipse) but also (Ellipse, Rectangle). The recrangle
+# will always be passed as the first argument.
+# Note that this assumes that Rectangle < Ellipse (so that the sorting order
+# will place Rectangle first).
 @multimethod(Rectangle, Ellipse)
 def intersect(r, e):
     print('Rectangle x Ellipse [names r=%s, e=%s]' % (r.name, e.name))
