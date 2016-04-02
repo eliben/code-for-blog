@@ -1,5 +1,4 @@
-# Variation of multi.py supporting type-sorting on multimethod dispatch.
-# This lets invocations be symmetric.
+# Variation of multi.py supporting base-class defaults.
 #
 # Tested with Python 3.4
 #
@@ -9,6 +8,16 @@
 #
 # This part is the multimethod "library".
 #
+import itertools
+
+
+def all_subclasses(cls):
+    """Returns a list of *all* subclasses of cls, recursively."""
+    subclasses = cls.__subclasses__()
+    for subcls in cls.__subclasses__():
+        subclasses.extend(all_subclasses(subcls))
+    return subclasses
+
 
 class _MultiMethod:
     """Maps tuples of argument types to function to call for these types."""
@@ -17,26 +26,22 @@ class _MultiMethod:
         self.typemap = {}
 
     def __call__(self, *args):
-        # Find the right function to call based on a sorted tuple of types. We
-        # have to sort the call arguments themselves together with the types,
-        # so that the handler function can get them in the order it expects.
-        args_with_types = sorted(
-            zip(args, (arg.__class__ for arg in args)),
-            key=lambda pair: id(pair[1]))
-        types = tuple(ty for _, ty in args_with_types)
+        types = tuple(arg.__class__ for arg in args)
         try:
-            args = (arg for arg, _ in args_with_types)
             return self.typemap[types](*args)
         except KeyError:
             raise TypeError('no match %s for types %s' % (self.name, types))
         return function(*args)
 
     def register_function_for_types(self, types, function):
-        # Sort the tuple of types before setting it in the dispatch map.
-        types = tuple(sorted(types, key=id))
-        if types in self.typemap:
-            raise TypeError("duplicate registration")
-        self.typemap[types] = function
+        # Note: for simplicity restricting to double dispatch.
+        left_types = [types[0]] + all_subclasses(types[0])
+        right_types = [types[1]] + all_subclasses(types[1])
+        for type_pair in itertools.product(left_types, right_types):
+            # Here we explicitly support overriding the registration, so that
+            # more specific dispatches can override earlier-defined generic
+            # dispatches.
+            self.typemap[type_pair] = function
 
 
 # Maps function.__name__ -> _MultiMethod object.
@@ -63,15 +68,18 @@ class Shape:
 
 class Rectangle(Shape): pass
 
+class Square(Rectangle): pass
+
 class Ellipse(Shape): pass
 
 class Triangle(Shape): pass
 
 
-# Will handle (Rectangle, Ellipse) but also (Ellipse, Rectangle). The recrangle
-# will always be passed as the first argument.
-# Note that this assumes that Rectangle < Ellipse (so that the sorting order
-# will place Rectangle first).
+# The most generic dispatches have to come first.
+@multimethod(Shape, Shape)
+def intersect(s1, s2):
+    print('Shape x Shape [names s1=%s, s2=%s]' % (s1.name, s2.name))
+
 @multimethod(Rectangle, Ellipse)
 def intersect(r, e):
     print('Rectangle x Ellipse [names r=%s, e=%s]' % (r.name, e.name))
@@ -80,14 +88,13 @@ def intersect(r, e):
 def intersect(r1, r2):
     print('Rectangle x Rectangle [names r1=%s, r2=%s]' % (r1.name, r2.name))
 
-@multimethod(Shape, Shape)
-def intersect(s1, s2):
-    print('Shape x Shape [names s1=%s, s2=%s]' % (s1.name, s2.name))
-
 
 if __name__ == '__main__':
-    r = Rectangle()
+    print(Shape.__subclasses__())
+    print(all_subclasses(Shape))
     e = Ellipse()
+    r = Rectangle()
+    sq = Square()
 
-    intersect(r, e)
-    intersect(e, r)
+    intersect(sq, e)
+    intersect(sq, r)
