@@ -34,14 +34,14 @@ class _MultiMethod:
         return function(*args)
 
     def register_function_for_types(self, types, function):
-        # Note: for simplicity restricting to double dispatch.
-        left_types = [types[0]] + all_subclasses(types[0])
-        right_types = [types[1]] + all_subclasses(types[1])
-        for type_pair in itertools.product(left_types, right_types):
+        types_with_subclasses = []
+        for ty in types:
+            types_with_subclasses.append([ty] + all_subclasses(ty))
+        for type_tuple in itertools.product(*types_with_subclasses):
             # Here we explicitly support overriding the registration, so that
             # more specific dispatches can override earlier-defined generic
             # dispatches.
-            self.typemap[type_pair] = function
+            self.typemap[type_tuple] = function
 
 
 # Maps function.__name__ -> _MultiMethod object.
