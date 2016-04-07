@@ -1,3 +1,5 @@
+;;; Simple type-based multiple dispatch demonstrated with Common Lisp.
+;;;
 ;;; I tested this code with GNU CLISP 2.49 running on x64 Ubuntu.
 ;;;
 ;;; $ clisp multi.cl
@@ -9,6 +11,11 @@
 (defclass Rectangle (Shape) ())
 (defclass Ellipse (Shape) ())
 (defclass Triangle (Shape) ())
+
+(defgeneric intersect (x y)
+  (:documentation "Shape intersection")
+  (:method (x y)
+    (error "Cannot interesect these shapes")))
 
 (defmethod intersect ((r Rectangle) (e Ellipse))
   (format t "Rectangle x Ellipse [names r=~a, e=~a]~&"
