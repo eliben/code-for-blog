@@ -3,7 +3,10 @@
 (ns multi.single-dispatch-mapkey)
 
 ; Single-dispatch multimethod, dispatching on the value of a key in a map.
-(defmulti promotion-due :position)
+;(defmulti promotion-due :position)
+(defmulti promotion-due
+  (fn [emp]
+    (:position emp)))
 
 (defmethod promotion-due :engineer
   [emp] (> (:lines-of-code emp) 100000))

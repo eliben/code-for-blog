@@ -6,15 +6,19 @@
 (ns multi.shapes-double-dispatch-bases)
 
 (defrecord Shape [kind])
+(defrecord Rectangle [kind])
+(defrecord Ellipse [kind])
+(defrecord Triangle [kind])
 
 (derive ::rectangle ::shape)
 (derive ::ellipse ::shape)
 (derive ::triangle ::shape)
 
+; Helper constructors
 (defn make-shape [] (Shape. ::shape))
-(defn make-rectangle [] (Shape. ::rectangle))
-(defn make-ellipse [] (Shape. ::ellipse))
-(defn make-triangle [] (Shape. ::triangle))
+(defn make-rectangle [] (Rectangle. ::rectangle))
+(defn make-ellipse [] (Ellipse. ::ellipse))
+(defn make-triangle [] (Triangle. ::triangle))
 
 (defmulti intersect
   (fn [a b]
