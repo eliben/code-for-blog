@@ -9,16 +9,16 @@
 (derive ::ellipse ::shape)
 (derive ::triangle ::shape)
 
-(defmulti intersect
-  (fn [a b]
-    [(:kind a) (:kind b)]))
-
 ; Helper constructors to create new "instances" of shapes. In a real program
 ; they could take parameters that would be assigned to fields.
 (defn make-shape [] {:kind ::shape})
 (defn make-rectangle [] {:kind ::rectangle})
 (defn make-ellipse [] {:kind ::ellipse})
 (defn make-triangle [] {:kind ::triangle})
+
+(defmulti intersect
+  (fn [a b]
+    [(:kind a) (:kind b)]))
 
 (defmethod intersect [::rectangle ::ellipse]
   [r e] (printf "Rectangle x Ellipse"))

@@ -4,6 +4,8 @@
 
 ; Single-dispatch multimethod, dispatching on the value of a key in a map.
 ;(defmulti promotion-due :position)
+
+; Alternative formulation
 (defmulti promotion-due
   (fn [emp]
     (:position emp)))
