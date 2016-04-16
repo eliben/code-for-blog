@@ -1,3 +1,6 @@
+// Demonstrates a naive attempt at multiple dispatch that doesn't really work
+// at runtime, only at compile time.
+//
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <iostream>

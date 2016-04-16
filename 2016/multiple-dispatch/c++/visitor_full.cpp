@@ -36,7 +36,8 @@ void Rectangle::IntersectWith(const Rectangle* r) const {
 
 namespace {
 
-// All intersections between rectangles and ellipses dispatch here.
+// All intersections between rectangles and ellipses dispatch here to show how
+// symmetry may work.
 void SymmetricIntersectRectangleEllipse(const Rectangle* r, const Ellipse* e) {
   std::cout << "IntersectRectangleEllipse [names r=" << r->name()
             << ", e=" << e->name() << "]\n";
@@ -51,6 +52,7 @@ void Ellipse::IntersectWith(const Rectangle* r) const {
   SymmetricIntersectRectangleEllipse(r, this);
 }
 
+// Emit the statement's text before calling it.
 #define LOG(x)                                                                 \
   do {                                                                         \
     std::cout << #x << ":       ";                                             \
