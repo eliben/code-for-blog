@@ -1,3 +1,6 @@
+# Makefile for building the C++ samples for my "Multiple dispatch in C++"
+# article.
+#
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 CXX = g++

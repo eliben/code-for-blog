@@ -1,3 +1,5 @@
+// Simple single dispatch - virtual method call.
+//
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <iostream>
