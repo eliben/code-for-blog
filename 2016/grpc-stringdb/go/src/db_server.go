@@ -1,14 +1,21 @@
+// db_server is a simple string database server with a gRPC interface.
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
-	pb "stringdb"
 	"sync"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/grpclog"
+
+	pb "stringdb"
+)
+
+var (
+	port = flag.Int("port", 4050, "The server port")
 )
 
 type stringdbServer struct {
@@ -19,6 +26,7 @@ type stringdbServer struct {
 func (s *stringdbServer) GetValue(ctx context.Context, r *pb.GetValueRequest) (*pb.GetValueReply, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	fmt.Println(ctx)
 	// Here we rely on the map's default of an empty string when no key exists.
 	return &pb.GetValueReply{s.db[r.Key]}, nil
 }
@@ -48,8 +56,7 @@ func newServer() *stringdbServer {
 }
 
 func main() {
-	portnum := 4050
-	listenAddr := fmt.Sprintf(":%d", portnum)
+	listenAddr := fmt.Sprintf(":%d", *port)
 	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		grpclog.Fatalf("failed to listen: %v", err)
@@ -58,6 +65,6 @@ func main() {
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterStringDbServer(grpcServer, newServer())
 
-	fmt.Println("Server listening on", portnum)
+	fmt.Println("Server listening on", *port)
 	grpcServer.Serve(lis)
 }

@@ -1,4 +1,4 @@
-This is a Go server and a sample client for the "string database" gRPC sample.
+This is a Go server for the "string database" gRPC sample.
 
 The server works similarly to the C++ server, listening on port 4050. To run it,
 gRPC has to be installed for Go following the instructions from
