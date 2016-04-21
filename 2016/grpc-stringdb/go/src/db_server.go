@@ -26,7 +26,6 @@ type stringdbServer struct {
 func (s *stringdbServer) GetValue(ctx context.Context, r *pb.GetValueRequest) (*pb.GetValueReply, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	fmt.Println(ctx)
 	// Here we rely on the map's default of an empty string when no key exists.
 	return &pb.GetValueReply{s.db[r.Key]}, nil
 }
@@ -61,10 +60,13 @@ func main() {
 	if err != nil {
 		grpclog.Fatalf("failed to listen: %v", err)
 	}
+
+	// Register an instance of our server as a StringDbServer.
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterStringDbServer(grpcServer, newServer())
 
+	// The server listens with the connected listener.
 	fmt.Println("Server listening on", *port)
 	grpcServer.Serve(lis)
 }
