@@ -1,4 +1,4 @@
-# A "brute-force" solution.
+# A "brute-force" solution using a chain of if-elif statements.
 #
 # Tested with Python 3.4
 #
