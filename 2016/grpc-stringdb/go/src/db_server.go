@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net"
 	pb "stringdb"
 	"sync"
@@ -47,12 +48,16 @@ func newServer() *stringdbServer {
 }
 
 func main() {
-	lis, err := net.Listen("tcp", ":4050")
+	portnum := 4050
+	listenAddr := fmt.Sprintf(":%d", portnum)
+	lis, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		grpclog.Fatalf("failed to listen: %v", err)
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterStringDbServer(grpcServer, newServer())
+
+	fmt.Println("Server listening on", portnum)
 	grpcServer.Serve(lis)
 }
