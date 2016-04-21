@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"net/http"
 	"sync"
 
 	"golang.org/x/net/context"
@@ -15,7 +16,8 @@ import (
 )
 
 var (
-	port = flag.Int("port", 4050, "The server port")
+	debugport = flag.Int("debugport", 44555, "Debugging port for net/trace")
+	port      = flag.Int("port", 4050, "The server port")
 )
 
 type stringdbServer struct {
@@ -65,6 +67,11 @@ func main() {
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterStringDbServer(grpcServer, newServer())
+
+	// Spin up debugging HTTP server for net/trace
+	debugAddr := fmt.Sprintf(":%d", *debugport)
+	go http.ListenAndServe(debugAddr, nil)
+	fmt.Println("Debug HTTP on", debugAddr)
 
 	// The server listens with the connected listener.
 	fmt.Println("Server listening on", *port)
