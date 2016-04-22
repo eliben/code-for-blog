@@ -29,6 +29,10 @@
   (format t "Rectangle x Shape [names r=~a, s=~a]~&"
           (type-of r) (type-of s)))
 
+(defmethod intersect ((r Ellipse) (s Shape))
+  (format t "Ellipse x Shape [names r=~a, s=~a]~&"
+          (type-of r) (type-of s)))
+
 ;; Create some objects
 (setf r1 (make-instance 'Rectangle))
 (setf r2 (make-instance 'Rectangle))
@@ -39,3 +43,14 @@
 (intersect r1 e1)
 (intersect r1 r2)
 (intersect r1 t1)
+
+(format t "Intersection with mapcar~&")
+(mapcar #'intersect (list r1 r2 e1) (list r2 e1 t1))
+
+;; Higher-order function invocation
+(defun domap (func lst1 lst2)
+  (mapcar func lst1 lst2))
+
+(print (domap #'cons (list r1 r2 e1) (list r2 e1 t1)))
+
+(domap #'intersect (list r1 r2 e1) (list r2 e1 t1))
