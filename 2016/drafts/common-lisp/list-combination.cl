@@ -1,3 +1,7 @@
+;;; 'list' method combination multimethods.
+;;;
+;;; Eli Bendersky [http://eli.thegreenplace.net]
+;;; This code is in the public domain.
 (defclass Shape () ())
 (defclass Rectangle (Shape) ())
 (defclass Ellipse (Shape) ())
