@@ -37,4 +37,3 @@
 
 (derive Rectangle ::myshape)
 (derive Rectangle Shape)
-

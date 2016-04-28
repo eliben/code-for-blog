@@ -1,3 +1,5 @@
+; Single dispatch on a map/record keyword rather than on type.
+;
 ; Eli Bendersky [http://eli.thegreenplace.net]
 ; This code is in the public domain.
 (ns multi.single-dispatch-mapkey)
