@@ -1,3 +1,7 @@
+// Sample interpreter for showing the Composite and Interpreter design patterns.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <functional>
 #include <map>
 #include <memory>
@@ -58,17 +62,17 @@ private:
 };
 
 int main(int argc, const char** argv) {
-  // Define a couple of constants and a reference to the variable 'x'.
+  // Define a couple of constants and a reference to the variable 'A'.
   std::unique_ptr<Expr> c1(new Constant(2.0));
   std::unique_ptr<Expr> c2(new Constant(3.3));
-  std::unique_ptr<Expr> v(new VarRef("x"));
+  std::unique_ptr<Expr> v(new VarRef("A"));
 
-  // Define a binary expression representing "2.0 * 3.3 + x"
+  // Define a binary expression representing "2.0 * 3.3 + A"
   std::unique_ptr<Expr> e1(new BinaryOp(std::multiplies<double>(), *c1, *c2));
   std::unique_ptr<Expr> e2(new BinaryOp(std::plus<double>(), *e1, *v));
 
-  // Evaluate in the context of a symbol table where x has the value 1.1
-  SymbolTable st{{"x", 1.1}};
+  // Evaluate in the context of a symbol table where A has the value 1.1
+  SymbolTable st{{"A", 1.1}};
   std::cout << e2->Eval(&st) << "\n";
 
   return 0;
