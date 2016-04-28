@@ -1,25 +1,22 @@
+#include <functional>
+#include <map>
 #include <memory>
 #include <iostream>
 #include <sstream>
+#include <string>
 
-// Expr abstract inferface.
+typedef std::map<std::string, double> SymbolTable;
+
 class Expr {
 public:
-  virtual std::string ToString() const = 0;
-  virtual double Eval() const = 0;
+  virtual double Eval(SymbolTable* st = nullptr) const = 0;
 };
 
 class Constant : public Expr {
 public:
   Constant(double value) : value_(value) {}
 
-  std::string ToString() const {
-    std::ostringstream ss;
-    ss << value_;
-    return ss.str();
-  }
-
-  double Eval() const {
+  double Eval(SymbolTable* st = nullptr) const {
     return value_;
   }
 
@@ -27,31 +24,46 @@ private:
   double value_;
 };
 
-class BinaryPlus : public Expr {
+class VarRef : public Expr {
 public:
-  BinaryPlus(const Expr* lhs, const Expr* rhs) : lhs_(lhs), rhs_(rhs) {}
+  VarRef(const char* varname) : varname_(varname) {}
 
-  std::string ToString() const {
-    return lhs_->ToString() + " + " + rhs_->ToString();
-  }
-
-  double Eval() const {
-    return lhs_->Eval() + rhs_->Eval();
+  double Eval(SymbolTable* st = nullptr) const {
+    return (*st)[varname_];
   }
 
 private:
-  const Expr* lhs_;
-  const Expr* rhs_;
+  std::string varname_;
+};
+
+typedef std::function<double(double, double)> BinaryFunction;
+
+class BinaryOp : public Expr {
+public:
+  BinaryOp(BinaryFunction func, const Expr& lhs, const Expr& rhs)
+      : func_(func), lhs_(lhs), rhs_(rhs) {}
+
+  double Eval(SymbolTable* st = nullptr) const {
+    return func_(lhs_.Eval(st), rhs_.Eval(st));
+  }
+
+private:
+  BinaryFunction func_;
+  const Expr& lhs_;
+  const Expr& rhs_;
 };
 
 int main(int argc, const char** argv) {
-  std::unique_ptr<Expr> c1(new Constant(1.1));
-  std::unique_ptr<Expr> c2(new Constant(2.2));
+  std::unique_ptr<Expr> c1(new Constant(2.0));
+  std::unique_ptr<Expr> c2(new Constant(3.3));
+  std::unique_ptr<Expr> v(new VarRef("x"));
 
-  std::unique_ptr<Expr> p(new BinaryPlus(c1.get(), c2.get()));
+  SymbolTable st{{"x", 1.1}};
 
-  std::cout << p->ToString() << "\n";
-  std::cout << p->Eval() << "\n";
+  std::unique_ptr<Expr> e1(new BinaryOp(std::multiplies<double>(), *c1, *c2));
+  std::unique_ptr<Expr> e2(new BinaryOp(std::plus<double>(), *e1, *v));
+
+  std::cout << e2->Eval(&st) << "\n";
 
   return 0;
 }
