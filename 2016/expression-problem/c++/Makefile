@@ -1,3 +1,4 @@
+# Makefile for expression-problem C++ samples.
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
@@ -15,4 +16,3 @@ problem-statement: problem-statement.cpp
 
 clean:
 	rm -f $(EXECUTABLES)
-
