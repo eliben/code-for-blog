@@ -1,3 +1,5 @@
+; Basic example of single dispatch on built-in and custom types.
+;
 ; Eli Bendersky [http://eli.thegreenplace.net]
 ; This code is in the public domain.
 (ns multi.single-dispatch)
