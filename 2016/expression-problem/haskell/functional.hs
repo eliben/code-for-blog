@@ -1,3 +1,4 @@
+-- Sample
 module Expressions where
 
 data Expr = Constant Double
