@@ -23,4 +23,3 @@ eval (BinaryPlus lhs rhs) = eval lhs + eval rhs
 -- "11.1 + 23.354"
 -- *Expressions> eval p
 -- 34.454
--- *Expressions> 
