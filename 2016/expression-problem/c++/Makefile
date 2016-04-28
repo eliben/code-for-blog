@@ -7,11 +7,11 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG
 LDFLAGS =
 
 EXECUTABLES = \
-	problem-statement
+	basic-oop
 
 all: $(EXECUTABLES)
 
-problem-statement: problem-statement.cpp
+basic-oop: basic-oop.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
