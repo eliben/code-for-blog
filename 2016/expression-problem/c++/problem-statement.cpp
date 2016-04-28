@@ -1,4 +1,4 @@
-// Sample
+// Sample in C++ demonstrating the problem.
 #include <memory>
 #include <iostream>
 #include <sstream>
