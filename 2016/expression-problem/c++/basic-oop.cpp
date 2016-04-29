@@ -1,4 +1,4 @@
-// Sample in C++ demonstrating the problem.
+// Demonstrating the basic OOP approach.
 #include <memory>
 #include <iostream>
 #include <sstream>
@@ -30,26 +30,26 @@ private:
 
 class BinaryPlus : public Expr {
 public:
-  BinaryPlus(const Expr* lhs, const Expr* rhs) : lhs_(lhs), rhs_(rhs) {}
+  BinaryPlus(const Expr& lhs, const Expr& rhs) : lhs_(lhs), rhs_(rhs) {}
 
   std::string ToString() const {
-    return lhs_->ToString() + " + " + rhs_->ToString();
+    return lhs_.ToString() + " + " + rhs_.ToString();
   }
 
   double Eval() const {
-    return lhs_->Eval() + rhs_->Eval();
+    return lhs_.Eval() + rhs_.Eval();
   }
 
 private:
-  const Expr* lhs_;
-  const Expr* rhs_;
+  const Expr& lhs_;
+  const Expr& rhs_;
 };
 
 int main(int argc, const char** argv) {
   std::unique_ptr<Expr> c1(new Constant(1.1));
   std::unique_ptr<Expr> c2(new Constant(2.2));
 
-  std::unique_ptr<Expr> p(new BinaryPlus(c1.get(), c2.get()));
+  std::unique_ptr<Expr> p(new BinaryPlus(*c1, *c2));
 
   std::cout << p->ToString() << "\n";
   std::cout << p->Eval() << "\n";

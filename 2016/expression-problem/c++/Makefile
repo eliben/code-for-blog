@@ -7,11 +7,14 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG
 LDFLAGS =
 
 EXECUTABLES = \
-	basic-oop
+	basic-oop visitor
 
 all: $(EXECUTABLES)
 
 basic-oop: basic-oop.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+visitor: visitor.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
