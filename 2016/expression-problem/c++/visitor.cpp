@@ -1,24 +1,28 @@
 #include <iostream>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <string>
 
 class BinaryPlus;
 class Constant;
 
 class ExprVisitor {
 public:
-  virtual void VisitConstant(const Constant& c) const = 0;
-  virtual void VisitBinaryPlus(const BinaryPlus& c) const = 0;
+  virtual void VisitConstant(const Constant& c) = 0;
+  virtual void VisitBinaryPlus(const BinaryPlus& bp) = 0;
 };
 
 class Expr {
 public:
-  virtual void Visit(ExprVisitor* visitor) = 0;
+  virtual void Accept(ExprVisitor* visitor) const = 0;
 };
 
 class Constant : public Expr {
 public:
   Constant(double value) : value_(value) {}
 
-  void Visit(ExprVisitor* visitor) const {
+  void Accept(ExprVisitor* visitor) const {
     visitor->VisitConstant(*this);
   }
 
@@ -34,7 +38,9 @@ class BinaryPlus : public Expr {
 public:
   BinaryPlus(const Expr& lhs, const Expr& rhs) : lhs_(lhs), rhs_(rhs) {}
 
-  void Visit(ExprVisitor* visitor) const {
+  void Accept(ExprVisitor* visitor) const {
+    lhs_.Accept(visitor);
+    rhs_.Accept(visitor);
     visitor->VisitBinaryPlus(*this);
   }
 
@@ -51,7 +57,60 @@ private:
   const Expr& rhs_;
 };
 
+class Evaluator : public ExprVisitor {
+public:
+  double GetValueForExpr(const Expr& e) {
+    return value_map_[&e];
+  }
+
+  void VisitConstant(const Constant& c) {
+    value_map_[&c] = c.GetValue();
+  }
+
+  void VisitBinaryPlus(const BinaryPlus& bp) {
+    // Assuming the lhs and rhs of bp were already evaluated; otherwise 0 is
+    // assumed.
+    value_map_[&bp] = value_map_[&(bp.GetLhs())] + value_map_[&(bp.GetRhs())];
+  }
+private:
+  std::map<const Expr*, double> value_map_;
+};
+
+class Stringifier : public ExprVisitor {
+public:
+  std::string GetStringForExpr(const Expr& e) {
+    return value_map_[&e];
+  }
+
+  void VisitConstant(const Constant& c) {
+    std::ostringstream ss;
+    ss << c.GetValue();
+    value_map_[&c] = ss.str();
+  }
+
+  void VisitBinaryPlus(const BinaryPlus& bp) {
+    // Assuming the lhs and rhs of bp were already evaluated; otherwise an empty
+    // string is assumed.
+    value_map_[&bp] =
+        value_map_[&(bp.GetLhs())] + " + " + value_map_[&(bp.GetRhs())];
+  }
+private:
+  std::map<const Expr*, std::string> value_map_;
+};
+
 int main(int argc, const char** argv) {
+  std::unique_ptr<Expr> c1(new Constant(1.1));
+  std::unique_ptr<Expr> c2(new Constant(2.2));
+
+  std::unique_ptr<Expr> p(new BinaryPlus(*c1, *c2));
+
+  Stringifier s;
+  p->Accept(&s);
+  std::cout << s.GetStringForExpr(*p) << "\n";
+
+  Evaluator e;
+  p->Accept(&e);
+  std::cout << e.GetValueForExpr(*p) << "\n";
 
   return 0;
 }
