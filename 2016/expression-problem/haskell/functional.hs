@@ -1,4 +1,8 @@
--- Sample
+-- Sample Haskell code for a functional approach to the expression problem.
+--
+-- Eli Bendersky [http://eli.thegreenplace.net]
+-- This code is in the public domain.
+
 module Expressions where
 
 data Expr = Constant Double
