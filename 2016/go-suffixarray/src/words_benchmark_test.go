@@ -1,7 +1,13 @@
+// Go suffixarray sample - benchmarks and basic smoke tests.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
 	"bufio"
+	"bytes"
+	"fmt"
 	"index/suffixarray"
 	"log"
 	"os"
@@ -34,13 +40,15 @@ func BenchmarkBuildSuffixArray(b *testing.B) {
 	}
 }
 
-func BenchmarkSimpleFindMiddle(b *testing.B) {
+const XXwordToTry = "manipulator"
+
+func BenchmarkSimpleFindMiddleXX(b *testing.B) {
 	words := getDictWords()
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, w := range words {
-			if strings.Contains(w, "yrate") {
+			if strings.Contains(w, XXwordToTry) {
 				break
 			}
 		}
@@ -60,15 +68,17 @@ func BenchmarkSimpleFindBeginning(b *testing.B) {
 	}
 }
 
-func BenchmarkLookup(b *testing.B) {
+func BenchmarkLookupXX(b *testing.B) {
 	words := getDictWords()
 	data := []byte("\x00" + strings.Join(words, "\x00") + "\x00")
 	sa := suffixarray.New(data)
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		indices := sa.Lookup([]byte("tion"), 1)
-		_ = getStringFromIndex(data, indices[0])
+		indices := sa.Lookup([]byte(XXwordToTry), 1)
+		if len(indices) > 0 {
+			_ = getStringFromIndex(data, indices[0])
+		}
 	}
 }
 
@@ -83,9 +93,10 @@ func TestSimpleFind(t *testing.T) {
 	words := getDictWords()
 	var found bool
 
-	for _, w := range words {
-		if strings.Contains(w, "tion") {
+	for i, w := range words {
+		if strings.Contains(w, XXwordToTry) {
 			found = true
+			fmt.Println(i, w)
 			break
 		}
 	}
@@ -99,6 +110,10 @@ func TestSuffixArrayFind(t *testing.T) {
 	words := getDictWords()
 	data := []byte("\x00" + strings.Join(words, "\x00") + "\x00")
 	sa := suffixarray.New(data)
+
+	buf := &bytes.Buffer{}
+	sa.Write(buf)
+	fmt.Println("size:", buf.Len())
 
 	indices := sa.Lookup([]byte("yrate"), 1)
 	if indices == nil || len(indices) < 1 {

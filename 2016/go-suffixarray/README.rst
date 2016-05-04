@@ -1,12 +1,7 @@
-TODO: move this out of src/...
-
-$ go run using_suffixarray.go
-$ go test
-$ go test -bench....
-
-How to run:
+From inside ``src``:
 
 .. sourcecode:: text
 
-	# Running from the directory containing this README file:
-	$ go run src/using-suffixarray.go
+    $ go run using_suffixarray.go
+    $ go test
+    $ go test -bench=.

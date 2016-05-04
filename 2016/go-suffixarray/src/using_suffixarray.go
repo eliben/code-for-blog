@@ -1,3 +1,7 @@
+// Go suffixarray sample - basic usage of creation and lookup.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -45,16 +49,22 @@ func main() {
 	data := []byte("\x00" + strings.Join(words, "\x00") + "\x00")
 	sa := suffixarray.New(data)
 
-	fmt.Println("Using Lookup:")
 	indices := sa.Lookup([]byte("an"), -1)
+	if len(indices) > 0 {
+		fmt.Println("Lookup returns:", indices)
+	} else {
+		fmt.Println("Lookup: not found")
+	}
 
 	// Reconstruct matches from indices found by Lookup.
 	for _, idx := range indices {
 		fmt.Println(getStringFromIndex(data, idx))
 	}
 
-	fmt.Println("Using FindAllIndex:")
+	// Here using a completely "literal" regexp, similar to the usage of Lookup,
+	// to compare what the two methods return. FindAllIndex can take an arbitrary
+	// regexp - but beware of the caveat discussed in the blog post.
 	r := regexp.MustCompile("an")
 	matches := sa.FindAllIndex(r, -1)
-	fmt.Println(matches)
+	fmt.Println("FindAllIndex returns:", matches)
 }
