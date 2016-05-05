@@ -49,10 +49,11 @@ int main(int argc, const char** argv) {
   std::unique_ptr<Expr> c1(new Constant(1.1));
   std::unique_ptr<Expr> c2(new Constant(2.2));
 
-  std::unique_ptr<Expr> p(new BinaryPlus(*c1, *c2));
+  std::unique_ptr<Expr> p1(new BinaryPlus(*c1, *c2));
+  std::unique_ptr<Expr> p2(new BinaryPlus(*p1, *c2));
 
-  std::cout << p->ToString() << "\n";
-  std::cout << p->Eval() << "\n";
+  std::cout << p2->ToString() << "\n";
+  std::cout << p2->Eval() << "\n";
 
   return 0;
 }
