@@ -106,15 +106,16 @@ int main(int argc, const char** argv) {
   std::unique_ptr<Expr> c1(new Constant(1.1));
   std::unique_ptr<Expr> c2(new Constant(2.2));
 
-  std::unique_ptr<Expr> p(new BinaryPlus(*c1, *c2));
+  std::unique_ptr<Expr> p1(new BinaryPlus(*c1, *c2));
+  std::unique_ptr<Expr> p2(new BinaryPlus(*p1, *c2));
 
   Stringifier s;
-  p->Accept(&s);
-  std::cout << s.GetStringForExpr(*p) << "\n";
+  p2->Accept(&s);
+  std::cout << s.GetStringForExpr(*p2) << "\n";
 
   Evaluator e;
-  p->Accept(&e);
-  std::cout << e.GetValueForExpr(*p) << "\n";
+  p2->Accept(&e);
+  std::cout << e.GetValueForExpr(*p2) << "\n";
 
   return 0;
 }
