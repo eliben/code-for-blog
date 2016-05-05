@@ -7,11 +7,14 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG
 LDFLAGS =
 
 EXECUTABLES = \
-	interp
+	basic-oop visitor
 
 all: $(EXECUTABLES)
 
-interp: interp.cpp
+basic-oop: basic-oop.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+visitor: visitor.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 all: $(EXECUTABLES)
