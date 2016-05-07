@@ -78,7 +78,7 @@ public:
     ExprVisitorWithFunctionCall* v =
         dynamic_cast<ExprVisitorWithFunctionCall*>(visitor);
     if (v == nullptr) {
-      std::cerr << "Fatal error: visitor is not ExprVisitorWithFunctionCall\n";
+      std::cerr << "Fatal: visitor is not ExprVisitorWithFunctionCall\n";
       exit(1);
     }
     v->VisitFunctionCall(*this);
