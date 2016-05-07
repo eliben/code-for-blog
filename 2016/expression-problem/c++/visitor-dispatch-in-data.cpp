@@ -1,4 +1,4 @@
-// TODO: here we do generic dispatch in the data classes (like the visits in
+// Here we do generic dispatch in the data classes (like the visits in
 // BinaryPlus). A more flexible way is to leave it to the visitor (like it's
 // done in the paper). I should try to code both variations to compare.
 //
@@ -76,6 +76,7 @@ public:
     // assumed.
     value_map_[&bp] = value_map_[&(bp.GetLhs())] + value_map_[&(bp.GetRhs())];
   }
+
 private:
   std::map<const Expr*, double> value_map_;
 };
@@ -98,6 +99,7 @@ public:
     value_map_[&bp] =
         value_map_[&(bp.GetLhs())] + " + " + value_map_[&(bp.GetRhs())];
   }
+
 private:
   std::map<const Expr*, std::string> value_map_;
 };

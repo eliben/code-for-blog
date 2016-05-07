@@ -7,7 +7,8 @@ CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG
 LDFLAGS =
 
 EXECUTABLES = \
-	basic-oop visitor-dispatch-in-data visitor-dispatch-in-visitor
+	basic-oop visitor-dispatch-in-data visitor-dispatch-in-visitor \
+	visitor-extended
 
 all: $(EXECUTABLES)
 
@@ -18,6 +19,9 @@ visitor-dispatch-in-data: visitor-dispatch-in-data.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 visitor-dispatch-in-visitor: visitor-dispatch-in-visitor.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
+
+visitor-extended: visitor-extended.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 all: $(EXECUTABLES)

@@ -1,11 +1,7 @@
-// Here each data class just calls the appropriate Visit* method on the visitor,
-// without worrying about visiting its constituent expressions. That is left to
-// the actual visitors.
-//
-// Pros: more flexible - the visitors know what constituents they want to visit,
-// in what order and how to combine the results.
-// Cons: code duplication - if there are many visitors, they all replicate the
-// same visiting logic most of the time.
+// Attempt to implement the extended visitor approach to add a data type to a
+// typical visitor-based solution; based on the Krishnamurthi paper.
+#include <cassert>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -63,7 +59,37 @@ private:
   const Expr& rhs_;
 };
 
-class Evaluator : public ExprVisitor {
+class FunctionCall;
+
+// To be able to visit FunctionCall expressions, extend the ExprVisitor
+// interface.
+class ExprVisitorWithFunctionCall : virtual public ExprVisitor {
+public:
+  virtual void VisitFunctionCall(const FunctionCall& fc) = 0;
+};
+
+// This is the new ("extended") expression we're adding.
+class FunctionCall : public Expr {
+public:
+  FunctionCall(const std::string& name, const Expr& argument)
+      : name_(name), argument_(argument) {}
+
+  void Accept(ExprVisitor* visitor) const {
+    ExprVisitorWithFunctionCall* v =
+        dynamic_cast<ExprVisitorWithFunctionCall*>(visitor);
+    if (v == nullptr) {
+      std::cerr << "Fatal error: visitor is not ExprVisitorWithFunctionCall\n";
+      exit(1);
+    }
+    v->VisitFunctionCall(*this);
+  }
+
+private:
+  std::string name_;
+  const Expr& argument_;
+};
+
+class Evaluator : virtual public ExprVisitor {
 public:
   double GetValueForExpr(const Expr& e) {
     return value_map_[&e];
@@ -83,14 +109,22 @@ private:
   std::map<const Expr*, double> value_map_;
 };
 
+class EvaluatorWithFunctionCall : public ExprVisitorWithFunctionCall,
+                                  public Evaluator {
+public:
+  void VisitFunctionCall(const FunctionCall& fc) {
+    std::cout << "Visiting FunctionCall!!\n";
+  }
+};
+
 int main(int argc, const char** argv) {
   std::unique_ptr<Expr> c1(new Constant(1.1));
   std::unique_ptr<Expr> c2(new Constant(2.2));
 
-  std::unique_ptr<Expr> p1(new BinaryPlus(*c1, *c2));
-  std::unique_ptr<Expr> p2(new BinaryPlus(*p1, *c2));
+  std::unique_ptr<Expr> fc(new FunctionCall("foo", *c1));
+  std::unique_ptr<Expr> p2(new BinaryPlus(*fc, *c2));
 
-  Evaluator e;
+  EvaluatorWithFunctionCall e;
   p2->Accept(&e);
   std::cout << e.GetValueForExpr(*p2) << "\n";
 
