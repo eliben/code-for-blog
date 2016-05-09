@@ -1,3 +1,11 @@
+; "Solving" the expression problem with classical multiple dispatch. apply-op is
+; a single multimethod that dispatches on an operation / type pair (the
+; operation is just a keyword).
+;
+; This approach has more theoretical than practical value - demonstrating how
+; the problem maps to multiple dispatch. For realistic scenarios the
+; expression.multimethod and expression.protocols approaches are preferable.
+;
 ; Eli Bendersky [http://eli.thegreenplace.net]
 ; This code is in the public domain.
 (ns expression.multidispatch)

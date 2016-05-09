@@ -1,3 +1,6 @@
+; Solving the expression problem with multimethods. Each operation is a
+; multimethod, and we add methods per type supported by the operation.
+;
 ; Eli Bendersky [http://eli.thegreenplace.net]
 ; This code is in the public domain.
 (ns expression.multimethod)
