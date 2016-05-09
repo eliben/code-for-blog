@@ -23,6 +23,8 @@
   (clojure.string/join " + " [(stringify (:lhs bp))
                               (stringify (:rhs bp))]))
 
+; ----
+
 (def c1 (Constant. 1.1))
 (def c2 (Constant. 2.2))
 (def p1 (BinaryPlus. c1 c2))
