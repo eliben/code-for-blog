@@ -1,3 +1,6 @@
+; Solving the expression problem with protocols. Each operation is a protocol
+; and we extend types to support this protocol.
+;
 ; Eli Bendersky [http://eli.thegreenplace.net]
 ; This code is in the public domain.
 (ns expression.protocols)
