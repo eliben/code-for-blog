@@ -39,3 +39,23 @@
 
 (stringify p1)
 (stringify p2)
+
+; ---- Extending with a new type - FunctionCall
+
+(defrecord FunctionCall [func argument])
+
+(defmethod evaluate FunctionCall
+  [fc] ((:func fc) (evaluate (:argument fc))))
+
+(defmethod stringify FunctionCall
+  [fc] (str (clojure.repl/demunge (str (:func fc)))
+            "("
+            (stringify (:argument fc))
+            ")"))
+
+(defn twice
+  [x] (* x 2))
+
+(def fc (->FunctionCall twice p2))
+(evaluate fc)
+(stringify fc)
