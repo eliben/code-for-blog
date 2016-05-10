@@ -22,7 +22,6 @@ class _MultiMethod:
             return self.typemap[types](*args)
         except KeyError:
             raise TypeError('no match %s for types %s' % (self.name, types))
-        return function(*args)
 
     def register_function_for_types(self, types, function):
         if types in self.typemap:
@@ -79,5 +78,5 @@ if __name__ == '__main__':
     e = Ellipse()
 
     intersect(r1, e)
-    intersect(e, r1)
+    #intersect(e, r1)
     #intersect(r1, r2)
