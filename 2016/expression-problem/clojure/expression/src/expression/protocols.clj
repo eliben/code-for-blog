@@ -52,3 +52,17 @@
 
 (evaluate p3)
 (stringify p3)
+
+; Adding a new protocol and implementing it for the existing data types.
+(defprotocol Serializable
+  (serialize [this]))
+
+(extend-protocol Serializable
+  Constant
+    (serialize [this] [(type this) (:value this)])
+  BinaryPlus
+    (serialize [this] [(type this)
+                       (serialize (:lhs this))
+                       (serialize (:rhs this))]))
+
+(serialize p2)
