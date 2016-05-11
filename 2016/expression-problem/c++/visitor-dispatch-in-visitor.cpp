@@ -1,3 +1,5 @@
+// Visitor pattern approach.
+//
 // Here each data class just calls the appropriate Visit* method on the visitor,
 // without worrying about visiting its constituent expressions. That is left to
 // the actual visitors.
@@ -6,6 +8,9 @@
 // in what order and how to combine the results.
 // Cons: code duplication - if there are many visitors, they all replicate the
 // same visiting logic most of the time.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <iostream>
 #include <map>
 #include <memory>

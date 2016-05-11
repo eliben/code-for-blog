@@ -1,5 +1,10 @@
+// Extended visitor pattern approach.
+//
 // Attempt to implement the extended visitor approach to add a data type to a
 // typical visitor-based solution; based on the Krishnamurthi paper.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
@@ -109,6 +114,13 @@ private:
   std::map<const Expr*, double> value_map_;
 };
 
+// This class implements the ExprVisitorWithFunctionCall interface, and takes
+// most of its functionality from the existing Evaluator class. Therefore, we're
+// using multiple inheritance. This is also why the base classes have to inherit
+// virtually from ExprVisitor; otherwise, we'd end up with two different
+// ExprVisitor instances at the base of this class and the code wouldn't compile
+// as the compiler can't figure out that this class in fact implements the
+// ExprVisitor interface.
 class EvaluatorWithFunctionCall : public ExprVisitorWithFunctionCall,
                                   public Evaluator {
 public:
