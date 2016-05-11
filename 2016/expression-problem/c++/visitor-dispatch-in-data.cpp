@@ -1,7 +1,12 @@
+// Visitor pattern approach.
+//
 // Here we do generic dispatch in the data classes (like the visits in
 // BinaryPlus). A more flexible way is to leave it to the visitor (like it's
-// done in the paper). I should try to code both variations to compare.
+// done in the Krishnamurthi paper). See visitor-dispatch-in-visitor.cpp for
+// that.
 //
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <iostream>
 #include <map>
 #include <memory>

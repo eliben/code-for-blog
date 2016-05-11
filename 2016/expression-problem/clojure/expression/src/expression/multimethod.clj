@@ -26,7 +26,7 @@
   (clojure.string/join " + " [(stringify (:lhs bp))
                               (stringify (:rhs bp))]))
 
-; ----
+; Testing
 
 (def c1 (Constant. 1.1))
 (def c2 (Constant. 2.2))
@@ -40,7 +40,7 @@
 (stringify p1)
 (stringify p2)
 
-; ---- Extending with a new type - FunctionCall
+; Extending with a new type - FunctionCall
 
 (defrecord FunctionCall [func argument])
 
@@ -52,6 +52,8 @@
             "("
             (stringify (:argument fc))
             ")"))
+
+; Testing
 
 (defn twice
   [x] (* x 2))

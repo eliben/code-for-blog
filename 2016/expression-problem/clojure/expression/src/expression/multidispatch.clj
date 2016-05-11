@@ -30,7 +30,7 @@
   (clojure.string/join " + " [(apply-op op (:lhs bp))
                               (apply-op op (:rhs bp))]))
 
-; ----
+; Testing
 
 (def c1 (Constant. 1.1))
 (def c2 (Constant. 2.2))

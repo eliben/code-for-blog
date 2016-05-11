@@ -1,4 +1,7 @@
-// Demonstrating the basic OOP approach.
+// Demonstrating the basic C++ OOP approach.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <memory>
 #include <iostream>
 #include <sstream>

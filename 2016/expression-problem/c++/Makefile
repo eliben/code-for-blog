@@ -1,4 +1,4 @@
-# Makefile for the patterns-composite-interpreter samples.
+# Makefile for expression-problem samples.
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
