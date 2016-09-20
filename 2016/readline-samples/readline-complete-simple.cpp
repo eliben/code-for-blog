@@ -1,3 +1,7 @@
+// Sample of using readline for history recording.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,28 +46,28 @@ char* completion_generator(const char* text, int state) {
 
 char** completer(const char* text, int start, int end) {
   // Don't do filename completion even if our generator finds no matches.
-  ::rl_attempted_completion_over = 1;
+  rl_attempted_completion_over = 1;
 
   // Note: returning nullptr here will make readline use the default filename
   // completer.
-  return ::rl_completion_matches(text, completion_generator);
+  return rl_completion_matches(text, completion_generator);
 }
 
 int main(int argc, char** argv) {
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
 
   // Register our custom comleter with readline.
-  ::rl_attempted_completion_function = completer;
+  rl_attempted_completion_function = completer;
 
   char* buf;
-  while ((buf = ::readline(">> ")) != nullptr) {
+  while ((buf = readline(">> ")) != nullptr) {
     if (strlen(buf) > 0) {
-      ::add_history(buf);
+      add_history(buf);
     }
 
     printf("[%s]\n", buf);
 
-    // ::readline malloc'd the buffer; clean it up.
+    // readline malloc'd the buffer; clean it up.
     free(buf);
   }
 
