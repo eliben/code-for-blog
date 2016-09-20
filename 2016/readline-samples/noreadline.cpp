@@ -14,5 +14,6 @@ int main(int argc, char** argv) {
     std::cout << "[" << line << "]\n";
     std::cout << ">> ";
   }
+
   return 0;
 }

@@ -87,11 +87,11 @@ char** completer(const char* text, int start, int end) {
   char** array =
       static_cast<char**>(malloc((2 + matches.size()) * sizeof(*array)));
   array[0] = strdup(longest_common_prefix(textstr, matches).c_str());
-  //std::cout << "\n**[0]=" << array[0] << "\n";
+  // std::cout << "\n**[0]=" << array[0] << "\n";
   size_t ptr = 1;
   for (const auto& m : matches) {
     array[ptr++] = strdup(m.c_str());
-    //std::cout << "**[" << ptr-1 << "]=" << array[ptr-1] << "\n";
+    // std::cout << "**[" << ptr-1 << "]=" << array[ptr-1] << "\n";
   }
   array[ptr] = nullptr;
   return array;
