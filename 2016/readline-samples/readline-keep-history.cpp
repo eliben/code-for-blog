@@ -1,3 +1,7 @@
+// Sample of using readline for history recording.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
