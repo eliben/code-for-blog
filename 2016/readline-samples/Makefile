@@ -9,10 +9,13 @@ CCFLAGS =
 LDFLAGS = -lreadline
 
 EXECUTABLES = \
-	readline-keep-history fileman-example readline-complete-simple \
+	noreadline readline-keep-history readline-complete-simple \
 	readline-complete-hierarchical readline-complete-nogen
 
 all: $(EXECUTABLES)
+
+noreadline: noreadline.cpp
+	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 readline-keep-history: readline-keep-history.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
@@ -25,9 +28,6 @@ readline-complete-hierarchical: readline-complete-hierarchical.cpp
 
 readline-complete-nogen: readline-complete-nogen.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
-
-fileman-example: fileman-example.c
-	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
 	rm -f core $(EXECUTABLES)
