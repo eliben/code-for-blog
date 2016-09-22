@@ -1,7 +1,9 @@
-// Like readline-complete-simple, but without using ::rl_completion_matches
+// Like readline-complete-simple, but without using rl_completion_matches
 // and a stateful generator function. Instead, return the sequence of matches
 // directly from our completion function.
-
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -62,7 +64,7 @@ void test_longest_common_prefix() {
 }
 
 // This completer returns the char** array required by readline without invoking
-// the state-ful generator via ::rl_completion_matches.
+// the state-ful generator via rl_completion_matches.
 // The structure of the returned array is as follows (taken from the source of
 // readline):
 //
@@ -73,7 +75,7 @@ void test_longest_common_prefix() {
 // The returned char** array is malloc'd herein; the caller frees it.
 char** completer(const char* text, int start, int end) {
   // Don't do filename completion even if our generator finds no matches.
-  ::rl_attempted_completion_over = 1;
+  rl_attempted_completion_over = 1;
 
   // Filter out all words in the vocabulary that do not begin with `text`.
   std::string textstr(text);
@@ -87,11 +89,9 @@ char** completer(const char* text, int start, int end) {
   char** array =
       static_cast<char**>(malloc((2 + matches.size()) * sizeof(*array)));
   array[0] = strdup(longest_common_prefix(textstr, matches).c_str());
-  // std::cout << "\n**[0]=" << array[0] << "\n";
   size_t ptr = 1;
   for (const auto& m : matches) {
     array[ptr++] = strdup(m.c_str());
-    // std::cout << "**[" << ptr-1 << "]=" << array[ptr-1] << "\n";
   }
   array[ptr] = nullptr;
   return array;
@@ -103,17 +103,17 @@ int main(int argc, char** argv) {
   test_longest_common_prefix();
 
   // Register our custom comleter with readline.
-  ::rl_attempted_completion_function = completer;
+  rl_attempted_completion_function = completer;
 
   char* buf;
-  while ((buf = ::readline(">> ")) != nullptr) {
+  while ((buf = readline(">> ")) != nullptr) {
     if (strlen(buf) > 0) {
-      ::add_history(buf);
+      add_history(buf);
     }
 
     printf("[%s]\n", buf);
 
-    // ::readline malloc's a new buffer every time.
+    // readline malloc's a new buffer every time.
     free(buf);
   }
 
