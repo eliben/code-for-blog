@@ -43,4 +43,4 @@ utils_test: utils_test.o utils.o
 	$(CXX) $^ -o $@
 
 clean:
-	rm -f core $(EXECUTABLES)
+	rm -f core $(EXECUTABLES) *.o
