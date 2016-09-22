@@ -13,47 +13,13 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include "utils.h"
+
 const char* WHITESPACE = " \t";
 
 std::vector<std::string> vocabulary{"file",   "cat", "dog",
                                     "canary", "cow", "hamster"};
 
-// Represents tokens in the line buffer. For each token, we have its text, as
-// well as its index in the buffer (the offset of its first character from the
-// buffer's beginning).
-struct Token {
-  std::string text;
-  size_t buf_index;
-};
-
-// Split the given buffer to a vector of Tokens.
-std::vector<Token> tokenize_line_buffer(const std::string& buf) {
-  const char* delims = " \t";
-  std::vector<Token> tokens;
-
-  // Skip leading delimiters to the first token.
-  size_t istart = buf.find_first_not_of(delims);
-  while (istart != std::string::npos) {
-    // Invariant: istart points at the beginning of a token inside buf.
-    size_t iend = buf.find_first_of(delims, istart);
-    if (iend == std::string::npos) {
-      iend = buf.size();
-    }
-
-    tokens.push_back({buf.substr(istart, iend - istart), istart});
-    istart = buf.find_first_not_of(delims, iend);
-  }
-
-  return tokens;
-}
-
-void show_tokens(const std::vector<Token>& tv) {
-  std::cout << "[" << tv.size() << " tokens]: ";
-  for (const auto& t : tv) {
-    std::cout << t.text << "[" << t.buf_index << "] ";
-  }
-  std::cout << "\n";
-}
 
 char* completion_generator(const char* text, int state) {
   // This function is called with state=0 the first time; subsequent calls are
