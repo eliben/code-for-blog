@@ -1,4 +1,4 @@
-// Sample of using readline for history recording.
+// Simple completion with readline.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -22,6 +22,8 @@ char* completion_generator(const char* text, int state) {
   static size_t match_index = 0;
 
   if (state == 0) {
+    // During initialization, compute the actual matches for 'text' and keep
+    // them in a static vector.
     matches.clear();
     match_index = 0;
 
@@ -56,7 +58,8 @@ char** completer(const char* text, int start, int end) {
 int main(int argc, char** argv) {
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
 
-  // Register our custom comleter with readline.
+  // Register our custom comleter with readline by assigning a function pointer
+  // to this global variable.
   rl_attempted_completion_function = completer;
 
   char* buf;
