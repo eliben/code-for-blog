@@ -1,3 +1,8 @@
+// Some ideas of how to implement hierarchical ("sub-command") completion with
+// readline, where each sub-command can have its own completion options.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -95,28 +100,25 @@ char** completer(const char* text, int start, int end) {
 
   // Use custom completion; disable default filename completion even if we don't
   // find completion matches.
-  ::rl_attempted_completion_over = 1;
-  return ::rl_completion_matches(text, completion_generator);
+  rl_attempted_completion_over = 1;
+  return rl_completion_matches(text, completion_generator);
 }
 
 int main(int argc, char** argv) {
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
 
-  show_tokens(tokenize_line_buffer("hola "));
-  show_tokens(tokenize_line_buffer(" cow foo hola"));
-
   // Register our custom comleter with readline.
-  ::rl_attempted_completion_function = completer;
+  rl_attempted_completion_function = completer;
 
   char* buf;
-  while ((buf = ::readline(">> ")) != nullptr) {
+  while ((buf = readline(">> ")) != nullptr) {
     if (strlen(buf) > 0) {
-      ::add_history(buf);
+      add_history(buf);
     }
 
     printf("[%s]\n", buf);
 
-    // ::readline malloc's a new buffer every time.
+    // readline malloc's a new buffer every time.
     free(buf);
   }
 

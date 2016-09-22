@@ -16,52 +16,9 @@
 #include <readline/readline.h>
 #include <readline/history.h>
 
+#include "utils.h"
+
 std::vector<std::string> vocabulary{"cat", "dog", "canary", "cow", "hamster"};
-
-// Find the longest common prefix among all candidates; the prefix begins with
-// `s`. `s` may be an empty string, but if it's not empty then all candidates
-// begin with it. The candidates vector must be non-empty.
-std::string longest_common_prefix(std::string s,
-                                  const std::vector<std::string>& candidates) {
-  assert(candidates.size() > 0);
-  if (candidates.size() == 1) {
-    return candidates[0];
-  }
-
-  std::string prefix(s);
-  while (true) {
-    // Each iteration of this loop advances to the next location in all the
-    // candidates and sees if they match up to it.
-    size_t nextloc = prefix.size();
-    auto i = candidates.begin();
-    if (i->size() <= nextloc) {
-      return prefix;
-    }
-    char nextchar = (*(i++))[nextloc];
-    for (; i != candidates.end(); ++i) {
-      if (i->size() <= nextloc || (*i)[nextloc] != nextchar) {
-        // Bail out if there's a mismatch for this candidate.
-        return prefix;
-      }
-    }
-    // All candidates have contents[nextloc] == nextchar, so we can safely
-    // extend the prefix.
-    prefix.append(1, nextchar);
-  }
-
-  assert(0 && "unreachable");
-}
-
-void test_longest_common_prefix() {
-  assert(longest_common_prefix("foo", {"foob", "foobar"}) == "foob");
-  assert(longest_common_prefix("foo", {"foob"}) == "foob");
-  assert(longest_common_prefix("foo", {"foo", "foobar"}) == "foo");
-  assert(longest_common_prefix("k", {"kbc1", "kbc2", "kbc2"}) == "kbc");
-  assert(longest_common_prefix("k", {"kbc1"}) == "kbc1");
-  assert(longest_common_prefix("k", {"kbc1", "kbb", "kbc2"}) == "kb");
-  assert(longest_common_prefix("", {"kbc1", "kbb", "kbc2"}) == "kb");
-  assert(longest_common_prefix("k", {"kba1", "kba2", "kba3"}) == "kba");
-}
 
 // This completer returns the char** array required by readline without invoking
 // the state-ful generator via rl_completion_matches.
@@ -103,8 +60,6 @@ char** completer(const char* text, int start, int end) {
 
 int main(int argc, char** argv) {
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
-
-  test_longest_common_prefix();
 
   // Register our custom comleter with readline.
   rl_attempted_completion_function = completer;
