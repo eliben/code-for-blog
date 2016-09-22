@@ -72,7 +72,8 @@ void test_longest_common_prefix() {
 //    The remaining entries are the possible completions.
 //    The array is terminated with a NULL pointer.
 //
-// The returned char** array is malloc'd herein; the caller frees it.
+// The returned char** array is malloc'd herein; the caller frees it. If the
+// returned array is nullptr, it means there were no matches.
 char** completer(const char* text, int start, int end) {
   // Don't do filename completion even if our generator finds no matches.
   rl_attempted_completion_over = 1;
@@ -85,6 +86,9 @@ char** completer(const char* text, int start, int end) {
                  return (s.size() >= textstr.size() &&
                          s.compare(0, textstr.size(), textstr) == 0);
                });
+  if (matches.empty()) {
+    return nullptr;
+  }
 
   char** array =
       static_cast<char**>(malloc((2 + matches.size()) * sizeof(*array)));
