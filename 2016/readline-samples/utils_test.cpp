@@ -18,7 +18,6 @@ void test_longest_common_prefix() {
   assert(longest_common_prefix("k", {"kba1", "kba2", "kba3"}) == "kba");
 }
 
-
 void test_tokenize_line_buffer() {
   std::vector<Token> t1 = tokenize_line_buffer("one \ttwo three");
   assert(t1.size() == 3);
@@ -37,7 +36,6 @@ void test_tokenize_line_buffer() {
   assert(t3[0].text == "foo");
   assert(t3[0].buf_index == 3);
 }
-
 
 int main(int argc, const char** argv) {
 #ifdef NDEBUG
