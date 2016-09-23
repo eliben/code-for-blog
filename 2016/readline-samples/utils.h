@@ -22,7 +22,7 @@ struct Token {
   size_t buf_index;
 };
 
-// Split the given buffer to a vector of Tokens.
+// Split the given buffer to a vector of Tokens. Delimeters are space and tab.
 std::vector<Token> tokenize_line_buffer(const std::string& buf);
 
 // Show a vector of tokens by printing it to stdout.
