@@ -20,7 +20,6 @@ const char* WHITESPACE = " \t";
 std::vector<std::string> vocabulary{"file",   "cat", "dog",
                                     "canary", "cow", "hamster"};
 
-
 char* completion_generator(const char* text, int state) {
   // This function is called with state=0 the first time; subsequent calls are
   // with a nonzero state. state=0 can be used to perform one-time
