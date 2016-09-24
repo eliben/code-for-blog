@@ -10,7 +10,7 @@ LDFLAGS = -lreadline
 
 EXECUTABLES = \
 	noreadline readline-keep-history readline-complete-simple \
-	readline-complete-hierarchical readline-complete-nogen \
+	readline-complete-subcommand readline-complete-nogen \
   utils_test
 
 all: $(EXECUTABLES)
@@ -24,10 +24,10 @@ readline-keep-history: readline-keep-history.cpp
 readline-complete-simple: readline-complete-simple.cpp
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
-readline-complete-hierarchical.o: readline-complete-hierarchical.cpp
+readline-complete-subcommand.o: readline-complete-subcommand.cpp
 	$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-readline-complete-hierarchical: readline-complete-hierarchical.o utils.o
+readline-complete-subcommand: readline-complete-subcommand.o utils.o
 	$(CXX) $(CXXFLAGS) $^ -o $@ $(LDFLAGS)
 
 readline-complete-nogen.o: readline-complete-nogen.cpp
