@@ -18,6 +18,8 @@
 
 const char* WHITESPACE = " \t";
 
+// TODO: simple registration of subcommands in some way, each with its own
+// subcommands (?) Maybe with a flag to complete filenames for certain commands
 std::vector<std::string> vocabulary{"file",   "cat", "dog",
                                     "canary", "cow", "hamster"};
 
