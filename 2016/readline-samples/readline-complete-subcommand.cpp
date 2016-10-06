@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 #include <readline/readline.h>
@@ -16,36 +17,46 @@
 
 #include "utils.h"
 
-const char* WHITESPACE = " \t";
+// Global logfile for debugging.
+FILE* logfile;
 
-// TODO: simple registration of subcommands in some way, each with its own
-// subcommands (?) Maybe with a flag to complete filenames for certain commands
-std::vector<std::string> vocabulary{"file",   "cat", "dog",
-                                    "canary", "cow", "hamster"};
+using CommandMap = std::unordered_map<std::string, std::vector<std::string>>;
 
-bool is_file_command(const std::vector<Token>& tokens, int cursor) {
-  if (tokens.size() == 0) {
-    return false;
-  }
-  const Token& command = tokens[0];
-  if (static_cast<size_t>(cursor) > command.buf_index + command.text.size() &&
-      command.text == "file") {
-    return true;
-  } else {
-    return false;
-  }
+CommandMap command_map;
+
+void register_command(const std::string& command, const
+                      std::vector<std::string>& subcommands) {
+  command_map[command] = subcommands;
 }
 
+
 char** completer(const char* text, int start, int end) {
+  fprintf(logfile, "[%s (%d:%d)]\n", text, start, end);
+  // The vocabulary for this completion session. Will be populated by one of the
+  // conditions below based on parsing the text so far.
+  std::vector<std::string> vocabulary;
+
   std::vector<Token> line_tokens = tokenize_line_buffer(rl_line_buffer);
-  if (is_file_command(line_tokens, start)) {
-    // Request filename completion.
+  size_t cursor = start;
+  if (line_tokens.size() == 0 ||
+      (line_tokens.size() == 1 && cursor == line_tokens[0].buf_index)) {
+    // If start points at the beginning of this token, this means we're still
+    // completing it. So we have to complete a command.
+    for (auto& kv : command_map) {
+      vocabulary.push_back(kv.first);
+    }
+  } else if ((line_tokens.size() == 1 &&
+              cursor > line_tokens[0].buf_index + line_tokens[0].text.size()) ||
+             (line_tokens.size() == 2 && cursor == line_tokens[1].buf_index)) {
+    // Completing second token.
+    const auto it = command_map.find(line_tokens[0].text);
+    if (it != command_map.end()) {
+      vocabulary = it->second;
+    }
+  } else {
+    rl_attempted_completion_over = 1;
     return nullptr;
   }
-
-  // Disable default filename completion even if we don't find completion
-  // matches.
-  rl_attempted_completion_over = 1;
 
   // Filter out all words in the vocabulary that do not begin with `text`.
   std::string textstr(text);
@@ -55,6 +66,12 @@ char** completer(const char* text, int start, int end) {
                  return (s.size() >= textstr.size() &&
                          s.compare(0, textstr.size(), textstr) == 0);
                });
+  fprintf(logfile, "Found matches: [");
+  for (const auto& m : matches) {
+    fprintf(logfile, "%s ", m.c_str());
+  }
+  fprintf(logfile, "]\n");
+
   if (matches.empty()) {
     return nullptr;
   }
@@ -71,7 +88,17 @@ char** completer(const char* text, int start, int end) {
 }
 
 int main(int argc, char** argv) {
+  logfile = fopen("/tmp/rllog", "w");
+  if (!logfile) {
+    std::cout << "Unable to open log file for writing!\n";
+    return 1;
+  }
+  setbuf(logfile, NULL);
+
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
+  register_command("season", {"winter", "spring", "summer", "fall"});
+  register_command("animal", {"cat", "dog", "canary", "cow", "hamster"});
+  register_command("file", {});
 
   // Register our custom comleter with readline.
   rl_attempted_completion_function = completer;
