@@ -2,15 +2,15 @@
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 #include <string>
 #include <vector>
 
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 
 std::vector<std::string> vocabulary{"cat", "dog", "canary", "cow", "hamster"};
 

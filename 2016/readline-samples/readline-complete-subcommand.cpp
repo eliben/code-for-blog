@@ -3,22 +3,22 @@
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
-#include <algorithm>
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+#include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 
 #include "utils.h"
 
 // Global logfile for debugging. Using a separate file so that output doesn't
-// intermix with the actual readline terminal. That file can be watched with
+// intermix with the actual user interaction. That file can be watched with
 // "tail -f" in a separate window.
 FILE* logfile;
 
@@ -27,8 +27,8 @@ FILE* logfile;
 using CommandMap = std::unordered_map<std::string, std::vector<std::string>>;
 CommandMap command_map;
 
-void register_command(const std::string& command, const
-                      std::vector<std::string>& subcommands) {
+void register_command(const std::string& command,
+                      const std::vector<std::string>& subcommands) {
   command_map[command] = subcommands;
 }
 
@@ -61,7 +61,6 @@ char** completer(const char* text, int start, int end) {
     //   second
     //
     // This means we're trying to complete the second token -- a subcommand.
-
     const std::string command = line_tokens[0].text;
     if (command == "file") {
       // File is special. We attempt filename completion.
@@ -97,6 +96,8 @@ char** completer(const char* text, int start, int end) {
     return nullptr;
   }
 
+  // See the readline-complete-nogen.cpp sample for more details on what is
+  // returned from this function.
   char** array =
       static_cast<char**>(malloc((2 + matches.size()) * sizeof(*array)));
   array[0] = strdup(longest_common_prefix(textstr, matches).c_str());
@@ -118,6 +119,8 @@ int main(int argc, char** argv) {
   setbuf(logfile, NULL);
 
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
+
+  // Register commands with their subcommands. 'file' is a special command.
   register_command("season", {"winter", "spring", "summer", "fall"});
   register_command("animal", {"cat", "dog", "canary", "cow", "hamster"});
   register_command("file", {});
