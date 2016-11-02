@@ -10,21 +10,19 @@
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
-#include <algorithm>
-#include <iostream>
-#include <map>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+#include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 
 #include "utils.h"
-
-const char* WHITESPACE = " \t";
 
 using CommandVocabulary = std::map<std::string, std::vector<std::string>>;
 
@@ -90,10 +88,13 @@ char** completer(const char* text, int start, int end) {
                  return (s.size() >= textstr.size() &&
                          s.compare(0, textstr.size(), textstr) == 0);
                });
+
   if (matches.empty()) {
     return nullptr;
   }
 
+  // See the readline-complete-nogen.cpp sample for more details on what is
+  // returned from this function.
   char** array =
       static_cast<char**>(malloc((2 + matches.size()) * sizeof(*array)));
   array[0] = strdup(longest_common_prefix(textstr, matches).c_str());

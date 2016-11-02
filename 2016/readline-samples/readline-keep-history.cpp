@@ -6,8 +6,8 @@
 #include <stdlib.h>
 #include <string>
 
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 
 int main(int argc, char** argv) {
   printf("Welcome! You can exit by pressing Ctrl+C at any time...\n");
