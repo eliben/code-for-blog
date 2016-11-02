@@ -4,17 +4,17 @@
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
-#include <algorithm>
-#include <cassert>
-#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+#include <cassert>
+#include <iostream>
 #include <string>
 #include <vector>
 
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
 
 #include "utils.h"
 
