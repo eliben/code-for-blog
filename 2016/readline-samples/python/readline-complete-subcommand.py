@@ -24,8 +24,8 @@ def make_subcommand_completer(commands):
         if len(parts) <= 1:
             matches = [w for w in commands.keys()
                          if w.startswith(text)] + [None]
-            return matches[state]
-        elif len(parts) == 2:
+            return matches[state] + " "
+        elif len(parts) >= 2:
             command = parts[0]
 
             if command == 'file':
@@ -35,15 +35,16 @@ def make_subcommand_completer(commands):
             else:
                 matches = [w for w in commands[command]
                              if w.startswith(text)] + [None]
-            return matches[state]
+            return matches[state] + " "
     return custom_complete
 
 
 def main():
     commands = {
-        'season': {'winter', 'spring', 'summer', 'fall'},
-        'animal': {'cat', 'dog', 'canary', 'cow', 'hamster'},
         'file': {},
+        'eat': {'breakfast', 'dinner', 'lunch', 'snack'},
+        'play': {'cards', 'chess', 'go'},
+        'walk': {'left', 'right', 'straight'},
     }
     readline.parse_and_bind('tab: complete')
     readline.set_completer(make_subcommand_completer(commands))
