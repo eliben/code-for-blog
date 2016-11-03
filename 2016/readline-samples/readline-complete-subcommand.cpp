@@ -25,9 +25,11 @@
 
 #include "utils.h"
 
+// Maps a command to a vector of subcommands it supports.
 using CommandVocabulary = std::map<std::string, std::vector<std::string>>;
 
 CommandVocabulary command_vocabulary = {
+    // "file" is a special command with no subcommands.
     {"file", {}},
     {"eat", {"breakfast", "dinner", "lunch", "snack"}},
     {"play", {"cards", "chess", "go"}},
@@ -70,6 +72,9 @@ char** completer(const char* text, int start, int end) {
   // Find which vocabulary to auto-complete from; if we're now completing the
   // command, point to all_commands. If the command was already entered, find
   // the subcommands vocabulary to complete.
+  // Note: this will perform subcommand completion for every token after the
+  // first one (which is the command). This can be easily avoided if necessary,
+  // by checking how many tokens the line already has.
   std::vector<std::string>* vocabulary;
   if (command == "") {
     vocabulary = &all_commands;
