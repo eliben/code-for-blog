@@ -11,7 +11,10 @@ def make_completer(vocabulary):
     def custom_complete(text, state):
         # None is returned for the end of the completion session.
         results = [x for x in vocabulary if x.startswith(text)] + [None]
-        return results[state]
+        # A space is added to the completion since the Python readline doesn't
+        # do this on its own. When a word is fully completed we want to mimic
+        # the default readline library behavior of adding a space after it.
+        return results[state] + " "
     return custom_complete
 
 
