@@ -47,7 +47,9 @@
 ;;; variant-name is the name of the specific variant of the type (such as
 ;;; 'app-exp); field1...N are the fields of the variant (for example the variant
 ;;; 'app-exp has two fields)
-
+;;;
+;;; Eli Bendersky [http://eli.thegreenplace.net]
+;;; This code is in the public domain.
 (ns define-datatype.define-datatype
   (:use clojure.test))
 
