@@ -129,10 +129,7 @@
   predicate name and variant descriptors don't have to be quoted but rather can
   be regular Clojure symbols."
   [typename predicate-name & variant-descriptors]
-  `(define-datatype-aux
-     (quote ~typename)
-     (quote ~predicate-name)
-     '~variant-descriptors))
+  (define-datatype-aux typename predicate-name variant-descriptors))
 
 (defn make-cond-case
   "Helper function for cases that generates a single case for the variant cond.
