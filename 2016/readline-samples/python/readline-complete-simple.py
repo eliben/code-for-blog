@@ -6,7 +6,6 @@
 # This code is in the public domain.
 import readline
 
-
 def make_completer(vocabulary):
     def custom_complete(text, state):
         # None is returned for the end of the completion session.
@@ -16,7 +15,6 @@ def make_completer(vocabulary):
         # the default readline library behavior of adding a space after it.
         return results[state] + " "
     return custom_complete
-
 
 def main():
     vocabulary = {'cat', 'dog', 'canary', 'cow', 'hamster'}
@@ -29,7 +27,6 @@ def main():
             print('[{0}]'.format(s))
     except (EOFError, KeyboardInterrupt) as e:
         print('\nShutting down...')
-
 
 if __name__ == '__main__':
     main()

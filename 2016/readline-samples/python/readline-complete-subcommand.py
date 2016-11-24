@@ -7,7 +7,6 @@
 import glob
 import readline
 
-
 def make_subcommand_completer(commands):
     def custom_complete(text, state):
         # Simplistic parsing of the command-line so far. We want to know if the
@@ -38,7 +37,6 @@ def make_subcommand_completer(commands):
             return matches[state] + " "
     return custom_complete
 
-
 def main():
     commands = {
         'file': {},
@@ -55,7 +53,6 @@ def main():
             print('[{0}]'.format(s))
     except (EOFError, KeyboardInterrupt) as e:
         print('\nShutting down...')
-
 
 if __name__ == '__main__':
     main()
