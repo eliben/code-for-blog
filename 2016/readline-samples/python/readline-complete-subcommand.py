@@ -21,9 +21,9 @@ def make_subcommand_completer(commands):
             parts.append('')
 
         if len(parts) <= 1:
-            matches = [w for w in commands.keys()
-                         if w.startswith(text)] + [None]
-            return matches[state] + " "
+            matches = [w + ' ' for w in commands.keys()
+                               if w.startswith(text)] + [None]
+            return matches[state]
         elif len(parts) >= 2:
             command = parts[0]
 
@@ -32,9 +32,9 @@ def make_subcommand_completer(commands):
                 # current directory.
                 matches = glob.glob(parts[1] + '*') + [None]
             else:
-                matches = [w for w in commands[command]
-                             if w.startswith(text)] + [None]
-            return matches[state] + " "
+                matches = [w + ' ' for w in commands[command]
+                                   if w.startswith(text)] + [None]
+            return matches[state]
     return custom_complete
 
 def main():
