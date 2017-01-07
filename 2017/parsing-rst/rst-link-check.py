@@ -5,10 +5,8 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 import argparse
-import os
 import sys
 import urllib.error
-import urllib.parse
 import urllib.request
 
 import docutils.frontend
@@ -32,8 +30,7 @@ def check_link(uri):
 class LinkCheckerVisitor(docutils.nodes.GenericNodeVisitor):
     def visit_reference(self, node):
         # Catch reference nodes for link-checking.
-        uri = node['refuri']
-        check_link(uri)
+        check_link(node['refuri'])
 
     def default_visit(self, node):
         # Pass all other nodes through.
