@@ -21,20 +21,20 @@ def make_subcommand_completer(commands):
             parts.append('')
 
         if len(parts) <= 1:
-            matches = [w for w in commands.keys()
-                         if w.startswith(text)] + [None]
-            return matches[state] + " "
+            matches = [w + ' ' for w in commands.keys()
+                               if w.startswith(text)] + [None]
+            return matches[state]
         elif len(parts) >= 2:
             command = parts[0]
 
             if command == 'file':
                 # Treat 'file' specially, by looking for matching files in the
                 # current directory.
-                matches = glob.glob(parts[1] + '*') + [None]
+                matches = [w + ' ' for w in glob.glob(text + '*')] + [None]
             else:
-                matches = [w for w in commands[command]
-                             if w.startswith(text)] + [None]
-            return matches[state] + " "
+                matches = [w + ' ' for w in commands[command]
+                                   if w.startswith(parts[1])] + [None]
+            return matches[state]
     return custom_complete
 
 def main():
@@ -46,6 +46,10 @@ def main():
     }
     readline.parse_and_bind('tab: complete')
     readline.set_completer(make_subcommand_completer(commands))
+
+    # Use the default readline completer delims; Python's readline adds '-'
+    # which makes filename completion funky (for files that contain '-').
+    readline.set_completer_delims(" \t\n\"\\'`@$><=;|&{(")
 
     try:
         while True:
