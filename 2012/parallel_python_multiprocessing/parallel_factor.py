@@ -1,3 +1,9 @@
+# Parallelizing CPU-bound code with threading and multiprocessing.
+#
+# Tested with Python 2.7 and 3.4
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 from __future__ import print_function
 import multiprocessing
 from multiprocessing import Queue
@@ -83,7 +89,7 @@ def threaded_factorizer(nums, nthreads):
         t.join()
 
     # Merge all partial output dicts into a single dict and return it
-    return {k: v for out_d in outs for k, v in out_d.iteritems()}
+    return {k: v for out_d in outs for k, v in out_d.items()}
 
 
 def mp_factorizer(nums, nprocs):
@@ -125,6 +131,7 @@ def mp_factorizer(nums, nprocs):
 
 
 def benchmark(nums):
+    print('Running benchmark...')
     with Timer('serial'):
         s_d = serial_factorizer(nums)
 
@@ -139,7 +146,8 @@ def benchmark(nums):
 
 
 def test():
-    nums = range(2, 1000)
+    print('Running test...')
+    nums = list(range(2, 1000))
     nums.extend([1000000000163, 1000000000141])
 
     d_serial = serial_factorizer(nums)
@@ -153,15 +161,8 @@ if __name__ == '__main__':
     N = 299
 
     nums = [999999999999]
-    for i in xrange(N):
+    for i in range(N):
         nums.append(nums[-1] + 2)
 
     test()
     benchmark(nums)
-    #for i in range(10):
-        #benchmark(nums)
-    #for i in nums:
-        #print i, factorize_naive(i)
-    #import pprint
-    #pprint.pprint(mp_factorizer(nums, 4))
-    #benchmark(nums)
