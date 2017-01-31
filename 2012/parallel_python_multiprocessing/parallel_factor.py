@@ -5,12 +5,11 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 from __future__ import print_function
+import math
 import multiprocessing
-from multiprocessing import Queue
 import random
 import threading
 import time
-import math
 
 
 class Timer(object):
@@ -105,7 +104,7 @@ def mp_factorizer(nums, nprocs):
 
     # Each process will get 'chunksize' nums and a queue to put his out
     # dict into
-    out_q = Queue()
+    out_q = multiprocessing.Queue()
     chunksize = int(math.ceil(len(nums) / float(nprocs)))
     procs = []
 
