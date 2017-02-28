@@ -24,12 +24,16 @@ double Timer::elapsed() {
   return elapsed.count();
 }
 
+namespace {
+
 void usage_and_exit(const std::string& progname) {
   std::cout << "Expecting " << progname << " [flags] <BF file>\n";
   std::cout << "\nSupported flags:\n";
   std::cout << "    --verbose           enable verbose output\n";
   exit(EXIT_SUCCESS);
 }
+
+} // namespace {
 
 void parse_command_line(int argc, const char** argv, std::string* bf_file_path,
                         bool* verbose) {
