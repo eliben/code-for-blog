@@ -97,10 +97,5 @@ if __name__ == '__main__':
         print('ERROR: cannot find "{}"'.format(testcases_path))
         print('Run me from the main directory!')
         sys.exit(1)
-    run_all_tests('./bfrun', ['--simpleinterp'], testcases_path)
-    run_all_tests('./bfrun', ['--optinterp'], testcases_path)
-    run_all_tests('./bfrun', ['--opt2interp'], testcases_path)
-    run_all_tests('./bfrun', ['--opt3interp'], testcases_path)
-    run_all_tests('./bfrun', ['--simplejit'], testcases_path)
-    run_all_tests('./bfrun', ['--asmjit'], testcases_path)
-    run_all_tests('./bfrun', ['--optasmjit'], testcases_path)
+    for executor in ('./simpleinterp',):
+        run_all_tests(executor, [], testcases_path)
