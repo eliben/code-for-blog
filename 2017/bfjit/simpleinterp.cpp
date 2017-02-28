@@ -112,43 +112,15 @@ void simpleinterp(const Program& p, bool verbose) {
   }
 }
 
-void usage_and_exit(const std::string& progname) {
-  std::cout << "Expecting " << progname << " [flags] <BF file>\n";
-  std::cout << "\nSupported flags:\n";
-  std::cout << "    --verbose           enable verbose output\n";
-  exit(EXIT_SUCCESS);
-}
-
 int main(int argc, const char** argv) {
   bool verbose = false;
-
-  // This loop handles flags that optionally come before the actual arguments.
-  // When it's done, arg_i will point to the first non-flag argument.
-  int arg_i = 1;
-  for (; arg_i < argc; ++arg_i) {
-    std::string arg = argv[arg_i];
-    if (!(arg.size() > 2 && arg[0] == '-' && arg[1] == '-')) {
-      // If this arg doesn't start with a --, it's not a flag. So we expect it
-      // to be the BF program.
-      break;
-    } else if (arg == "--verbose") {
-      verbose = true;
-    } else if (arg == "--help") {
-      usage_and_exit(argv[0]);
-    } else {
-      usage_and_exit(argv[0]);
-    }
-  }
-
-  if (arg_i >= argc) {
-    usage_and_exit(argv[0]);
-  }
-  std::string bf_program_path = argv[arg_i];
+  std::string bf_file_path;
+  parse_command_line(argc, argv, &bf_file_path, &verbose);
 
   Timer t1;
-  std::ifstream file(bf_program_path);
+  std::ifstream file(bf_file_path);
   if (!file) {
-    DIE << "unable to open file " << bf_program_path;
+    DIE << "unable to open file " << bf_file_path;
   }
   Program program = parse_from_stream(file);
 
