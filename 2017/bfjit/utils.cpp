@@ -23,3 +23,38 @@ double Timer::elapsed() {
   std::chrono::duration<double> elapsed = t2 - t1_;
   return elapsed.count();
 }
+
+void usage_and_exit(const std::string& progname) {
+  std::cout << "Expecting " << progname << " [flags] <BF file>\n";
+  std::cout << "\nSupported flags:\n";
+  std::cout << "    --verbose           enable verbose output\n";
+  exit(EXIT_SUCCESS);
+}
+
+void parse_command_line(int argc, const char** argv, std::string* bf_file_path,
+                        bool* verbose) {
+  *verbose = false;
+
+  // This loop handles flags that optionally come before the actual arguments.
+  // When it's done, arg_i will point to the first non-flag argument.
+  int arg_i = 1;
+  for (; arg_i < argc; ++arg_i) {
+    std::string arg = argv[arg_i];
+    if (!(arg.size() > 2 && arg[0] == '-' && arg[1] == '-')) {
+      // If this arg doesn't start with a --, it's not a flag. So we expect it
+      // to be the BF program.
+      break;
+    } else if (arg == "--verbose") {
+      *verbose = true;
+    } else if (arg == "--help") {
+      usage_and_exit(argv[0]);
+    } else {
+      usage_and_exit(argv[0]);
+    }
+  }
+
+  if (arg_i >= argc) {
+    usage_and_exit(argv[0]);
+  }
+  *bf_file_path = argv[arg_i];
+}

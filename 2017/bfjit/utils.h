@@ -41,4 +41,10 @@ private:
   std::chrono::time_point<std::chrono::high_resolution_clock> t1_;
 };
 
+// Parses the command-line for BF executors, to obtain the bf file path and
+// values for flags. These are taken by pointers and assigned in this function.
+// If any error occurs during parsing, this function reports it and exits.
+void parse_command_line(int argc, const char** argv, std::string* bf_file_path,
+                        bool* verbose);
+
 #endif /* UTILS_H */
