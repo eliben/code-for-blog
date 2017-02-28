@@ -14,9 +14,7 @@
 #include "parser.h"
 #include "utils.h"
 
-
 constexpr int MEMORY_SIZE = 30000;
-
 
 void simpleinterp(const Program& p, bool verbose) {
   // Initialize state.
@@ -114,14 +112,12 @@ void simpleinterp(const Program& p, bool verbose) {
   }
 }
 
-
 void usage_and_exit(const std::string& progname) {
   std::cout << "Expecting " << progname << " [flags] <BF file>\n";
   std::cout << "\nSupported flags:\n";
   std::cout << "    --verbose           enable verbose output\n";
   exit(EXIT_SUCCESS);
 }
-
 
 int main(int argc, const char** argv) {
   bool verbose = false;
