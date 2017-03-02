@@ -1,4 +1,7 @@
-// An optimized interpreter for BF.
+// An optimized interpreter for BF, take 1.
+//
+// Instead of finding the jump destinations by walking the program at runtime,
+// precomputes them in a "jump table" before the program is run.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
