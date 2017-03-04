@@ -11,6 +11,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <unordered_map>
 #include <vector>
 
 #include "parser.h"
@@ -63,6 +64,10 @@ void optinterp(const Program& p, bool verbose) {
   Timer t1;
   std::vector<size_t> jumptable = compute_jumptable(p);
 
+#ifdef BFTRACE
+  std::unordered_map<char, size_t> op_exec_count;
+#endif
+
   if (verbose) {
     std::cout << "* jumptable [elapsed " << t1.elapsed() << "s]: ";
     for (size_t i = 0; i < jumptable.size(); ++i) {
@@ -79,6 +84,9 @@ void optinterp(const Program& p, bool verbose) {
   size_t program_size = p.instructions.size();
   while (pc < program_size) {
     char instruction = p.instructions[pc];
+#ifdef BFTRACE
+    op_exec_count[instruction]++;
+#endif
     switch (instruction) {
     case '>':
       dataptr++;
@@ -135,6 +143,17 @@ void optinterp(const Program& p, bool verbose) {
       }
     }
     std::cout << "\n";
+
+#ifdef BFTRACE
+    std::cout << "* Tracing:\n";
+    std::cout.imbue(std::locale(""));
+    size_t total = 0;
+    for (auto i : op_exec_count) {
+      std::cout << i.first << "  -->  " << i.second << "\n";
+      total += i.second;
+    }
+    std::cout << ".. Total: " << total << "\n";
+#endif
   }
 }
 
