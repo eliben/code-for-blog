@@ -97,5 +97,9 @@ if __name__ == '__main__':
         print('ERROR: cannot find "{}"'.format(testcases_path))
         print('Run me from the main directory!')
         sys.exit(1)
-    for executor in ('./simpleinterp', './optinterp', './optinterp2'):
+    for executor in (
+            './simpleinterp',
+            './optinterp',
+            './optinterp2',
+            './optinterp3'):
         run_all_tests(executor, [], testcases_path)
