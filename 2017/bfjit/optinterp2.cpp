@@ -157,6 +157,10 @@ void optinterp2(const Program& p, bool verbose) {
   std::unordered_map<std::string, size_t> trace_count;
 #endif
 
+#ifdef BFTRACE
+  std::unordered_map<int, size_t> op_exec_count;
+#endif
+
   Timer t1;
   std::vector<BfOp> ops = translate_program(p);
 
@@ -174,7 +178,7 @@ void optinterp2(const Program& p, bool verbose) {
   while (pc < ops_size) {
     BfOp op = ops[pc];
     BfOpKind kind = op.kind;
-#ifdef SHOWCOUNTS
+#ifdef BFTRACE
     op_exec_count[static_cast<int>(kind)]++;
 #endif
     switch (kind) {
@@ -248,6 +252,18 @@ void optinterp2(const Program& p, bool verbose) {
       }
     }
     std::cout << "\n";
+
+#ifdef BFTRACE
+    std::cout << "* Tracing:\n";
+    std::cout.imbue(std::locale(""));
+    size_t total = 0;
+    for (auto i : op_exec_count) {
+      std::cout << BfOpKind_name(static_cast<BfOpKind>(i.first)) << "  -->  "
+                << i.second << "\n";
+      total += i.second;
+    }
+    std::cout << ".. Total: " << total << "\n";
+#endif
 
 #ifdef SHOWCOUNTS
     std::cout << "* Instrumentation:\n";
