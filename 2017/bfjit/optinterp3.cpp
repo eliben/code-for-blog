@@ -1,20 +1,11 @@
-// An optimized interpreter for BF, take 2.
-//
-// In addition to the optimization of optinterp, here we squash repetitive
-// sequences of all non-jump ops into single operations that carry the
-// repetition number as an argument.
-//
-// Compile with -DBFTRACE to enable tracing in verbose mode.
+// A more optimized interpreter for BF.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
-#include <locale>
 #include <stack>
-#include <unordered_map>
 
 #include "parser.h"
 #include "utils.h"
@@ -29,6 +20,9 @@ enum class BfOpKind {
   DEC_DATA,
   READ_STDIN,
   WRITE_STDOUT,
+  LOOP_SET_TO_ZERO,
+  LOOP_MOVE_PTR,
+  LOOP_MOVE_DATA,
   JUMP_IF_DATA_ZERO,
   JUMP_IF_DATA_NOT_ZERO
 };
@@ -51,17 +45,22 @@ const char* BfOpKind_name(BfOpKind kind) {
     return "[";
   case BfOpKind::JUMP_IF_DATA_NOT_ZERO:
     return "]";
+  case BfOpKind::LOOP_SET_TO_ZERO:
+    return "s";
+  case BfOpKind::LOOP_MOVE_PTR:
+    return "m";
+  case BfOpKind::LOOP_MOVE_DATA:
+    return "d";
   case BfOpKind::INVALID_OP:
     return "x";
   }
   return nullptr;
 }
 
-// Every op has a single numeric argument. For JUMP_* ops it's the offset to
-// which a jump should be made; for all other ops, it's the number of times the
-// op is to be repeated.
+// Every op has a single numeric argument, which carries meaning specific to
+// the op.
 struct BfOp {
-  BfOp(BfOpKind kind_param, size_t argument_param)
+  BfOp(BfOpKind kind_param, int64_t argument_param)
       : kind(kind_param), argument(argument_param) {}
 
   // Serialize (emit textual representation for) this op onto the end of s.
@@ -70,8 +69,57 @@ struct BfOp {
   }
 
   BfOpKind kind = BfOpKind::INVALID_OP;
-  size_t argument = 0;
+  int64_t argument = 0;
 };
+
+// Optimizes a loop that starts at loop_start (the opening JUMP_IF_DATA_ZERO).
+// The loop runs until the end of ops (implicitly there's a back-jump after the
+// last op in ops).
+//
+// If optimization succeeds, returns a sequence of instructions that replace the
+// loop; otherwise, returns an empty vector.
+std::vector<BfOp> optimize_loop(const std::vector<BfOp>& ops,
+                                size_t loop_start) {
+  std::vector<BfOp> new_ops;
+
+  if (ops.size() - loop_start == 2) {
+    BfOp repeated_op = ops[loop_start + 1];
+    if (repeated_op.kind == BfOpKind::INC_DATA ||
+        repeated_op.kind == BfOpKind::DEC_DATA) {
+      new_ops.push_back(BfOp(BfOpKind::LOOP_SET_TO_ZERO, 0));
+    } else if (repeated_op.kind == BfOpKind::INC_PTR ||
+               repeated_op.kind == BfOpKind::DEC_PTR) {
+      new_ops.push_back(
+          BfOp(BfOpKind::LOOP_MOVE_PTR, repeated_op.kind == BfOpKind::INC_PTR
+                                            ? repeated_op.argument
+                                            : -repeated_op.argument));
+    }
+  } else if (ops.size() - loop_start == 5) {
+    // Detect patterns: -<+> and ->+<
+    if (ops[loop_start + 1].kind == BfOpKind::DEC_DATA &&
+        ops[loop_start + 3].kind == BfOpKind::INC_DATA &&
+        ops[loop_start + 1].argument == 1 &&
+        ops[loop_start + 3].argument == 1) {
+      std::string s;
+      for (size_t i = loop_start + 1; i < ops.size(); ++i) {
+        ops[i].serialize(&s);
+      }
+
+      if (ops[loop_start + 2].kind == BfOpKind::INC_PTR &&
+          ops[loop_start + 4].kind == BfOpKind::DEC_PTR &&
+          ops[loop_start + 2].argument == ops[loop_start + 4].argument) {
+        new_ops.push_back(
+            BfOp(BfOpKind::LOOP_MOVE_DATA, ops[loop_start + 2].argument));
+      } else if (ops[loop_start + 2].kind == BfOpKind::DEC_PTR &&
+                 ops[loop_start + 4].kind == BfOpKind::INC_PTR &&
+                 ops[loop_start + 2].argument == ops[loop_start + 4].argument) {
+        new_ops.push_back(
+            BfOp(BfOpKind::LOOP_MOVE_DATA, -ops[loop_start + 2].argument));
+      }
+    }
+  }
+  return new_ops;
+}
 
 // Translates the given program into a vector of BfOps that can be used for fast
 // interpretation.
@@ -103,11 +151,25 @@ std::vector<BfOp> translate_program(const Program& p) {
       size_t open_bracket_offset = open_bracket_stack.top();
       open_bracket_stack.pop();
 
-      // Now we have the offset of the matching '['. We can use it to create a
-      // new jump op for the ']' we're handling, as well as patch up the offset
-      // of the matching '['.
-      ops[open_bracket_offset].argument = ops.size();
-      ops.push_back(BfOp(BfOpKind::JUMP_IF_DATA_NOT_ZERO, open_bracket_offset));
+      // Try to optimize this loop; if optimize_loop succeeds, it returns a
+      // non-empty vector which we can splice into ops in place of the loop.
+      // If the returned vector is empty, we proceed as usual.
+      std::vector<BfOp> optimized_loop =
+          optimize_loop(ops, open_bracket_offset);
+
+      if (optimized_loop.empty()) {
+        // Loop wasn't optimized, so proceed emitting the back-jump to ops. We
+        // have the offset of the matching '['. We can use it to create a new
+        // jump op for the ']' we're handling, as well as patch up the offset of
+        // the matching '['.
+        ops[open_bracket_offset].argument = ops.size();
+        ops.push_back(
+            BfOp(BfOpKind::JUMP_IF_DATA_NOT_ZERO, open_bracket_offset));
+      } else {
+        // Replace this whole loop with optimized_loop.
+        ops.erase(ops.begin() + open_bracket_offset, ops.end());
+        ops.insert(ops.end(), optimized_loop.begin(), optimized_loop.end());
+      }
       pc++;
     } else {
       // Not a jump; all the other ops can be repeated, so find where the repeat
@@ -152,20 +214,13 @@ std::vector<BfOp> translate_program(const Program& p) {
   return ops;
 }
 
-void optinterp2(const Program& p, bool verbose) {
+void optinterp3(const Program& p, bool verbose) {
   // Initialize state.
   std::vector<uint8_t> memory(MEMORY_SIZE, 0);
-  size_t pc = 0;
   size_t dataptr = 0;
 
-#ifdef BFTRACE
-  std::unordered_map<int, size_t> op_exec_count;
-  std::string current_trace;
-  std::unordered_map<std::string, size_t> trace_count;
-#endif
-
   Timer t1;
-  std::vector<BfOp> ops = translate_program(p);
+  const std::vector<BfOp> ops = translate_program(p);
 
   if (verbose) {
     std::cout << "* translation [elapsed " << t1.elapsed() << "s]:\n";
@@ -176,14 +231,15 @@ void optinterp2(const Program& p, bool verbose) {
     }
   }
 
-  // Execute the translated ops; pc points into ops, not into the program now.
+  // Execute the translated ops in a for loop; pc always gets incremented by the
+  // end of each iteration, though some ops may also move it in a less orderly
+  // way.
+  // Note: the pre-computation of ops_size shouldn't be necessary (since ops is
+  // const) but it helps gcc 4.8 generate faster code.
   size_t ops_size = ops.size();
-  while (pc < ops_size) {
+  for (size_t pc = 0; pc < ops_size; ++pc) {
     BfOp op = ops[pc];
     BfOpKind kind = op.kind;
-#ifdef BFTRACE
-    op_exec_count[static_cast<int>(kind)]++;
-#endif
     switch (kind) {
     case BfOpKind::INC_PTR:
       dataptr += op.argument;
@@ -198,15 +254,31 @@ void optinterp2(const Program& p, bool verbose) {
       memory[dataptr] -= op.argument;
       break;
     case BfOpKind::READ_STDIN:
-      for (size_t i = 0; i < op.argument; ++i) {
+      for (int i = 0; i < op.argument; ++i) {
         memory[dataptr] = std::cin.get();
       }
       break;
     case BfOpKind::WRITE_STDOUT:
-      for (size_t i = 0; i < op.argument; ++i) {
+      for (int i = 0; i < op.argument; ++i) {
         std::cout.put(memory[dataptr]);
       }
       break;
+    case BfOpKind::LOOP_SET_TO_ZERO:
+      memory[dataptr] = 0;
+      break;
+    case BfOpKind::LOOP_MOVE_PTR:
+      while (memory[dataptr]) {
+        dataptr += op.argument;
+      }
+      break;
+    case BfOpKind::LOOP_MOVE_DATA: {
+      if (memory[dataptr]) {
+        int64_t move_to_ptr = static_cast<int64_t>(dataptr) + op.argument;
+        memory[move_to_ptr] += memory[dataptr];
+        memory[dataptr] = 0;
+      }
+      break;
+    }
     case BfOpKind::JUMP_IF_DATA_ZERO:
       if (memory[dataptr] == 0) {
         pc = op.argument;
@@ -219,68 +291,8 @@ void optinterp2(const Program& p, bool verbose) {
       break;
     case BfOpKind::INVALID_OP:
       DIE << "INVALID_OP encountered on pc=" << pc;
+      break;
     }
-
-#ifdef BFTRACE
-    if (kind == BfOpKind::JUMP_IF_DATA_ZERO) {
-      current_trace = "";
-    } else if (kind == BfOpKind::JUMP_IF_DATA_NOT_ZERO) {
-      if (current_trace.size() > 0) {
-        trace_count[current_trace] += 1;
-        current_trace = "";
-      }
-    } else {
-      op.serialize(&current_trace);
-    }
-#endif
-
-    pc++;
-  }
-
-  if (verbose) {
-    std::cout << "* pc=" << pc << "\n";
-    std::cout << "* dataptr=" << dataptr << "\n";
-    std::cout << "* Memory nonzero locations:\n";
-
-    for (size_t i = 0, pcount = 0; i < memory.size(); ++i) {
-      if (memory[i]) {
-        std::cout << std::right << "[" << std::setw(3) << i
-                  << "] = " << std::setw(3) << std::left
-                  << static_cast<int32_t>(memory[i]) << "      ";
-        pcount++;
-
-        if (pcount > 0 && pcount % 4 == 0) {
-          std::cout << "\n";
-        }
-      }
-    }
-    std::cout << "\n";
-
-#ifdef BFTRACE
-    std::cout << "* Tracing:\n";
-    std::cout.imbue(std::locale(""));
-    size_t total = 0;
-    for (auto i : op_exec_count) {
-      std::cout << BfOpKind_name(static_cast<BfOpKind>(i.first)) << "  -->  "
-                << i.second << "\n";
-      total += i.second;
-    }
-    std::cout << ".. Total: " << total << "\n\n";
-
-    using TracePair = std::pair<std::string, size_t>;
-    std::vector<TracePair> tracevec;
-    std::copy(trace_count.begin(), trace_count.end(),
-              std::back_inserter<std::vector<TracePair>>(tracevec));
-    std::sort(tracevec.begin(), tracevec.end(),
-              [](const TracePair& a, const TracePair& b) {
-                return a.second > b.second;
-              });
-
-    for (auto const& t : tracevec) {
-      std::cout << std::setw(15) << std::left << t.first << " --> " << t.second
-                << "\n";
-    }
-#endif
   }
 }
 
@@ -297,11 +309,11 @@ int main(int argc, const char** argv) {
   Program program = parse_from_stream(file);
 
   if (verbose) {
-    std::cout << "[>] Running optinterp2:\n";
+    std::cout << "[>] Running optinterp3:\n";
   }
 
   Timer t2;
-  optinterp2(program, verbose);
+  optinterp3(program, verbose);
 
   if (verbose) {
     std::cout << "[<] Done (elapsed: " << t2.elapsed() << "s)\n";
