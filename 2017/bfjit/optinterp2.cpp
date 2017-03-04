@@ -1,3 +1,11 @@
+// An optimized interpreter for BF, take 2.
+//
+// In addition to the optimization of optinterp, here we squash repetitive
+// sequences of all non-jump ops into single operations that carry the
+// repetition number as an argument.
+//
+// Compile with -DBFTRACE to enable tracing in verbose mode.
+//
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
@@ -150,15 +158,10 @@ void optinterp2(const Program& p, bool verbose) {
   size_t pc = 0;
   size_t dataptr = 0;
 
-#ifdef SHOWCOUNTS
-  std::vector<size_t> op_exec_count(
-      static_cast<int>(BfOpKind::JUMP_IF_DATA_NOT_ZERO) + 1, 0);
-  std::string current_trace;
-  std::unordered_map<std::string, size_t> trace_count;
-#endif
-
 #ifdef BFTRACE
   std::unordered_map<int, size_t> op_exec_count;
+  std::string current_trace;
+  std::unordered_map<std::string, size_t> trace_count;
 #endif
 
   Timer t1;
@@ -218,7 +221,7 @@ void optinterp2(const Program& p, bool verbose) {
       DIE << "INVALID_OP encountered on pc=" << pc;
     }
 
-#ifdef SHOWCOUNTS
+#ifdef BFTRACE
     if (kind == BfOpKind::JUMP_IF_DATA_ZERO) {
       current_trace = "";
     } else if (kind == BfOpKind::JUMP_IF_DATA_NOT_ZERO) {
@@ -262,19 +265,7 @@ void optinterp2(const Program& p, bool verbose) {
                 << i.second << "\n";
       total += i.second;
     }
-    std::cout << ".. Total: " << total << "\n";
-#endif
-
-#ifdef SHOWCOUNTS
-    std::cout << "* Instrumentation:\n";
-    std::cout.imbue(std::locale(""));
-    size_t total = 0;
-    for (size_t i = 0; i < op_exec_count.size(); ++i) {
-      std::cout << BfOpKind_name(static_cast<BfOpKind>(i)) << ": "
-                << op_exec_count[i] << "\n";
-      total += op_exec_count[i];
-    }
-    std::cout << ".. Total: " << total << "\n";
+    std::cout << ".. Total: " << total << "\n\n";
 
     using TracePair = std::pair<std::string, size_t>;
     std::vector<TracePair> tracevec;
