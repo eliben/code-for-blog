@@ -11,7 +11,8 @@ LDFLAGS =
 
 EXECUTABLES = \
 	simpleinterp \
-	optinterp
+	optinterp \
+	optinterp2
 
 all: $(EXECUTABLES)
 
@@ -21,6 +22,9 @@ simpleinterp: $(COMMONFILES) simpleinterp.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 optinterp: $(COMMONFILES) optinterp.cpp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
+optinterp2: $(COMMONFILES) optinterp2.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 .PHONY: clean format test
