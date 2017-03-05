@@ -14,6 +14,7 @@ EXECUTABLES = \
 	optinterp \
 	optinterp2 \
 	optinterp3 \
+	simplejit \
 	jit_utils_test
 
 all: $(EXECUTABLES)
@@ -32,7 +33,10 @@ optinterp2: $(COMMONFILES) optinterp2.cpp
 optinterp3: $(COMMONFILES) optinterp3.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
-jit_utils_test: $(COMMONFILES) jit_utils.cpp jit_utils.h jit_utils_test.cpp
+jit_utils_test: $(COMMONFILES) jit_utils_test.cpp jit_utils.cpp jit_utils.h 
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
+simplejit: $(COMMONFILES) simplejit.cpp jit_utils.h jit_utils.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 .PHONY: clean format test

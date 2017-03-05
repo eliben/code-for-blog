@@ -101,6 +101,7 @@ uint32_t compute_relative_32bit_offset(size_t jump_from, size_t jump_to) {
     assert(diff < (1ull << 31));
     return diff;
   } else {
+    // Here the diff is negative, so we need to encode it as 2s complement.
     size_t diff = jump_from - jump_to;
     assert(diff - 1 < (1ull << 31));
     uint32_t diff_unsigned = static_cast<uint32_t>(diff);

@@ -99,6 +99,7 @@ if __name__ == '__main__':
         sys.exit(1)
     for executor in (
             './simpleinterp',
+            './simplejit',
             './optinterp',
             './optinterp2',
             './optinterp3'):
