@@ -13,7 +13,8 @@ EXECUTABLES = \
 	simpleinterp \
 	optinterp \
 	optinterp2 \
-	optinterp3
+	optinterp3 \
+	jit_utils_test
 
 all: $(EXECUTABLES)
 
@@ -31,9 +32,13 @@ optinterp2: $(COMMONFILES) optinterp2.cpp
 optinterp3: $(COMMONFILES) optinterp3.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
+jit_utils_test: $(COMMONFILES) jit_utils.cpp jit_utils.h jit_utils_test.cpp
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
 .PHONY: clean format test
 
 test:
+	./jit_utils_test
 	python3.5 tests/test_bf.py
 
 format:
