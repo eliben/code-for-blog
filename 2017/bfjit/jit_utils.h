@@ -26,6 +26,7 @@ public:
   void* program_memory() {
     return program_memory_;
   }
+
   size_t program_size() {
     return program_size_;
   }
@@ -42,16 +43,23 @@ public:
   CodeEmitter() = default;
 
   void EmitByte(uint8_t v);
+
+  // Emits a sequence of consecutive bytes.
   void EmitBytes(std::initializer_list<uint8_t> seq);
+
   void EmitUint32(uint32_t v);
   void EmitUint64(uint64_t v);
 
+  // Replaces the byte at 'offset' with 'v'. Assumes offset < size().
   void ReplaceByteAtOffset(size_t offset, uint8_t v);
+
+  // Replaces the 32-bit word at 'offset' with 'v'. Assumes offset + 3 < size().
   void ReplaceUint32AtOffset(size_t offset, uint32_t v);
 
   size_t size() const {
     return code_.size();
   }
+
   const std::vector<uint8_t>& code() const {
     return code_;
   }
@@ -66,6 +74,7 @@ private:
 // expected to adjust jump addresses before passing them to this function (for
 // example taking into account that a jump offset is computed from after the
 // jump instruction itself).
+// Note: this is very specific to the x64 architecture.
 uint32_t compute_relative_32bit_offset(size_t jump_from, size_t jump_to);
 
 #endif /* JIT_UTILS_H */
