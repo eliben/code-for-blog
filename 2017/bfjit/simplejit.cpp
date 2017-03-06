@@ -14,10 +14,6 @@
 
 constexpr int MEMORY_SIZE = 30000;
 
-// JittedFunc is the C++ type for the JIT function emitted by SimpleJit. The
-// emitted function is callable from C++ and follows the x64 System V ABI.
-using JittedFunc = void (*)(void);
-
 void simplejit(const Program& p, bool verbose) {
   // Initialize state.
   std::vector<uint8_t> memory(MEMORY_SIZE, 0);
@@ -147,6 +143,11 @@ void simplejit(const Program& p, bool verbose) {
   // Load the emitted code to executable memory and run it.
   std::vector<uint8_t> emitted_code = emitter.code();
   JitProgram jit_program(emitted_code);
+
+  // JittedFunc is the C++ type for the JIT function emitted here. The emitted
+  // function is callable from C++ and follows the x64 System V ABI.
+  using JittedFunc = void (*)(void);
+
   JittedFunc func = (JittedFunc)jit_program.program_memory();
   func();
 
