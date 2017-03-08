@@ -46,12 +46,14 @@ def run_all_tests(executor_path, flags, tests_dir_path):
 
     The executor is a program that can be invoked given a test file name as
     a single parameter. It reads from stdin and writes to stdout.
+
+    Returns True if all tests passed, False if there were errors.
     """
     print('\nTesting {0} {1}'.format(executor_path, ' '.join(flags)))
 
     if not os.path.exists(executor_path):
         print('ERROR -- {0} not found\n'.format(executor_path))
-        return
+        return False
 
     starttime = time.time()
     errorcount = 0
@@ -95,8 +97,10 @@ def run_all_tests(executor_path, flags, tests_dir_path):
         print('---- All tests ran OK ----')
     else:
         print('---- Tests had %s errors ----' % errorcount)
+        return False
 
     print('Elapsed: %.4s sec' % (time.time() - starttime,))
+    return True
 
 
 if __name__ == '__main__':
@@ -105,6 +109,7 @@ if __name__ == '__main__':
         print('ERROR: cannot find "{}"'.format(testcases_path))
         print('Run me from the main directory!')
         sys.exit(1)
+    errors = False
     for executor in (
             './simpleinterp',
             './simplejit',
@@ -113,4 +118,11 @@ if __name__ == '__main__':
             './optinterp',
             './optinterp2',
             './optinterp3'):
-        run_all_tests(executor, [], testcases_path)
+        success = run_all_tests(executor, [], testcases_path)
+        if not success:
+            errors = True
+
+    if errors:
+        print('Errors encountered! See above for details')
+    else:
+        print('All tests pass')
