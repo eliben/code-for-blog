@@ -48,6 +48,11 @@ def run_all_tests(executor_path, flags, tests_dir_path):
     a single parameter. It reads from stdin and writes to stdout.
     """
     print('\nTesting {0} {1}'.format(executor_path, ' '.join(flags)))
+
+    if not os.path.exists(executor_path):
+        print('ERROR -- {0} not found\n'.format(executor_path))
+        return
+
     starttime = time.time()
     errorcount = 0
 
@@ -82,6 +87,9 @@ def run_all_tests(executor_path, flags, tests_dir_path):
         except subprocess.TimeoutExpired as e:
             errorcount += 1
             print('ERROR -- timeout')
+        except FileNotFoundError as e:
+            errorcount += 1
+            print('ERROR -- file not found')
 
     if errorcount == 0:
         print('---- All tests ran OK ----')
@@ -98,8 +106,9 @@ if __name__ == '__main__':
         print('Run me from the main directory!')
         sys.exit(1)
     for executor in (
-            './simpleinterp',
+            './simpleinter',
             './simplejit',
+            './simpleasmjit',
             './optinterp',
             './optinterp2',
             './optinterp3'):

@@ -1,10 +1,14 @@
 # Makefile for the C++ code in bfjit.
 #
+# Some executables here require external libraries (such as asmjit); if you
+# don't have these available, you can exclude these binaries from the build.
+# Note that the Python test script (test_bf) tries to run all executables, so
+# some of its tests will fail.
+#
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 
 CXX = g++
-#CXX = ~/llvm/clang_llvm_rel_39/bin/clang++
 CXXFLAGS = -std=c++11 -Wall -O3 -g
 DEFINES =
 LDFLAGS =
@@ -40,6 +44,7 @@ jit_utils_test: $(COMMONFILES) jit_utils_test.cpp jit_utils.cpp jit_utils.h
 simplejit: $(COMMONFILES) simplejit.cpp jit_utils.h jit_utils.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
+# Point these to asmjit built from source.
 # To build the version using asmjit, asmjit needs to be compiled in static mode
 # (ASMJIT_STATIC=true). We need the asmjit headers and the statically linked
 # archive.
@@ -48,7 +53,6 @@ ASMJIT_LIB = /home/eliben/test/asmjit/build/libasmjit.a
 
 simpleasmjit: $(COMMONFILES) simpleasmjit.cpp
 	$(CXX) $(CXXFLAGS) $(ASMJIT_INCLUDE) $^ $(ASMJIT_LIB) -o $@
-
 
 .PHONY: clean format test
 
