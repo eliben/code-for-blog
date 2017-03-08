@@ -20,6 +20,7 @@ EXECUTABLES = \
 	optinterp3 \
 	simplejit \
 	simpleasmjit \
+	optasmjit \
 	jit_utils_test
 
 all: $(EXECUTABLES)
@@ -52,6 +53,9 @@ ASMJIT_INCLUDE = -I/home/eliben/test/asmjit/src
 ASMJIT_LIB = /home/eliben/test/asmjit/build/libasmjit.a
 
 simpleasmjit: $(COMMONFILES) simpleasmjit.cpp
+	$(CXX) $(CXXFLAGS) $(ASMJIT_INCLUDE) $^ $(ASMJIT_LIB) -o $@
+
+optasmjit: $(COMMONFILES) optasmjit.cpp
 	$(CXX) $(CXXFLAGS) $(ASMJIT_INCLUDE) $^ $(ASMJIT_LIB) -o $@
 
 .PHONY: clean format test

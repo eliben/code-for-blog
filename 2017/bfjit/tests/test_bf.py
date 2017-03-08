@@ -106,9 +106,10 @@ if __name__ == '__main__':
         print('Run me from the main directory!')
         sys.exit(1)
     for executor in (
-            './simpleinter',
+            './simpleinterp',
             './simplejit',
             './simpleasmjit',
+            './optasmjit',
             './optinterp',
             './optinterp2',
             './optinterp3'):
