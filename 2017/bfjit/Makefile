@@ -15,6 +15,7 @@ EXECUTABLES = \
 	optinterp2 \
 	optinterp3 \
 	simplejit \
+	simpleasmjit \
 	jit_utils_test
 
 all: $(EXECUTABLES)
@@ -38,6 +39,16 @@ jit_utils_test: $(COMMONFILES) jit_utils_test.cpp jit_utils.cpp jit_utils.h
 
 simplejit: $(COMMONFILES) simplejit.cpp jit_utils.h jit_utils.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
+
+# To build the version using asmjit, asmjit needs to be compiled in static mode
+# (ASMJIT_STATIC=true). We need the asmjit headers and the statically linked
+# archive.
+ASMJIT_INCLUDE = -I/home/eliben/test/asmjit/src
+ASMJIT_LIB = /home/eliben/test/asmjit/build/libasmjit.a
+
+simpleasmjit: $(COMMONFILES) simpleasmjit.cpp
+	$(CXX) $(CXXFLAGS) $(ASMJIT_INCLUDE) $^ $(ASMJIT_LIB) -o $@
+
 
 .PHONY: clean format test
 
