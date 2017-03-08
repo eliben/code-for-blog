@@ -256,13 +256,12 @@ void optasmjit(const Program& p, bool verbose) {
   // Registers used in the program:
   //
   // r13: the data pointer
-  // r14: a temporary data pointer useful for some instructions
-  // rax: a temporary data contained useful for some instructions
+  // r14 and rax: used temporarily for some instructions
   // rdi: parameter from the host -- the host passes the address of memory
   // here.
 
   asmjit::X86Gp dataptr = asmjit::x86::r13;
-  asmjit::X86Gp tempptr = asmjit::x86::r14;
+
   // We pass the data pointer as an argument to the JITed function, so it's
   // expected to be in rdi. Move it to r13.
   assm.mov(dataptr, asmjit::x86::rdi);
@@ -337,17 +336,18 @@ void optasmjit(const Program& p, bool verbose) {
       asmjit::Label skip_move = assm.newLabel();
       assm.cmp(asmjit::x86::byte_ptr(dataptr), 0);
       assm.jz(skip_move);
-      assm.mov(tempptr, dataptr);
+
+      assm.mov(asmjit::x86::r14, dataptr);
       if (op.argument < 0) {
-        assm.sub(tempptr, -op.argument);
+        assm.sub(asmjit::x86::r14, -op.argument);
       } else {
-        assm.add(tempptr, op.argument);
+        assm.add(asmjit::x86::r14, op.argument);
       }
       // Use rax as a temporary holding the value of at the original pointer;
       // then use al to add it to the new location, so that only the target
       // location is affected: addb %al, 0(%r13)
       assm.mov(asmjit::x86::rax, asmjit::x86::byte_ptr(dataptr));
-      assm.add(asmjit::x86::byte_ptr(tempptr), asmjit::x86::al);
+      assm.add(asmjit::x86::byte_ptr(asmjit::x86::r14), asmjit::x86::al);
       assm.mov(asmjit::x86::byte_ptr(dataptr), 0);
       assm.bind(skip_move);
       break;
