@@ -96,7 +96,7 @@ void simpleasmjit(const Program& p, bool verbose) {
       // us emit the jump now and will handle the back-patching later.
       assm.jz(close_label);
 
-      // The open_label is bound past the jump; all in all, we're emitting:
+      // open_label is bound past the jump; all in all, we're emitting:
       //
       //    cmpb 0(%r13), 0
       //    jz close_label
