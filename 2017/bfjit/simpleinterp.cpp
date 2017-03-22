@@ -67,7 +67,7 @@ void simpleinterp(const Program& p, bool verbose) {
         int bracket_nesting = 1;
         size_t saved_pc = pc;
 
-        while (bracket_nesting && pc < p.instructions.size()) {
+        while (bracket_nesting && pc > 0) {
           pc--;
           if (p.instructions[pc] == '[') {
             bracket_nesting--;
