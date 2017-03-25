@@ -7,7 +7,7 @@
 #include <iomanip>
 #include <stack>
 #include <asmjit/asmjit.h>
-
+#include <vector>
 #include "parser.h"
 #include "utils.h"
 

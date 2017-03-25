@@ -6,6 +6,8 @@
 #include <fstream>
 #include <iomanip>
 #include <stack>
+#include <vector>
+
 #include <asmjit/asmjit.h>
 
 #include "parser.h"
