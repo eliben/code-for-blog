@@ -37,5 +37,3 @@ if __name__ == '__main__':
     print([fib_almost_tail(i) for i in range(1, 11)])
     print([fib_tail(i) for i in range(1, 11)])
     print([fib_iterative(i) for i in range(1, 11)])
-
-    #print(fib_rec(40))
