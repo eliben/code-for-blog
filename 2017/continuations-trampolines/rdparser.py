@@ -1,3 +1,5 @@
+# Recursive-descent parser.
+#
 # Grammar:
 #
 # <expr>    : <term> + <expr>
@@ -11,6 +13,9 @@
 # Note: our implementation here is simplistic, and suffers from the
 # associativity problem described in
 # http://eli.thegreenplace.net/2009/03/14/some-problems-of-recursive-descent-parsers/
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 
 def parse_expr(tokens):
     lval = parse_term(tokens)
