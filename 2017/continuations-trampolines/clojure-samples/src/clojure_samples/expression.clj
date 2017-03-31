@@ -5,7 +5,7 @@
 (ns clojure-samples.expression)
 
 (defn expr
-  []
+ []
   (* 2 (+ 3 4)))
 
 (expr)
@@ -43,3 +43,8 @@
 (expr-cps (fn [value] (apply-cont
                         (fn [value] (apply-cont end-cont (+ value 100)))
                         (* 2 value))))
+
+(defn real-end-cont [value] value)
+
+(expr-cps (fn [value]
+            ((fn [value] (real-end-cont (+ value 100))) (* 2 value))))
