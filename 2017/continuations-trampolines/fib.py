@@ -3,7 +3,10 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 
+import tracing
 
+
+#@tracing.TraceCalls()
 def fib_rec(n):
     if n < 2:
         return 1
@@ -57,7 +60,30 @@ def fib_cps(n, cont):
                                  lambda value2: cont(value + value2)))
 
 
+@tracing.TraceCalls()
+def fib_cps_thunked(n, cont):
+    if n < 2:
+        return cont(1)
+    else:
+        return lambda: fib_cps_thunked(
+                         n - 1,
+                         lambda value:
+                           lambda: fib_cps_thunked(
+                                     n - 2,
+                                     lambda value2:
+                                       lambda: cont(value + value2)))
+
+@tracing.TraceCalls()
+def trampoline(f, *args):
+    v = f(*args)
+    while callable(v):
+        v = v()
+    return v
+
+
 if __name__ == '__main__':
+    #print(fib_rec(8))
+    #print(trampoline(fib_cps_thunked, 8, end_cont))
     print([fib_rec(i) for i in range(1, 11)])
     print([fib_almost_tail(i) for i in range(1, 11)])
     print([fib_tail(i) for i in range(1, 11)])
@@ -65,4 +91,6 @@ if __name__ == '__main__':
 
     print([fib_cps_partial(i, end_cont) for i in range(1, 11)])
     print([fib_cps(i, end_cont) for i in range(1, 11)])
+
+    print([trampoline(fib_cps_thunked, i, end_cont) for i in range(1, 11)])
 
