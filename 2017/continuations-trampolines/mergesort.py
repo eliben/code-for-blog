@@ -42,5 +42,18 @@ def test_sorter(sortfunc):
     assert sortfunc([4, 3, 7, 6, 5, 0, 1, 2, 9, 8]) == list(range(10))
 
 
+def merge_sort_cps(lst, cont):
+    n = len(lst)
+    if n <= 1:
+        return cont(lst)
+    else:
+        mid = int(n / 2)
+        return merge_sort_cps(
+                lst[:mid],
+                lambda v1: merge_sort_cps(lst[mid:],
+                                          lambda v2: cont(merge(v1, v2))))
+
+
 if __name__ == '__main__':
     test_sorter(merge_sort)
+    test_sorter(lambda lst: merge_sort_cps(lst, lambda value: value))
