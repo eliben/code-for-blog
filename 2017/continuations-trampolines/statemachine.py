@@ -3,7 +3,8 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 
-# The framing protocol is as described in http://eli.thegreenplace.net/2009/08/29/co-routines-as-an-alternative-to-state-machines
+# The framing protocol is as described in
+# http://eli.thegreenplace.net/2009/08/29/co-routines-as-an-alternative-to-state-machines
 HEADER = 0x61
 FOOTER = 0x62
 DLE = 0xAB
