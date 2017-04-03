@@ -30,6 +30,7 @@ def parse_expr(tokens):
     rval = parse_expr(tokens)
     return op(lval, rval)
 
+
 def parse_term(tokens):
     lval = parse_factor(tokens)
     if len(tokens) == 0:
@@ -42,6 +43,7 @@ def parse_term(tokens):
     tokens.pop(0)
     rval = parse_term(tokens)
     return op(lval, rval)
+
 
 def parse_factor(tokens):
     tok = tokens.pop(0)
