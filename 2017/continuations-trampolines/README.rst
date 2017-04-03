@@ -1,1 +1,1 @@
-All the code in this folder was tested with Python 3.5
+All the Python code in this folder was tested with Python 3.5
