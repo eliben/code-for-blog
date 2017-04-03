@@ -6,7 +6,6 @@
 import tracing
 
 
-#@tracing.TraceCalls()
 def fib_rec(n):
     if n < 2:
         return 1
@@ -36,7 +35,6 @@ def fib_iterative(n):
         accum1, accum2 = accum1 + accum2, accum1
     return accum1
 
-end_cont = lambda value: value
 
 # CPS transform partially applied.
 def fib_cps_partial(n, cont):
@@ -73,12 +71,16 @@ def fib_cps_thunked(n, cont):
                                      lambda value2:
                                        lambda: cont(value + value2)))
 
+
 @tracing.TraceCalls()
 def trampoline(f, *args):
     v = f(*args)
     while callable(v):
         v = v()
     return v
+
+
+end_cont = lambda value: value
 
 
 if __name__ == '__main__':
@@ -93,4 +95,3 @@ if __name__ == '__main__':
     print([fib_cps(i, end_cont) for i in range(1, 11)])
 
     print([trampoline(fib_cps_thunked, i, end_cont) for i in range(1, 11)])
-

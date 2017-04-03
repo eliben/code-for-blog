@@ -11,6 +11,7 @@ def merge_sort(lst):
         mid = int(n / 2)
         return merge(merge_sort(lst[:mid]), merge_sort(lst[mid:]))
 
+
 def merge(lst1, lst2):
     """Merges two sorted lists into a single sorted list.
 
@@ -27,6 +28,7 @@ def merge(lst1, lst2):
         else:
             result.append(lst2.pop(0))
     return result
+
 
 def test_sorter(sortfunc):
     assert sortfunc([1]) == [1]
