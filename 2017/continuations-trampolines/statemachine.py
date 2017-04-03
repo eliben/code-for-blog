@@ -10,7 +10,7 @@ FOOTER = 0x62
 DLE = 0xAB
 
 
-# Basic state machine
+# Basic state machine using explicit state.
 class ProtocolWrapper:
     def __init__(self):
         self.state = self.WAIT_HEADER
@@ -47,9 +47,14 @@ class ProtocolWrapper:
             raise AssertionError()
 
 
-# State machine using recursive tail calls. Avoiding python generators on
-# purpose to demonstrate a point - generators/yield provide for a better general
-# approach in Python.
+# State machine using recursive tail calls. Every state is handled by a
+# state_<name> method in this class, and state transitions are modeled by
+# calling these methods. Note that this means the call stack may grow
+# indefinitely for arbitrary state machines - this should be addressed with
+# trampolines.
+#
+# Avoiding python generators on purpose to demonstrate a point -
+# generators/yield provide for a better general approach in Python.
 class ProtocolStateRecursive:
     def __init__(self, input_feed, frame_callback):
         """Creates a new protocol.
