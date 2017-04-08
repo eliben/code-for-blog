@@ -1,4 +1,5 @@
-# Recursive-descent parser.
+# Recursive-descent parser code sample, demonstrating a straightforward approach
+# followed by CPS conversion.
 #
 # Grammar:
 #
@@ -23,6 +24,7 @@ def parse_expr(tokens):
         return lval
     op_tok = tokens[0]
     if op_tok == '+':
+        # This approach can be easily extended to support more operators.
         op = lambda a, b: a + b
     else:
         return lval
@@ -131,7 +133,6 @@ if __name__ == '__main__':
     etoks = e.split()
     print('parsing:', etoks)
     print(parse_expr(etoks))
-
     print(parse_expr_cps(e.split(), lambda v: v))
 
     test_parser(parse_expr)

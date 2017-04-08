@@ -1,4 +1,4 @@
-# Examples of multiple recursion with fibonacci.
+# Examples of multiple recursion with fibonacci, CPS and trampolining.
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
@@ -84,8 +84,6 @@ end_cont = lambda value: value
 
 
 if __name__ == '__main__':
-    #print(fib_rec(8))
-    #print(trampoline(fib_cps_thunked, 8, end_cont))
     print([fib_rec(i) for i in range(1, 11)])
     print([fib_almost_tail(i) for i in range(1, 11)])
     print([fib_tail(i) for i in range(1, 11)])
