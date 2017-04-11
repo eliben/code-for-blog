@@ -77,14 +77,14 @@ void simpleasmjit(const Program& p, bool verbose) {
       break;
     case '.':
       // call myputchar [dataptr]
-      assm.mov(asmjit::x86::rdi, asmjit::x86::byte_ptr(dataptr));
+      assm.movzx(asmjit::x86::rdi, asmjit::x86::byte_ptr(dataptr));
       assm.call(asmjit::imm_ptr(myputchar));
       break;
     case ',':
       // [dataptr] = call mygetchar
       // Store only the low byte to memory to avoid overwriting unrelated data.
       assm.call(asmjit::imm_ptr(mygetchar));
-      assm.mov(asmjit::x86::byte_ptr(dataptr), asmjit::x86::ax);
+      assm.mov(asmjit::x86::byte_ptr(dataptr), asmjit::x86::al);
       break;
     case '[': {
       assm.cmp(asmjit::x86::byte_ptr(dataptr), 0);
@@ -96,7 +96,7 @@ void simpleasmjit(const Program& p, bool verbose) {
       // us emit the jump now and will handle the back-patching later.
       assm.jz(close_label);
 
-      // The open_label is bound past the jump; all in all, we're emitting:
+      // open_label is bound past the jump; all in all, we're emitting:
       //
       //    cmpb 0(%r13), 0
       //    jz close_label

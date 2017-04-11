@@ -100,11 +100,6 @@ std::vector<BfOp> optimize_loop(const std::vector<BfOp>& ops,
         ops[loop_start + 3].kind == BfOpKind::INC_DATA &&
         ops[loop_start + 1].argument == 1 &&
         ops[loop_start + 3].argument == 1) {
-      std::string s;
-      for (size_t i = loop_start + 1; i < ops.size(); ++i) {
-        ops[i].serialize(&s);
-      }
-
       if (ops[loop_start + 2].kind == BfOpKind::INC_PTR &&
           ops[loop_start + 4].kind == BfOpKind::DEC_PTR &&
           ops[loop_start + 2].argument == ops[loop_start + 4].argument) {
