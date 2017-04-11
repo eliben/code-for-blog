@@ -284,7 +284,7 @@ void optasmjit(const Program& p, bool verbose) {
     case BfOpKind::WRITE_STDOUT:
       for (int i = 0; i < op.argument; ++i) {
         // call myputchar [dataptr]
-        assm.mov(asmjit::x86::rdi, asmjit::x86::byte_ptr(dataptr));
+        assm.movzx(asmjit::x86::rdi, asmjit::x86::byte_ptr(dataptr));
         assm.call(asmjit::imm_ptr(myputchar));
       }
       break;
@@ -294,7 +294,7 @@ void optasmjit(const Program& p, bool verbose) {
         // Store only the low byte to memory to avoid overwriting unrelated
         // data.
         assm.call(asmjit::imm_ptr(mygetchar));
-        assm.mov(asmjit::x86::byte_ptr(dataptr), asmjit::x86::ax);
+        assm.mov(asmjit::x86::byte_ptr(dataptr), asmjit::x86::al);
       }
       break;
     case BfOpKind::LOOP_SET_TO_ZERO:
@@ -346,7 +346,7 @@ void optasmjit(const Program& p, bool verbose) {
       // Use rax as a temporary holding the value of at the original pointer;
       // then use al to add it to the new location, so that only the target
       // location is affected: addb %al, 0(%r13)
-      assm.mov(asmjit::x86::rax, asmjit::x86::byte_ptr(dataptr));
+      assm.movzx(asmjit::x86::rax, asmjit::x86::byte_ptr(dataptr));
       assm.add(asmjit::x86::byte_ptr(asmjit::x86::r14), asmjit::x86::al);
       assm.mov(asmjit::x86::byte_ptr(dataptr), 0);
       assm.bind(skip_move);
@@ -362,7 +362,7 @@ void optasmjit(const Program& p, bool verbose) {
       // us emit the jump now and will handle the back-patching later.
       assm.jz(close_label);
 
-      // The open_label is bound past the jump; all in all, we're emitting:
+      // open_label is bound past the jump; all in all, we're emitting:
       //
       //    cmpb 0(%r13), 0
       //    jz close_label
