@@ -41,7 +41,3 @@ class TraceCalls(object):
 
     def _argrepr(self, arg):
         return repr(arg)
-        if callable(arg):
-            return '<callable>'
-        else:
-            return repr(arg)
