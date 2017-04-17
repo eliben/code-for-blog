@@ -70,7 +70,7 @@ LLVM_LDFLAGS := `$(LLVM_BIN_PATH)/llvm-config --ldflags --libs --system-libs`
 
 # The rdynamic linker flag is used since this is a JIT loading itself for access
 # to host symbols.
-llvmjit: utils.cpp parser.cpp llvmjit.cpp
+llvmjit: llvm_jit_utils.cpp utils.cpp parser.cpp llvmjit.cpp
 	$(CLANG_CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) $^ -rdynamic $(LLVM_LDFLAGS) -o $@
 
 .PHONY: clean format test
