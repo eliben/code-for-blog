@@ -357,7 +357,7 @@ Function* emit_jit_function(const Program& program, Module* module,
   return jit_func;
 }
 
-void llvmjit(const Program& program) {
+void llvmjit(const Program& program, bool verbose) {
   LLVMContext context;
   std::unique_ptr<Module> module(new Module("bfmodule", context));
 
@@ -426,25 +426,48 @@ void llvmjit(const Program& program) {
 }
 
 int main(int argc, const char** argv) {
-  std::string bf_file_path = argv[1];
+  bool verbose = false;
+  std::string bf_file_path;
+  parse_command_line(argc, argv, &bf_file_path, &verbose);
+
+  Timer t1;
   std::ifstream file(bf_file_path);
   if (!file) {
     DIE << "unable to open file " << bf_file_path;
   }
   Program program = parse_from_stream(file);
 
-  std::cout << "Host CPU name: " << llvm::sys::getHostCPUName().str() << "\n";
-  std::cout << "CPU features:\n";
-  llvm::StringMap<bool> host_features;
-  if (llvm::sys::getHostCPUFeatures(host_features)) {
-    for (auto& feature : host_features) {
-      if (feature.second) {
-        std::cout << "  " << feature.first().str() << "\n";
+  if (verbose) {
+    std::cout << "Parsing took: " << t1.elapsed() << "s\n";
+    std::cout << "Length of program: " << program.instructions.size() << "\n";
+    std::cout << "Program:\n" << program.instructions << "\n";
+    std::cout << "Host CPU name: " << llvm::sys::getHostCPUName().str() << "\n";
+    std::cout << "CPU features:\n";
+    llvm::StringMap<bool> host_features;
+    if (llvm::sys::getHostCPUFeatures(host_features)) {
+      int linecount = 0;
+      for (auto& feature : host_features) {
+        if (feature.second) {
+          std::cout << "  " << feature.first().str();
+          if (++linecount % 4 == 0) {
+            std::cout << "\n";
+          }
+        }
       }
     }
+    std::cout << "\n";
   }
 
-  llvmjit(program);
+  if (verbose) {
+    std::cout << "[>] Running llvmjit:\n";
+  }
+
+  Timer t2;
+  llvmjit(program, verbose);
+
+  if (verbose) {
+    std::cout << "[<] Done (elapsed: " << t2.elapsed() << "s)\n";
+  }
 
   return 0;
 }
