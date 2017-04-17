@@ -1,4 +1,7 @@
-// TODO: switch to normal (non-LLVM) style
+// An JIT for BF using LLVM.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 
 // TODO: mention how uninitialized dataptr leads LLVM to go crazy - cool example
 // of undefined behavior "optimizations".
@@ -24,7 +27,10 @@ constexpr int MEMORY_SIZE = 30000;
 const char* const JIT_FUNC_NAME = "__llvmjit";
 
 // Host function callable from JITed code. Given a pointer to program memory,
-// dumps non-zero entries to cout.
+// dumps non-zero entries to std::cout. This function is declared extern "C" so
+// that we can refer to it in the emitted LLVM IR without mangling the name.
+// Alternatively, we could use the LLVM mangler to mangle the name for us (and
+// then the extern "C" wouldn't be necessary).
 extern "C" void dump_memory(uint8_t* memory) {
   std::cout << "* Memory nonzero locations:\n";
   for (size_t i = 0, pcount = 0; i < MEMORY_SIZE; ++i) {
@@ -177,17 +183,21 @@ llvm::Function* emit_jit_function(const Program& program, llvm::Module* module,
     }
   }
 
+  // TODO: Only do this in verbose mode!
   builder.CreateCall(dump_memory_func, {memory});
   builder.CreateRetVoid();
 
   return jit_func;
 }
 
+// The main entry to the JIT. Takes the parsed program, emits it to LLVM IR,
+// runs optimizations, JITs to native code and runs the native code.
 void llvmjit(const Program& program, bool verbose) {
   llvm::LLVMContext context;
   std::unique_ptr<llvm::Module> module(new llvm::Module("bfmodule", context));
 
-  // Add a declaration for external functions used in the JITed code.
+  // Add a declaration for external functions used in the JITed code. We use
+  // putchar and getchar for I/O and dump_memory for reporting in verbose mode.
   llvm::Type* int32_type = llvm::Type::getInt32Ty(context);
   llvm::Type* void_type = llvm::Type::getVoidTy(context);
 
@@ -197,15 +207,17 @@ void llvmjit(const Program& program, bool verbose) {
   llvm::Function* getchar_func = llvm::Function::Create(
       llvm::FunctionType::get(int32_type, {}, false),
       llvm::Function::ExternalLinkage, "getchar", module.get());
-
   llvm::Function* dump_memory_func = llvm::Function::Create(
       llvm::FunctionType::get(void_type, {llvm::Type::getInt8PtrTy(context)},
                               false),
       llvm::Function::ExternalLinkage, "dump_memory", module.get());
 
+  // Compile the BF program to LLVM IR.
   llvm::Function* jit_func = emit_jit_function(
       program, module.get(), dump_memory_func, putchar_func, getchar_func);
 
+  // TODO: use the tostring trick to print/dump this to a string and then to
+  // a file. Same with all dumps here -- do not dump to errs/outs directly.
   std::cout << "---> Pre optimization module:\n";
   module->dump();
 
@@ -213,13 +225,9 @@ void llvmjit(const Program& program, bool verbose) {
     DIE << "Error verifying function... exiting";
   }
 
-  // Now execute...
-
+  // Optimize the emitted LLVM IR.
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
-
-  SimpleOrcJIT jit(/*verbose=*/verbose);
-  module->setDataLayout(jit.get_target_machine().createDataLayout());
 
   llvm::PassManagerBuilder pm_builder;
   pm_builder.OptLevel = 3;
@@ -231,14 +239,13 @@ void llvmjit(const Program& program, bool verbose) {
   pm_builder.populateFunctionPassManager(*function_pm);
   function_pm->doInitialization();
 
-  // TODO: looks like the optimizer just removes all data movement instructions;
-  // also, the element increments aren't coalesced
-  // I can try to dump IR and then run opt -O3 on it to see what passes do to
-  // it.
   function_pm->run(*jit_func);
   std::cout << "---> Post optimization module:\n";
   module->dump();
 
+  // JIT the optimized LLVM IR to native code and execute it.
+  SimpleOrcJIT jit(/*verbose=*/verbose);
+  module->setDataLayout(jit.get_target_machine().createDataLayout());
   jit.add_module(std::move(module));
 
   llvm::JITSymbol jit_func_sym = jit.find_symbol(JIT_FUNC_NAME);
