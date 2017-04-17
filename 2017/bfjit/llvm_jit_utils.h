@@ -32,7 +32,7 @@ public:
     return *target_machine_;
   }
 
-  // Add an LLVM module to the JIT.
+  // Add an LLVM module to the JIT. The JIT takes ownership.
   void add_module(std::unique_ptr<llvm::Module> module);
 
   // Find a symbol in JITed code. name is plain, unmangled. SimpleOrcJIT will

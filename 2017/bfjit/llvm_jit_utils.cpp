@@ -19,61 +19,71 @@ namespace {
 // produced by LLVM. Note that no IR-level optimizations are performed here.
 class ObjectDumpingCompiler {
 public:
-  ObjectDumpingCompiler(TargetMachine& TM) : TM(TM) {}
+  ObjectDumpingCompiler(TargetMachine& target_machine, bool verbose)
+      : target_machine_(target_machine), verbose_(verbose) {}
 
-  object::OwningBinary<object::ObjectFile> operator()(Module& M) const {
-    SmallVector<char, 0> ObjBufferSV;
-    raw_svector_ostream ObjStream(ObjBufferSV);
+  object::OwningBinary<object::ObjectFile> operator()(Module& module) const {
+    SmallVector<char, 0> obj_buffer_vec;
+    raw_svector_ostream obj_stream(obj_buffer_vec);
 
-    legacy::PassManager PM;
-    MCContext* Ctx;
-    if (TM.addPassesToEmitMC(PM, Ctx, ObjStream)) {
+    legacy::PassManager pass_manager;
+    MCContext* context;
+    if (target_machine_.addPassesToEmitMC(pass_manager, context, obj_stream)) {
       DIE << "Target does not support MC emission";
     }
-    PM.run(M);
-    std::unique_ptr<MemoryBuffer> ObjBuffer(
-        new ObjectMemoryBuffer(std::move(ObjBufferSV)));
+    pass_manager.run(module);
+    std::unique_ptr<MemoryBuffer> obj_buffer(
+        new ObjectMemoryBuffer(std::move(obj_buffer_vec)));
 
-    Expected<std::unique_ptr<object::ObjectFile>> Obj =
-        object::ObjectFile::createObjectFile(ObjBuffer->getMemBufferRef());
+    Expected<std::unique_ptr<object::ObjectFile>> obj =
+        object::ObjectFile::createObjectFile(obj_buffer->getMemBufferRef());
 
-    bool found_text_section = false;
-    for (auto& section : (*Obj)->sections()) {
-      if (section.isText()) {
-        if (found_text_section) {
-          StringRef section_name;
-          section.getName(section_name);
-          DIE << "Found text section already; also found "
-              << section_name.str();
-        }
-        found_text_section = true;
+    // Here we dump the emitted object to a raw binary file. This object is not
+    // loaded (relocated) yet, so instructions like calls will have
+    // placeholders.
+    //
+    // LLVM represents the object in memory as an ELF image. To dump the code,
+    // we iterate to find the text section and emit its contents.
+    if (verbose_) {
+      bool found_text_section = false;
+      for (auto& section : (*obj)->sections()) {
+        if (section.isText()) {
+          if (found_text_section) {
+            StringRef section_name;
+            section.getName(section_name);
+            DIE << "Found text section already; also found "
+                << section_name.str();
+          }
+          found_text_section = true;
 
-        StringRef sr;
-        auto err = section.getContents(sr);
-        if (!err) {
-          std::cout << "** got section contents\n";
-          std::string filename = "/tmp/jitout.bin";
-          FILE* outfile = fopen(filename.c_str(), "wb");
-          if (outfile) {
-            size_t n = sr.size();
-            if (fwrite(sr.data(), 1, n, outfile) == n) {
-              std::cout << "** emitted code to " << filename << "\n";
+          StringRef sr;
+          auto err = section.getContents(sr);
+          if (!err) {
+            std::string filename = "/tmp/llvmjit-out.bin";
+            FILE* outfile = fopen(filename.c_str(), "wb");
+            if (outfile) {
+              size_t n = sr.size();
+              if (fwrite(sr.data(), 1, n, outfile) == n) {
+                std::cout << "[*] emitted code to " << filename << "\n";
+              }
+              fclose(outfile);
             }
-            fclose(outfile);
           }
         }
       }
     }
 
-    typedef object::OwningBinary<object::ObjectFile> OwningObj;
-    if (Obj)
-      return OwningObj(std::move(*Obj), std::move(ObjBuffer));
-    consumeError(Obj.takeError());
-    return OwningObj(nullptr, nullptr);
+    typedef object::OwningBinary<object::ObjectFile> owning_obj;
+    if (obj) {
+      return owning_obj(std::move(*obj), std::move(obj_buffer));
+    }
+    consumeError(obj.takeError());
+    return owning_obj(nullptr, nullptr);
   }
 
 private:
-  TargetMachine& TM;
+  TargetMachine& target_machine_;
+  bool verbose_;
 };
 
 } // namespace {
@@ -81,7 +91,8 @@ private:
 SimpleOrcJIT::SimpleOrcJIT(bool verbose)
     : verbose_(verbose), target_machine_(EngineBuilder().selectTarget()),
       data_layout_(target_machine_->createDataLayout()),
-      compile_layer_(object_layer_, ObjectDumpingCompiler(*target_machine_)) {
+      compile_layer_(object_layer_,
+                     ObjectDumpingCompiler(*target_machine_, verbose_)) {
   std::string error_string;
   if (llvm::sys::DynamicLibrary::LoadLibraryPermanently(nullptr,
                                                         &error_string)) {

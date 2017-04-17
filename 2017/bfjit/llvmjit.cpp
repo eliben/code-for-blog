@@ -218,7 +218,7 @@ void llvmjit(const Program& program, bool verbose) {
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
 
-  SimpleOrcJIT jit(/*verbose=*/true);
+  SimpleOrcJIT jit(/*verbose=*/verbose);
   module->setDataLayout(jit.get_target_machine().createDataLayout());
 
   llvm::PassManagerBuilder pm_builder;
