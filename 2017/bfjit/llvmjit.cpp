@@ -48,6 +48,13 @@ extern "C" void dump_memory(uint8_t* memory) {
   std::cout << "\n";
 }
 
+std::string llvm_module_to_string(const llvm::Module& module) {
+  std::string str;
+  llvm::raw_string_ostream os(str);
+  module.print(os, nullptr);
+  return os.str();
+}
+
 struct BracketBlocks {
   BracketBlocks(llvm::BasicBlock* lbb, llvm::BasicBlock* plb)
       : loop_body_block(lbb), post_loop_block(plb) {}
@@ -59,8 +66,7 @@ struct BracketBlocks {
 llvm::Function* emit_jit_function(const Program& program, llvm::Module* module,
                                   llvm::Function* dump_memory_func,
                                   llvm::Function* putchar_func,
-                                  llvm::Function* getchar_func,
-                                  bool verbose) {
+                                  llvm::Function* getchar_func, bool verbose) {
   llvm::LLVMContext& context = module->getContext();
 
   llvm::Type* int32_type = llvm::Type::getInt32Ty(context);
@@ -215,14 +221,14 @@ void llvmjit(const Program& program, bool verbose) {
       llvm::Function::ExternalLinkage, "dump_memory", module.get());
 
   // Compile the BF program to LLVM IR.
-  llvm::Function* jit_func = emit_jit_function(
-      program, module.get(), dump_memory_func, putchar_func, getchar_func,
-      verbose);
+  llvm::Function* jit_func =
+      emit_jit_function(program, module.get(), dump_memory_func, putchar_func,
+                        getchar_func, verbose);
 
-  // TODO: use the tostring trick to print/dump this to a string and then to
-  // a file. Same with all dumps here -- do not dump to errs/outs directly.
-  std::cout << "---> Pre optimization module:\n";
-  module->dump();
+  if (verbose) {
+    std::string s = llvm_module_to_string(*module);
+    std::cout << "[Pre optimization module]\n" << s;
+  }
 
   if (llvm::verifyFunction(*jit_func, &llvm::errs())) {
     DIE << "Error verifying function... exiting";
@@ -243,8 +249,11 @@ void llvmjit(const Program& program, bool verbose) {
   function_pm->doInitialization();
 
   function_pm->run(*jit_func);
-  std::cout << "---> Post optimization module:\n";
-  module->dump();
+
+  if (verbose) {
+    std::string s = llvm_module_to_string(*module);
+    std::cout << "\n[Post optimization module]\n" << s;
+  }
 
   // JIT the optimized LLVM IR to native code and execute it.
   SimpleOrcJIT jit(/*verbose=*/verbose);
