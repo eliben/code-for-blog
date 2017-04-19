@@ -48,11 +48,13 @@ extern "C" void dump_memory(uint8_t* memory) {
   std::cout << "\n";
 }
 
-std::string llvm_module_to_string(const llvm::Module& module) {
+void llvm_module_to_file(const llvm::Module& module, const char* filename) {
   std::string str;
   llvm::raw_string_ostream os(str);
   module.print(os, nullptr);
-  return os.str();
+
+  std::ofstream of(filename);
+  of << os.str();
 }
 
 struct BracketBlocks {
@@ -226,8 +228,9 @@ void llvmjit(const Program& program, bool verbose) {
                         getchar_func, verbose);
 
   if (verbose) {
-    std::string s = llvm_module_to_string(*module);
-    std::cout << "[Pre optimization module]\n" << s;
+    const char* pre_opt_file = "/tmp/llvmjit-pre-opt.ll";
+    llvm_module_to_file(*module, pre_opt_file);
+    std::cout << "[Pre optimization module] dumped to " << pre_opt_file << "\n";
   }
 
   if (llvm::verifyFunction(*jit_func, &llvm::errs())) {
@@ -251,8 +254,10 @@ void llvmjit(const Program& program, bool verbose) {
   function_pm->run(*jit_func);
 
   if (verbose) {
-    std::string s = llvm_module_to_string(*module);
-    std::cout << "\n[Post optimization module]\n" << s;
+    const char* post_opt_file = "/tmp/llvmjit-post-opt.ll";
+    llvm_module_to_file(*module, post_opt_file);
+    std::cout << "[Post optimization module] dumped to " << post_opt_file
+              << "\n";
   }
 
   // JIT the optimized LLVM IR to native code and execute it.
