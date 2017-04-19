@@ -59,8 +59,8 @@ public:
           StringRef sr;
           auto err = section.getContents(sr);
           if (!err) {
-            std::string filename = "/tmp/llvmjit-out.bin";
-            FILE* outfile = fopen(filename.c_str(), "wb");
+            const char* filename = "/tmp/llvmjit-out.bin";
+            FILE* outfile = fopen(filename, "wb");
             if (outfile) {
               size_t n = sr.size();
               if (fwrite(sr.data(), 1, n, outfile) == n) {
