@@ -59,7 +59,8 @@ struct BracketBlocks {
 llvm::Function* emit_jit_function(const Program& program, llvm::Module* module,
                                   llvm::Function* dump_memory_func,
                                   llvm::Function* putchar_func,
-                                  llvm::Function* getchar_func) {
+                                  llvm::Function* getchar_func,
+                                  bool verbose) {
   llvm::LLVMContext& context = module->getContext();
 
   llvm::Type* int32_type = llvm::Type::getInt32Ty(context);
@@ -183,10 +184,11 @@ llvm::Function* emit_jit_function(const Program& program, llvm::Module* module,
     }
   }
 
-  // TODO: Only do this in verbose mode!
-  builder.CreateCall(dump_memory_func, {memory});
-  builder.CreateRetVoid();
+  if (verbose) {
+    builder.CreateCall(dump_memory_func, {memory});
+  }
 
+  builder.CreateRetVoid();
   return jit_func;
 }
 
@@ -214,7 +216,8 @@ void llvmjit(const Program& program, bool verbose) {
 
   // Compile the BF program to LLVM IR.
   llvm::Function* jit_func = emit_jit_function(
-      program, module.get(), dump_memory_func, putchar_func, getchar_func);
+      program, module.get(), dump_memory_func, putchar_func, getchar_func,
+      verbose);
 
   // TODO: use the tostring trick to print/dump this to a string and then to
   // a file. Same with all dumps here -- do not dump to errs/outs directly.
