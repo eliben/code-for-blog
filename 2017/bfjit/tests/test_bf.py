@@ -115,6 +115,7 @@ if __name__ == '__main__':
             './simplejit',
             './simpleasmjit',
             './optasmjit',
+            './llvmjit',
             './optinterp',
             './optinterp2',
             './optinterp3'):
