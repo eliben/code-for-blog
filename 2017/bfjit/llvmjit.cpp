@@ -246,12 +246,16 @@ void llvmjit(const Program& program, bool verbose) {
   pm_builder.SizeLevel = 0;
   pm_builder.LoopVectorize = true;
   pm_builder.SLPVectorize = true;
-  auto function_pm =
-      llvm::make_unique<llvm::legacy::FunctionPassManager>(module.get());
-  pm_builder.populateFunctionPassManager(*function_pm);
-  function_pm->doInitialization();
 
-  function_pm->run(*jit_func);
+  llvm::legacy::FunctionPassManager function_pm(module.get());
+  llvm::legacy::PassManager module_pm;
+  pm_builder.populateFunctionPassManager(function_pm);
+  pm_builder.populateModulePassManager(module_pm);
+
+  function_pm.doInitialization();
+  function_pm.run(*jit_func);
+
+  module_pm.run(*module);
 
   if (verbose) {
     const char* post_opt_file = "/tmp/llvmjit-post-opt.ll";
