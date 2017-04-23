@@ -115,7 +115,7 @@ void SimpleOrcJIT::add_module(std::unique_ptr<llvm::Module> module) {
   // new module. Create one that resolves symbols by looking back into the
   // JIT.
   auto resolver = orc::createLambdaResolver(
-      [&](const std::string& name) {
+      [this](const std::string& name) {
         if (auto sym = find_mangled_symbol(name)) {
           return sym;
         }
