@@ -121,7 +121,13 @@ void SimpleOrcJIT::add_module(std::unique_ptr<llvm::Module> module) {
         }
         return JITSymbol(nullptr);
       },
-      [](const std::string&) { return nullptr; });
+      [](const std::string& name) {
+        if (auto sym_addr =
+                RTDyldMemoryManager::getSymbolAddressInProcess(name)) {
+          return JITSymbol(sym_addr, JITSymbolFlags::Exported);
+        }
+        return JITSymbol(nullptr);
+      });
   std::vector<std::unique_ptr<llvm::Module>> moduleset;
   moduleset.push_back(std::move(module));
   auto handle = compile_layer_.addModuleSet(std::move(moduleset),
@@ -153,11 +159,5 @@ llvm::JITSymbol SimpleOrcJIT::find_mangled_symbol(const std::string& name) {
       return sym;
     }
   }
-
-  // If we can't find the symbol in the JIT, try looking in the host process.
-  if (auto sym_addr = RTDyldMemoryManager::getSymbolAddressInProcess(name)) {
-    return JITSymbol(sym_addr, JITSymbolFlags::Exported);
-  }
-
   return nullptr;
 }
