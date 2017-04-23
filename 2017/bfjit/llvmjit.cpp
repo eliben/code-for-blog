@@ -2,10 +2,6 @@
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
-
-// TODO: mention how uninitialized dataptr leads LLVM to go crazy - cool example
-// of undefined behavior "optimizations".
-//
 #include <fstream>
 #include <iomanip>
 #include <memory>
@@ -22,7 +18,6 @@
 #include "llvm/Support/TargetSelect.h"
 #include "llvm/Transforms/IPO/PassManagerBuilder.h"
 
-// TODO: explain why keeping this on the stack makes sense for optimization.
 constexpr int MEMORY_SIZE = 30000;
 const char* const JIT_FUNC_NAME = "__llvmjit";
 
