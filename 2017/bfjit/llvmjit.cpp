@@ -238,6 +238,8 @@ void llvmjit(const Program& program, bool verbose) {
   }
 
   // Optimize the emitted LLVM IR.
+  Timer topt;
+
   llvm::InitializeNativeTarget();
   llvm::InitializeNativeTargetAsmPrinter();
 
@@ -258,6 +260,7 @@ void llvmjit(const Program& program, bool verbose) {
   module_pm.run(*module);
 
   if (verbose) {
+    std::cout << "[Optimization elapsed:] " << topt.elapsed() << "s\n";
     const char* post_opt_file = "/tmp/llvmjit-post-opt.ll";
     llvm_module_to_file(*module, post_opt_file);
     std::cout << "[Post optimization module] dumped to " << post_opt_file
@@ -277,7 +280,14 @@ void llvmjit(const Program& program, bool verbose) {
   using JitFuncType = void (*)(void);
   JitFuncType jit_func_ptr =
       reinterpret_cast<JitFuncType>(jit_func_sym.getAddress());
+
+  Timer texec;
+
   jit_func_ptr();
+
+  if (verbose) {
+    std::cout << "[-] Execution took: " << texec.elapsed() << "s)\n";
+  }
 }
 
 int main(int argc, const char** argv) {
