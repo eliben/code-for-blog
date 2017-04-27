@@ -43,6 +43,7 @@ extern "C" void dump_memory(uint8_t* memory) {
   std::cout << "\n";
 }
 
+// Helper function that prints the textual LLVM IR of module into a file.
 void llvm_module_to_file(const llvm::Module& module, const char* filename) {
   std::string str;
   llvm::raw_string_ostream os(str);

@@ -3,6 +3,7 @@
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
 #include "llvm_jit_utils.h"
+#include "utils.h"
 
 #include "llvm/ADT/STLExtras.h"
 #include "llvm/IR/Mangler.h"
@@ -17,6 +18,7 @@ namespace {
 // ObjectDumpingCompiler is a copycat of Orc JIT's SimpleCompiler, with added
 // dumping of the generated object file so we can inspect the final machine code
 // produced by LLVM. Note that no IR-level optimizations are performed here.
+// Dumping happens only in verbose mode (when verbose=true) in the constructor.
 class ObjectDumpingCompiler {
 public:
   ObjectDumpingCompiler(TargetMachine& target_machine, bool verbose)
