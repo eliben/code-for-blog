@@ -423,8 +423,14 @@ void optasmjit(const Program& p, bool verbose) {
     DIE << "error calling jit_runtime.add";
   }
 
+  Timer texec;
+
   // Call it, passing the address of memory as a parameter.
   func((uint64_t)memory.data());
+
+  if (verbose) {
+    std::cout << "[-] Execution took: " << texec.elapsed() << "s)\n";
+  }
 
   if (verbose) {
     const char* filename = "/tmp/bjout.bin";
