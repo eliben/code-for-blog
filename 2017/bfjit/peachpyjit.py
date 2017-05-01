@@ -1,3 +1,9 @@
+# BF JIT using the PeachPy x68-64 codegen library.
+#
+# Tested with Python 3.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 from collections import namedtuple
 import ctypes
 import logging

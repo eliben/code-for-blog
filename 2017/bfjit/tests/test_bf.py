@@ -44,8 +44,9 @@ def run_all_tests(executor_path, flags, tests_dir_path):
 
     Flags is a list of command-line flags to pass to the executor.
 
-    The executor is a program that can be invoked given a test file name as
-    a single parameter. It reads from stdin and writes to stdout.
+    The executor is a program that can be invoked given a test file name as a
+    single parameter. It reads from stdin and writes to stdout. If the executor
+    looks like a Python script, runs it with Python.
 
     Returns True if all tests passed, False if there were errors.
     """
@@ -68,9 +69,14 @@ def run_all_tests(executor_path, flags, tests_dir_path):
         expected_out = test.params.get('expect-out', '').encode('utf-8')
 
         try:
+            if executor_path.endswith('.py'):
+                executor_invocation = ['python', executor_path]
+            else:
+                executor_invocation = [executor_path]
+
             subproc = subprocess.run(
-                [executor_path] + flags + [test.program_path],
-                timeout=1,
+                executor_invocation + flags + [test.program_path],
+                timeout=5,
                 stdout=subprocess.PIPE,
                 input=stdin_feed)
 
@@ -118,7 +124,8 @@ if __name__ == '__main__':
             './optinterp',
             './optinterp2',
             './optinterp3',
-            './llvmjit'):
+            './llvmjit',
+            './peachpyjit.py'):
         success = run_all_tests(executor, [], testcases_path)
         if not success:
             errors = True
