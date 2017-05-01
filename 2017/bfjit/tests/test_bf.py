@@ -61,7 +61,7 @@ def run_all_tests(executor_path, flags, tests_dir_path):
 
     for i, test in enumerate(discover_tests(dir_path=tests_dir_path), start=1):
         print('Running test #{:0>3} {:.<30}'.format(i, '[' + test.name + ']'),
-              end='')
+              end='', flush=True)
 
         # Figure out what to feed into stdin and what output to expect; encode
         # them as bytes.
