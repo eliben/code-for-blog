@@ -1,7 +1,7 @@
 # Makefile for the C++ code in bfjit.
 #
-# Some executables here require external libraries (such as asmjit); if you
-# don't have these available, you can exclude these binaries from the build.
+# Some executables here require external libraries (such as asmjit or LLVM); if
+# you don't have these available, you can exclude these binaries from the build.
 # Note that the Python test script (test_bf) tries to run all executables, so
 # some of its tests will fail.
 #
@@ -21,7 +21,8 @@ EXECUTABLES = \
 	simplejit \
 	simpleasmjit \
 	optasmjit \
-	jit_utils_test
+	jit_utils_test \
+	llvmjit
 
 all: $(EXECUTABLES)
 
@@ -39,7 +40,7 @@ optinterp2: $(COMMONFILES) optinterp2.cpp
 optinterp3: $(COMMONFILES) optinterp3.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
-jit_utils_test: $(COMMONFILES) jit_utils_test.cpp jit_utils.cpp jit_utils.h 
+jit_utils_test: $(COMMONFILES) jit_utils_test.cpp jit_utils.cpp jit_utils.h
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) $^ -o $@
 
 simplejit: $(COMMONFILES) simplejit.cpp jit_utils.h jit_utils.cpp
@@ -57,6 +58,20 @@ simpleasmjit: $(COMMONFILES) simpleasmjit.cpp
 
 optasmjit: $(COMMONFILES) optasmjit.cpp
 	$(CXX) $(CXXFLAGS) $(ASMJIT_INCLUDE) $^ $(ASMJIT_LIB) -o $@
+
+# Point these to the binary downoad/build of LLVM/Clang version 4.x
+# The LLVM libraries are built with Clang itself (bootstrapped), so the safest
+# way to compile programs using LLVM is with the same version of Clang.
+LLVM_ROOT = $$HOME/llvm/clang_llvm_rel_40
+LLVM_BIN_PATH = $(LLVM_ROOT)/bin
+CLANG_CXX = $(LLVM_BIN_PATH)/clang++
+LLVM_CXXFLAGS := `$(LLVM_BIN_PATH)/llvm-config --cxxflags`
+LLVM_LDFLAGS := `$(LLVM_BIN_PATH)/llvm-config --ldflags --libs --system-libs`
+
+# The rdynamic linker flag is used since this is a JIT loading itself for access
+# to host symbols.
+llvmjit: llvm_jit_utils.cpp utils.cpp parser.cpp llvmjit.cpp
+	$(CLANG_CXX) $(CXXFLAGS) $(LLVM_CXXFLAGS) $^ -rdynamic $(LLVM_LDFLAGS) -o $@
 
 .PHONY: clean format test
 
