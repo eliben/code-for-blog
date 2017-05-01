@@ -113,9 +113,8 @@ SimpleOrcJIT::SimpleOrcJIT(bool verbose)
 }
 
 void SimpleOrcJIT::add_module(std::unique_ptr<llvm::Module> module) {
-  // We need a memory manager to allocate memory and resolve symbols for this
-  // new module. Create one that resolves symbols by looking back into the
-  // JIT.
+  // This resolver looks back into the host with dlsym to find symbols the
+  // module calls but aren't defined in it.
   auto resolver = orc::createLambdaResolver(
       [this](const std::string& name) {
         if (auto sym = find_mangled_symbol(name)) {
@@ -153,8 +152,6 @@ llvm::JITSymbol SimpleOrcJIT::find_mangled_symbol(const std::string& name) {
   const bool exported_symbols_only = true;
 
   // Search modules in reverse order: from last added to first added.
-  // This is the opposite of the usual search order for dlsym, but makes more
-  // sense in a REPL where we want to bind to the newest available definition.
   for (auto h : make_range(module_handles_.rbegin(), module_handles_.rend())) {
     if (auto sym =
             compile_layer_.findSymbolIn(h, name, exported_symbols_only)) {

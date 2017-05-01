@@ -115,10 +115,10 @@ if __name__ == '__main__':
             './simplejit',
             './simpleasmjit',
             './optasmjit',
-            './llvmjit',
             './optinterp',
             './optinterp2',
-            './optinterp3'):
+            './optinterp3',
+            './llvmjit'):
         success = run_all_tests(executor, [], testcases_path)
         if not success:
             errors = True

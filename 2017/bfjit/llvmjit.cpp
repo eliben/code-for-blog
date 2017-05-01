@@ -1,4 +1,5 @@
-// An JIT for BF using LLVM.
+// An JIT for BF using LLVM. Compiles a BF program to LLVM IR, optimizes the IR
+// using LLVM's backend and JIT-executes it.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -53,6 +54,8 @@ void llvm_module_to_file(const llvm::Module& module, const char* filename) {
   of << os.str();
 }
 
+// Keeps the state of LLVM basic blocks created for every matching bracket pair
+// in BF ("[" ... "]").
 struct BracketBlocks {
   BracketBlocks(llvm::BasicBlock* lbb, llvm::BasicBlock* plb)
       : loop_body_block(lbb), post_loop_block(plb) {}
@@ -252,7 +255,6 @@ void llvmjit(const Program& program, bool verbose) {
 
   function_pm.doInitialization();
   function_pm.run(*jit_func);
-
   module_pm.run(*module);
 
   if (verbose) {
