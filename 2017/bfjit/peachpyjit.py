@@ -29,6 +29,8 @@ def parse_bf_program(file):
                 yield c
 
 
+# Data type for the state of PeachPy labels created for every matching bracket
+# pair in BF ("[" ... "]").
 BracketLabels = namedtuple('BracketLabels', ('open_label', 'close_label'))
 
 
@@ -41,6 +43,9 @@ def peachpyjit(bf_file, verbose=False):
     """
     open_bracket_stack = []
 
+    # Create a JITed function named "ppjit", with the C-style signature:
+    #   void ppjit(uint8_t* memptr)
+    #
     memptr = peachpy.Argument(peachpy.ptr(peachpy.uint8_t))
 
     with peachpy.x86_64.Function("ppjit",
@@ -76,16 +81,15 @@ def peachpyjit(bf_file, verbose=False):
                 peachpy.x86_64.SYSCALL()
             elif instr == '[':
                 # Create labels for the loop start and after-loop.
-                loop_start_label = peachpy.x86_64.Label('loop_start{}'.format(pc))
-                loop_end_label = peachpy.x86_64.Label('after_loop{}'.format(pc))
-
+                loop_start_label = peachpy.x86_64.Label()
+                loop_end_label = peachpy.x86_64.Label()
                 # Jump to after the loop if the current cell is 0.
                 peachpy.x86_64.CMP([dataptr], 0)
                 peachpy.x86_64.JZ(loop_end_label)
                 # Bind the "start loop" label here.
                 peachpy.x86_64.LABEL(loop_start_label)
-                open_bracket_stack.append(BracketLabels(loop_start_label,
-                                                                                                loop_end_label))
+                open_bracket_stack.append(
+                    BracketLabels(loop_start_label, loop_end_label))
             elif instr == ']':
                 if not len(open_bracket_stack):
                     die('unmatched closing "]" at pc={}'.format(pc))
@@ -98,18 +102,21 @@ def peachpyjit(bf_file, verbose=False):
 
         peachpy.x86_64.RETURN()
 
+    # Finalize and encode the PeachPy function; python_function will be a
+    # callable representing the JITed function in memory.
     abi = peachpy.x86_64.abi.detect()
     encoded_function = asm_function.finalize(abi).encode()
     python_function = encoded_function.load()
-    code = python_function.code_segment
 
     if verbose:
+        code = python_function.code_segment
         fname = '/tmp/ppout.bin'
         with open(fname, 'wb') as f:
             f.write(code)
         print('* Wrote machine code to {}'.format(fname))
 
-    # The JIT call. Allocate memory as a ctypes array.
+    # Allocate memory as a ctypes array and initialize it to 0s. Then perform
+    # the JIT call.
     memsize = 30000
     MemoryArrayType = ctypes.c_uint8 * memsize
     memory = MemoryArrayType(*([0] * memsize))
