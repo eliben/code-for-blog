@@ -1,3 +1,7 @@
+# Test for the extension.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import spam
 import unittest
 
@@ -6,7 +10,6 @@ def pyrevgen(seq):
     for i, elem in enumerate(reversed(seq)):
         yield i, elem
 
-#therevgen = pyrevgen
 therevgen = spam.revgen
 
 
@@ -31,16 +34,13 @@ class Test(unittest.TestCase):
 
         self.assertRaises(TypeError, therevgen, 12)
 
+
 if __name__ == '__main__':
     unittest.main()
 
-    #-----------------------------------------
     seq = ['a', 'b', 'c']
     for index, elem in revgen(seq):
         print(index, elem)
 
     for index, elem in spam.revgen(seq):
         print(index, elem)
-    
-
-
