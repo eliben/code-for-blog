@@ -1,3 +1,8 @@
+/* Extension code.
+**
+** Eli Bendersky [http://eli.thegreenplace.net]
+** This code is in the public domain.
+*/
 #include "Python.h"
 
 
@@ -7,9 +12,8 @@
  * seq_index: index of the next element in the sequence to yield
  * enum_index: next enumeration index to yield
  *
- * In pseudo-notation, the yielded tuple at each step is: 
+ * In pseudo-notation, the yielded tuple at each step is:
  *  enum_index, sequence[seq_index]
- *
 */
 typedef struct {
     PyObject_HEAD
@@ -66,7 +70,7 @@ revgen_dealloc(RevgenState *rgstate)
 static PyObject *
 revgen_next(RevgenState *rgstate)
 {
-    /* seq_index < 0 means that the generator is exhausted. 
+    /* seq_index < 0 means that the generator is exhausted.
      * Returning NULL in this case is enough. The next() builtin will raise the
      * StopIteration error for us.
     */
@@ -159,4 +163,3 @@ PyInit_spam(void)
 
     return module;
 }
-
