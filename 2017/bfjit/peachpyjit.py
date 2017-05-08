@@ -1,4 +1,4 @@
-# BF JIT using the PeachPy x68-64 codegen library.
+# BF JIT using the PeachPy x86-64 codegen library.
 #
 # Tested with Python 3.
 #
@@ -66,14 +66,14 @@ def peachpyjit(bf_file, verbose=False):
             elif instr == '-':
                 peachpy.x86_64.SUB([dataptr], 1)
             elif instr == '.':
-                # Invoke the WRITE syscall to stdout.
+                # Invoke the WRITE syscall (rax=1) with stdout (rdi=1).
                 peachpy.x86_64.MOV(peachpy.x86_64.rax, 1)
                 peachpy.x86_64.MOV(peachpy.x86_64.rdi, 1)
                 peachpy.x86_64.MOV(peachpy.x86_64.rsi, dataptr)
                 peachpy.x86_64.MOV(peachpy.x86_64.rdx, 1)
                 peachpy.x86_64.SYSCALL()
             elif instr == ',':
-                # Invoke the READ syscall to stdin.
+                # Invoke the READ syscall (rax=0) with stdin (rdi=0).
                 peachpy.x86_64.MOV(peachpy.x86_64.rax, 0)
                 peachpy.x86_64.MOV(peachpy.x86_64.rdi, 0)
                 peachpy.x86_64.MOV(peachpy.x86_64.rsi, dataptr)
