@@ -1,6 +1,7 @@
 # BF JIT using the PeachPy x86-64 codegen library.
 #
-# Tested with Python 3.
+# Tested with Python 3.5+; PeachPy installed into a virtualenv following the
+# installation steps in its README: https://github.com/Maratyszcza
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
