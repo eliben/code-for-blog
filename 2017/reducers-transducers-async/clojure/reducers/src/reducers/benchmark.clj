@@ -10,4 +10,3 @@
                          (+ acc (inc item))
                          acc))
         0 s)
-
