@@ -1,3 +1,8 @@
+;;; Code for basic benchmarking of reducers.
+;;; 
+;;; Eli Bendersky [http://eli.thegreenplace.net]
+;;; This code is in the public domain. 
+
 (ns reducers.benchmark
   (:require [clojure.core.reducers :as r]))
 
