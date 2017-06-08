@@ -62,12 +62,10 @@
 (defn main-3
   []
   (let [c-sq (async/chan 1 (map #(* % %)))]
-    (do
-      (async/go
-        (async/onto-chan c-sq [2 3 4 5]))
-      (loop [n (async/<!! c-sq)]
-        (when n
-          (println n)
-          (recur (async/<!! c-sq)))))))
+    (async/onto-chan c-sq [2 3 4 5])
+    (loop [n (async/<!! c-sq)]
+      (when n
+        (println n)
+        (recur (async/<!! c-sq))))))
 
 (main-3)
