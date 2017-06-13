@@ -36,4 +36,4 @@
   (printf "Launching %2s -> %s" 
           i
           (with-out-str 
-            (time (launch-n-go-blocks i)))))
+            (time (launch-n-threads i)))))
