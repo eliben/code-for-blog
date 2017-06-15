@@ -59,7 +59,7 @@
 ;;; The higher nblock goes, the slower the go-blocks version becomes; the
 ;;; runtime of the threaded version is proportonal mainly to the number of
 ;;; computes going in parallel.
-(def nblock 32)
+(def nblock 64)
 (def ncompute 16)
 
 (dotimes [_ 6]
@@ -69,6 +69,3 @@
 (dotimes [_ 6]
   (println "thread")
   (time (launch-thread-blocking-and-compute nblock ncompute)))
-
-;(time (launch-blocking-and-compute 2 2))
-
