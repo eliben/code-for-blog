@@ -10,12 +10,12 @@
 
 (def url-template "https://github.com/eliben/pycparser/pull/%d")
 
-(defn blocking-http-get [url]
-  (clj-http.client/get url))
+(defn blocking-get-page [i]
+  (clj-http.client/get (format url-template i)))
 
 (defn verify
   []
-  (let [r (blocking-http-get (format url-template 22))]
+  (let [r (blocking-get-page 22)]
     (time
      (clojure.string/includes? (:body r) "integer typedefs"))))
 
@@ -32,20 +32,16 @@
 (defn go-blocking-generator
   [c start n]
   (doseq [i (range start (+ start n))]
-    (async/go (async/>! c
-                        (blocking-http-get
-                         (format url-template i))))))
+    (async/go (async/>! c (blocking-get-page i)))))
 
 (defn thread-blocking-generator
   [c start n]
   (doseq [i (range start (+ start n))]
-    (async/thread (async/>!! c
-                             (blocking-http-get
-                              (format url-template i))))))
+    (async/thread (async/>!! c (blocking-get-page i)))))
 
-;(def start 10)
-;(def num-results 20)
+(def start 10)
+(def num-results 20)
 ;(time (count (get-multiple go-blocking-generator 10 num-results)))
-;(time (count (get-multiple thread-blocking-generator start num-results)))
+(time (count (get-multiple thread-blocking-generator start num-results)))
 
 (prn (verify))
