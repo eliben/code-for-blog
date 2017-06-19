@@ -36,7 +36,7 @@
 # <term>        : <power> {* <power>}
 #               | <power> {/ <power>}
 #
-# <power>       : <power> ** <factor>
+# <power>       : <factor> ** <power>
 #               | <factor>
 #
 # <factor>      : <id> 
