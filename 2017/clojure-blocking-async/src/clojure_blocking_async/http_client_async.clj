@@ -1,5 +1,8 @@
 ;;; Concurrent HTTP client using the asynchronous API of clj-http in conjunction
 ;;; with go-blocks.
+;;;
+;;; Eli Bendersky [http://eli.thegreenplace.net]
+;;; This code is in the public domain.
 (ns clojure-blocking-async.http-client-async
   (:require [clojure.core.async :as async])
   (:require [clj-http.client]))

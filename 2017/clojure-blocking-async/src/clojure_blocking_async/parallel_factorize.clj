@@ -20,7 +20,7 @@
             (>= (* p p) n) (conj factors n)
             (> p 2) (recur factors n (+ p 2))
             :else (recur factors n (+ p 1))))))
-  
+
 ;;; Each 'factorizer' function takes a sequence of numbers and and returns a map
 ;;; of {n: [factors]}
 
@@ -37,7 +37,7 @@
     (if (= i n)
       res
       (recur (inc i) (conj res (async/<!! c))))))
-  
+
 (defn async-go-factorizer
   "Parallel factorizer for nums, launching n go blocks."
   [nums n]
@@ -101,4 +101,3 @@
   ;)
 ;(time (async-thread-factorizer nums 20))
 ;(async-go-factorizer [121 142 157 191] 2)
-
