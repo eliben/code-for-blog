@@ -1,5 +1,5 @@
 CC = gcc
-CCFLAGS = -std=c99 -Wall -O3 -g -DNDEBUG -pthread
+CCFLAGS = -std=gnu99 -Wall -O3 -g -DNDEBUG -pthread
 LDFLAGS = -lpthread -pthread
 
 EXECUTABLES = \

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#define _GNU_SOURCE
 #include <netdb.h>
 #include <unistd.h>
 
@@ -18,6 +19,7 @@ void serve_connection(int sockfd) {
   int cc;
 
   while ((cc = recv(sockfd, buf, sizeof buf, 0)) > 0) {
+    // TODO: redo this for the real server stuff
     if (send(sockfd, "echo:", 6, 0) < 1 || send(sockfd, buf, cc, 0) < 1) {
       perror("SEND error");
       break;
@@ -27,10 +29,20 @@ void serve_connection(int sockfd) {
   close(sockfd);
 }
 
+void report_peer_name(char* peername, size_t peernamelen,
+                      struct sockaddr_in* sa, socklen_t salen) {
+  char hostbuf[NI_MAXHOST];
+  char portbuf[NI_MAXSERV];
+  if (getnameinfo((struct sockaddr*)sa, salen, hostbuf, NI_MAXHOST, portbuf,
+                  NI_MAXSERV, 0) == 0) {
+    snprintf(peername, peernamelen, "(%s, %s)", hostbuf, portbuf);
+  } else {
+    snprintf(peername, peernamelen, "(UNKNOWN)");
+  }
+}
+
 int main(int argc, char** argv) {
   int sockfd, newsockfd, portno;
-  char buffer[1025];
-  char service[32];
   struct sockaddr_in serv_addr;
 
   if (argc < 2) {
@@ -63,6 +75,7 @@ int main(int argc, char** argv) {
   while (1) {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof(peer_addr);
+    char peername[1024];
 
     newsockfd = accept(sockfd, (struct sockaddr*)&peer_addr, &peer_addr_len);
 
@@ -70,15 +83,11 @@ int main(int argc, char** argv) {
       perror_die("ERROR on accept");
     }
 
-    if (getnameinfo((struct sockaddr*)&peer_addr, peer_addr_len, buffer, 1025,
-                    service, 32, 0) == 0) {
-      printf("(%s, %s)\n", buffer, service);
-    }
-    else {
-      printf("(?UNKNOWN?)\n");
-    }
+    report_peer_name(peername, 1024, &peer_addr, peer_addr_len);
+    printf("%s connected\n", peername);
 
     serve_connection(newsockfd);
+    printf("%s done\n", peername);
   }
 
   return 0;
