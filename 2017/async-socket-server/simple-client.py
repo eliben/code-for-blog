@@ -8,7 +8,7 @@ def make_new_connection(name, host, port):
 
     sockobj.send(b'foo^1234$jo')
     sockobj.send(b'sdfsdfsdfsdf^a')
-    sockobj.send(b'fkfkf0000$dfk')
+    sockobj.send(b'fkfkf0000$dfk^$sdf^a$^kk$')
 
     buf = b''
     while True:
