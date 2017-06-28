@@ -15,14 +15,12 @@ void perror_die(char* msg) {
 }
 
 typedef enum {
-  WAIT_FOR_START,
-  START,
-  IN_MSG,
-  END
+  WAIT_FOR_MSG,
+  IN_MSG
 } ProcessingState;
 
 void serve_connection(int sockfd) {
-  ProcessingState state = WAIT_FOR_START;
+  ProcessingState state = WAIT_FOR_MSG;
 
   while (1) {
     char buf[1024];
@@ -35,17 +33,14 @@ void serve_connection(int sockfd) {
 
     for (int i = 0; i < len; ++i) {
       switch (state) {
-        case WAIT_FOR_START:
+        case WAIT_FOR_MSG:
           if (buf[i] == '^') {
-            state = START;
+            state = IN_MSG;
           }
-          break;
-        case START:
-          state = IN_MSG;
           break;
         case IN_MSG:
           if (buf[i] == '$') {
-            state = END;
+            state = WAIT_FOR_MSG;
           } else {
             buf[i] += 1;
             if (send(sockfd, &buf[i], 1, 0) < 1) {
@@ -54,9 +49,6 @@ void serve_connection(int sockfd) {
               return;
             }
           }
-          break;
-        case END:
-          state = WAIT_FOR_START;
           break;
       }
     }
