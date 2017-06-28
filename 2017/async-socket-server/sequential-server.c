@@ -14,15 +14,51 @@ void perror_die(char* msg) {
   exit(1);
 }
 
-void serve_connection(int sockfd) {
-  char buf[1024];
-  int cc;
+typedef enum {
+  WAIT_FOR_START,
+  START,
+  IN_MSG,
+  END
+} ProcessingState;
 
-  while ((cc = recv(sockfd, buf, sizeof buf, 0)) > 0) {
-    // TODO: redo this for the real server stuff
-    if (send(sockfd, "echo:", 6, 0) < 1 || send(sockfd, buf, cc, 0) < 1) {
-      perror("SEND error");
+void serve_connection(int sockfd) {
+  ProcessingState state = WAIT_FOR_START;
+
+  while (1) {
+    char buf[1024];
+    int len = recv(sockfd, buf, sizeof buf, 0);
+    if (len < 0) {
+      perror_die("recv");
+    } else if (len == 0) {
       break;
+    }
+
+    for (int i = 0; i < len; ++i) {
+      switch (state) {
+        case WAIT_FOR_START:
+          if (buf[i] == '^') {
+            state = START;
+          }
+          break;
+        case START:
+          state = IN_MSG;
+          break;
+        case IN_MSG:
+          if (buf[i] == '$') {
+            state = END;
+          } else {
+            buf[i] += 1;
+            if (send(sockfd, &buf[i], 1, 0) < 1) {
+              perror("send error");
+              close(sockfd);
+              return;
+            }
+          }
+          break;
+        case END:
+          state = WAIT_FOR_START;
+          break;
+      }
     }
   }
 
@@ -42,27 +78,22 @@ void report_peer_name(char* peername, size_t peernamelen,
 }
 
 int main(int argc, char** argv) {
-  int sockfd, newsockfd, portno;
-  struct sockaddr_in serv_addr;
-
-  if (argc < 2) {
-    fprintf(stderr, "ERROR, no port provided\n");
-    exit(1);
+  int portnum = 9090;
+  if (argc >= 2) {
+    portnum = atoi(argv[1]);
   }
+  printf("Serving on port %d\n", portnum);
 
-  sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
+  int sockfd = socket(AF_INET, SOCK_STREAM, 0);
   if (sockfd < 0) {
     perror_die("ERROR opening socket");
   }
 
+  struct sockaddr_in serv_addr;
   memset(&serv_addr, 0, sizeof(serv_addr));
-
-  portno = atoi(argv[1]);
-
   serv_addr.sin_family = AF_INET;
   serv_addr.sin_addr.s_addr = INADDR_ANY;
-  serv_addr.sin_port = htons(portno);
+  serv_addr.sin_port = htons(portnum);
 
   if (bind(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
     perror_die("ERROR on binding");
@@ -77,7 +108,8 @@ int main(int argc, char** argv) {
     socklen_t peer_addr_len = sizeof(peer_addr);
     char peername[1024];
 
-    newsockfd = accept(sockfd, (struct sockaddr*)&peer_addr, &peer_addr_len);
+    int newsockfd =
+        accept(sockfd, (struct sockaddr*)&peer_addr, &peer_addr_len);
 
     if (newsockfd < 0) {
       perror_die("ERROR on accept");
