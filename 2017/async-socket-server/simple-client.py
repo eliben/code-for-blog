@@ -1,6 +1,8 @@
-import sys, time
+import logging
 import socket
+import sys
 import threading
+import time
 
 
 class ReadThread(threading.Thread):
@@ -12,7 +14,7 @@ class ReadThread(threading.Thread):
     def run(self):
         while True:
             buf = self.sockobj.recv(self.bufsize)
-            print('Received:', buf)
+            logging.info('Received: {0}'.format(buf))
             if b'1111' in buf:
                 break
 
@@ -23,6 +25,7 @@ def make_new_connection(name, host, port):
 
     rthread = ReadThread(sockobj)
     rthread.start()
+    logging.info('Starting send')
     sockobj.send(b'foo^1234$jo')
     time.sleep(1.0)
     sockobj.send(b'sdfsdfsdfsdf^a')
@@ -35,6 +38,10 @@ def make_new_connection(name, host, port):
 
 
 def main():
+    logging.basicConfig(
+        level=logging.DEBUG,
+        format='%(levelname)s:%(asctime)s:%(message)s')
+
     if len(sys.argv) <= 2:
         print("Error, expecting <host> <port>")
         sys.exit(1)

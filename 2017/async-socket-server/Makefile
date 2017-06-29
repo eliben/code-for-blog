@@ -7,8 +7,8 @@ EXECUTABLES = \
 
 all: $(EXECUTABLES)
 
-sequential-server: sequential-server.c
+sequential-server: utils.c sequential-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
-	rm -f $(EXECUTABLES)
+	rm -f $(EXECUTABLES) *.o
