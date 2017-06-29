@@ -14,6 +14,14 @@ typedef enum {
 
 
 void serve_connection(int sockfd) {
+  // Clients attempting to connect and even send data will succeed even before
+  // the connection is accept()-ed by the server. Therefore, to better simulate
+  // blocking of other clients while one is being served, do this "ack" from the
+  // server which the client expects to see before proceeding.
+  if (send(sockfd, "*", 1, 0) < 1) {
+    perror_die("send");
+  }
+
   ProcessingState state = WAIT_FOR_MSG;
 
   while (1) {

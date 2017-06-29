@@ -24,16 +24,20 @@ class ReadThread(threading.Thread):
 def make_new_connection(name, host, port):
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sockobj.connect((host, port))
+    if sockobj.recv(1) != b'*':
+        logging.error('Something is wrong! Did not receive *')
     logging.info('{0} connected...'.format(name))
 
     rthread = ReadThread(name, sockobj)
     rthread.start()
+    logging.info('{0} sending'.format(name))
     sockobj.send(b'foo^1234$jo')
     time.sleep(1.0)
+    logging.info('{0} sending'.format(name))
     sockobj.send(b'sdfsdfsdfsdf^a')
     time.sleep(1.0)
+    logging.info('{0} sending'.format(name))
     sockobj.send(b'fkfkf0000$dfk^$sdf^a$^kk$')
-    logging.info('{0} finished sending'.format(name))
     time.sleep(0.1)
 
     sockobj.close()

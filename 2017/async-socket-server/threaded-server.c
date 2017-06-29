@@ -20,6 +20,10 @@ typedef enum {
 
 
 void serve_connection(int sockfd) {
+  if (send(sockfd, "*", 1, 0) < 1) {
+    perror_die("send");
+  }
+
   ProcessingState state = WAIT_FOR_MSG;
 
   while (1) {
