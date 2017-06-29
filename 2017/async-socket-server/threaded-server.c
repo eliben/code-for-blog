@@ -4,8 +4,14 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <pthread.h>
 
 #include "utils.h"
+
+typedef struct {
+  int sockfd;
+} thread_config_t;
+
 
 typedef enum {
   WAIT_FOR_MSG,
@@ -52,6 +58,16 @@ void serve_connection(int sockfd) {
 }
 
 
+void* server_thread(void* arg) {
+  thread_config_t* config = (thread_config_t*)arg;
+  int sockfd = config->sockfd;
+  unsigned id = (unsigned)pthread_self();
+  printf("Thread %u created to handle connection with socket %d\n", id, sockfd);
+  serve_connection(sockfd);
+  return 0;
+}
+
+
 int main(int argc, char** argv) {
   int portnum = 9090;
   if (argc >= 2) {
@@ -76,8 +92,9 @@ int main(int argc, char** argv) {
     report_peer_name(peername, 1024, &peer_addr, peer_addr_len);
     printf("%s connected\n", peername);
 
-    serve_connection(newsockfd);
-    printf("%s done\n", peername);
+    pthread_t the_thread;
+    thread_config_t config = {.sockfd = newsockfd};
+    pthread_create(&the_thread, NULL, server_thread, &config);
   }
 
   return 0;
