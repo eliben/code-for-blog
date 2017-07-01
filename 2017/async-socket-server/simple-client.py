@@ -14,10 +14,12 @@ class ReadThread(threading.Thread):
         self.bufsize = 8 * 1024
 
     def run(self):
+        fullbuf = b''
         while True:
             buf = self.sockobj.recv(self.bufsize)
             logging.info('{0} Received: {1}'.format(self.name, buf))
-            if b'1111' in buf:
+            fullbuf += buf
+            if b'1111' in fullbuf:
                 break
 
 
@@ -38,7 +40,7 @@ def make_new_connection(name, host, port):
     time.sleep(1.0)
     logging.info('{0} sending'.format(name))
     sockobj.send(b'fkfkf0000$dfk^$sdf^a$^kk$')
-    time.sleep(0.1)
+    time.sleep(0.2)
 
     sockobj.close()
     rthread.join()
