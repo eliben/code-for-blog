@@ -68,6 +68,7 @@ void* server_thread(void* arg) {
   unsigned id = (unsigned)pthread_self();
   printf("Thread %u created to handle connection with socket %d\n", id, sockfd);
   serve_connection(sockfd);
+  printf("Thread %u done\n", id);
   return 0;
 }
 
