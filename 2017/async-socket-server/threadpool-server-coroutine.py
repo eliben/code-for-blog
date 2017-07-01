@@ -6,18 +6,16 @@ import sys
 def coroutine(func):
     def start(*args,**kwargs):
         cr = func(*args,**kwargs)
-        cr.next()
+        next(cr)
         return cr
     return start
 
 
 @coroutine
 def client_protocol(target=None):
-    print('client_protocol')
     while True:
         # This loops over whole "frames" delimited in ^...$
         b = (yield)
-        print(b)
         if b == ord(b'^'):
             # Frame starts. Loop until end is encountered and send replies to
             # target.
@@ -36,9 +34,7 @@ def reply_processor(sockobj):
 def serve_connection(sockobj, client_address):
     print('{0} connected'.format(client_address))
     sockobj.sendall(b'*')
-
     protocol = client_protocol(target=reply_processor(sockobj))
-    print('created protocol')
 
     while True:
         try:
@@ -47,7 +43,6 @@ def serve_connection(sockobj, client_address):
                 break
         except IOError as e:
             break
-        print('got buf', buf)
         for b in buf:
             protocol.send(b)
 
