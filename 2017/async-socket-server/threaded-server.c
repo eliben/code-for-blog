@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
     portnum = atoi(argv[1]);
   }
   printf("Serving on port %d\n", portnum);
+  fflush(stdout);
 
   int sockfd = listen_inet_socket(portnum);
 
