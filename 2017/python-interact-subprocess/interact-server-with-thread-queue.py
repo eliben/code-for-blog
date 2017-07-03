@@ -1,12 +1,13 @@
+import queue
 import subprocess
 import time
 import threading
 import urllib.request
 
 
-def output_reader(proc):
+def output_reader(proc, outq):
     for line in iter(proc.stdout.readline, b''):
-        print('got line: {0}'.format(line.decode('utf-8')), end='')
+        outq.put(line.decode('utf-8'))
 
 
 def main():
@@ -15,7 +16,8 @@ def main():
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)
 
-    t = threading.Thread(target=output_reader, args=(proc,))
+    outq = queue.Queue()
+    t = threading.Thread(target=output_reader, args=(proc, outq))
     t.start()
 
     try:
@@ -24,6 +26,13 @@ def main():
         for i in range(4):
             resp = urllib.request.urlopen('http://localhost:8070')
             assert b'Directory listing' in resp.read()
+
+            try:
+                line = outq.get(block=False)
+                print('got line from outq: {0}'.format(line), end='')
+            except queue.Empty:
+                print('could not get line from queue')
+
             time.sleep(0.1)
     finally:
         # This is in 'finally' so that we can terminate the child if something
