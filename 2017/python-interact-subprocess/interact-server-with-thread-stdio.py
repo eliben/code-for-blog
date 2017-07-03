@@ -4,10 +4,9 @@ import threading
 import urllib.request
 
 
-# TODO: shove this into a queue instead of printing out
-# TODO: test to see what happens when the child process doesn't output a \n before dying
 def output_reader(proc):
     for line in iter(proc.stdout.readline, b''):
+        #outq.put(line.decode('utf-8'))
         print('got line: {0}'.format(line.decode('utf-8')), end='')
 
 
@@ -22,11 +21,11 @@ def main():
 
     try:
         time.sleep(0.2)
-        resp = urllib.request.urlopen('http://localhost:8070')
-        assert b'Directory listing' in resp.read()
 
-        resp = urllib.request.urlopen('http://localhost:8070/')
-        assert b'Directory listing' in resp.read()
+        for i in range(4):
+            resp = urllib.request.urlopen('http://localhost:8070')
+            assert b'Directory listing' in resp.read()
+            time.sleep(0.1)
     finally:
         # This is in 'finally' so that we can terminate the child if something
         # goes wrong
