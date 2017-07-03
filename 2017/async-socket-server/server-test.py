@@ -1,5 +1,6 @@
 import argparse
 import logging
+import queue
 import socket
 import subprocess
 import sys
@@ -35,6 +36,18 @@ def server_runner(path, args, stop_event):
         logging.info('server_runner: subprocess did not die within timeout')
 
 
+def socket_reader(sockobj, outq):
+    """Reads from sockobj, 1 byte at a time; places results in outq.
+
+    This function runs in a loop until the sockobj connection is closed.
+    """
+    while True:
+        buf = sockobj.recv(1)
+        if len(buf) < 1:
+            break
+        outq.put(buf)
+
+
 def test_main():
     argparser = argparse.ArgumentParser('Server test')
     argparser.add_argument('server_path', help='path to the server executable')
@@ -53,11 +66,22 @@ def test_main():
     t.start()
     time.sleep(0.2)
 
+    sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockobj.connect(('localhost', args.server_port))
+
+    readq = queue.Queue()
+    tread = threading.Thread(
+            target=socket_reader,
+            args=(sockobj, readq))
+    tread.start()
+
     try:
-        sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sockobj.connect(('localhost', args.server_port))
-        if sockobj.recv(1) != b'*':
-            logging.error('Something is wrong! Did not receive *')
+        time.sleep(0.2)
+
+        print(readq.get())
+        #if sockobj.recv(1) != b'*':
+            #logging.error('Something is wrong! Did not receive *')
+        #sockobj.send(b'abcde')
 
         time.sleep(1)
     finally:
@@ -67,6 +91,7 @@ def test_main():
         sockobj.close()
         stop_event.set()
         t.join()
+        tread.join()
 
 
 if __name__ == '__main__':
