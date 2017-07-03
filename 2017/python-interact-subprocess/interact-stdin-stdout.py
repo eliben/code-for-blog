@@ -21,7 +21,9 @@ def main():
     proc.stdin.flush()
     print(proc.stdout.readline())
 
-    proc.terminate()
+    #proc.terminate()
+    #proc.stdin.write(b'quit()\n')
+    #proc.stdin.flush()
     proc.wait(timeout=0.2)
 
 
