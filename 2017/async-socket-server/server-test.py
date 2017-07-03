@@ -18,7 +18,7 @@ def server_runner(path, args, stop_event):
     stop_event is a threading.Event object; when it's set, the subprocess is
     killed and this function returns.
     """
-    runcmd = ['python3.6', path] if path.endswith('.py') else [path]
+    runcmd = ['python3.6', '-u', path] if path.endswith('.py') else [path]
     runcmd.extend(args)
     logging.info('server_runner: executing subprocess "{0}"'.format(runcmd))
     proc = subprocess.Popen(runcmd, stdout=subprocess.PIPE,
@@ -28,10 +28,9 @@ def server_runner(path, args, stop_event):
     logging.info('server_runner sending kill to subprocess')
     proc.terminate()
     try:
-        # TODO: the child process has to flush otherwise we won't see stdout
         outs, errs = proc.communicate(timeout=0.2)
-        print('outs=', outs)
-        print('errs=', errs)
+        print('outs=', outs.decode())
+        print('errs=', errs.decode())
     except subprocess.TimeoutExpired:
         logging.info('server_runner: subprocess did not die within timeout')
 
@@ -39,6 +38,8 @@ def server_runner(path, args, stop_event):
 def test_main():
     argparser = argparse.ArgumentParser('Server test')
     argparser.add_argument('server_path', help='path to the server executable')
+    argparser.add_argument('-p', '--server_port', default=9090, type=int,
+                           help='the server listens on this port')
     args = argparser.parse_args()
 
     logging.basicConfig(
@@ -48,11 +49,24 @@ def test_main():
     stop_event = threading.Event()
     t = threading.Thread(
             target=server_runner,
-            args=(args.server_path, ['9090'], stop_event))
+            args=(args.server_path, [str(args.server_port)], stop_event))
     t.start()
-    time.sleep(2)
-    stop_event.set()
-    t.join()
+    time.sleep(0.2)
+
+    try:
+        sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sockobj.connect(('localhost', args.server_port))
+        if sockobj.recv(1) != b'*':
+            logging.error('Something is wrong! Did not receive *')
+
+        time.sleep(1)
+    finally:
+        # Closing the socket before killing the server helps the bound socket be
+        # fully released on the server side; otherwise it may be kept alive by
+        # the kernel for a while after the server process exits.
+        sockobj.close()
+        stop_event.set()
+        t.join()
 
 
 if __name__ == '__main__':

@@ -74,6 +74,8 @@ void* server_thread(void* arg) {
 
 
 int main(int argc, char** argv) {
+  setvbuf(stdout, NULL, _IONBF, 0);
+
   int portnum = 9090;
   if (argc >= 2) {
     portnum = atoi(argv[1]);
