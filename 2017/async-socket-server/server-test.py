@@ -36,16 +36,107 @@ def server_runner(path, args, stop_event):
         logging.info('server_runner: subprocess did not die within timeout')
 
 
-def socket_reader(sockobj, outq):
+def socket_reader(sockobj, outq, exit_event):
     """Reads from sockobj, 1 byte at a time; places results in outq.
 
-    This function runs in a loop until the sockobj connection is closed.
+    This function runs in a loop until the sockobj connection is closed or until
+    exit_event is set.
     """
-    while True:
-        buf = sockobj.recv(1)
-        if len(buf) < 1:
+    while not exit_event.is_set():
+        try:
+            buf = sockobj.recv(1)
+            if len(buf) < 1:
+                break
+            outq.put(buf)
+        except socket.timeout:
+            continue
+        except OSError:
             break
-        outq.put(buf)
+
+
+def assert_queue_contains(q, val, timeout=0.1):
+    try:
+        v = q.get(timeout=timeout)
+        assert v == val
+    except queue.Empty:
+        assert False, f'queue was empty with timeout={timeout}'
+
+
+def assert_queue_empty(q, wait=0.1):
+    time.sleep(wait)
+    assert q.empty(), 'queue had {0}'.format(q.get())
+
+
+def client_tester1(port, initial_timeout=0.1):
+    sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockobj.settimeout(0.1)
+    sockobj.connect(('localhost', port))
+
+    readq = queue.Queue()
+    exit_event = threading.Event()
+    tread = threading.Thread(
+            target=socket_reader,
+            args=(sockobj, readq, exit_event))
+    tread.start()
+
+    try:
+        assert_queue_contains(readq, b'*', timeout=initial_timeout)
+
+        sockobj.send(b'abcdef')
+        assert_queue_empty(readq)
+
+        sockobj.send(b'^')
+        assert_queue_empty(readq)
+
+        sockobj.send(b'f')
+        assert_queue_contains(readq, b'g')
+
+        sockobj.send(b'1234')
+        assert_queue_contains(readq, b'2')
+        assert_queue_contains(readq, b'3')
+        assert_queue_contains(readq, b'4')
+        assert_queue_contains(readq, b'5')
+
+        sockobj.send(b'$')
+        assert_queue_empty(readq)
+        sockobj.send(b'1234')
+        assert_queue_empty(readq)
+
+        sockobj.send(b'^')
+        sockobj.send(b'xy')
+        assert_queue_contains(readq, b'y')
+        assert_queue_contains(readq, b'z')
+    finally:
+        # Closing the socket before killing the server helps the bound socket be
+        # fully released on the server side; otherwise it may be kept alive by
+        # the kernel for a while after the server process exits.
+        sockobj.close()
+        exit_event.set()
+        tread.join()
+
+
+def client_tester2(port, initial_timeout=0.1):
+    sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockobj.settimeout(0.1)
+    sockobj.connect(('localhost', port))
+
+    exit_event = threading.Event()
+    readq = queue.Queue()
+    tread = threading.Thread(
+            target=socket_reader,
+            args=(sockobj, readq, exit_event))
+    tread.start()
+
+    try:
+        assert_queue_contains(readq, b'*', timeout=initial_timeout)
+        sockobj.send(b'^ab$^kl$^80$50')
+        for b in [b'b', b'c', b'l', b'm', b'9', b'1']:
+            assert_queue_contains(readq, b)
+        assert_queue_empty(readq)
+    finally:
+        sockobj.close()
+        exit_event.set()
+        tread.join()
 
 
 def test_main():
@@ -60,38 +151,27 @@ def test_main():
         format='%(levelname)s:%(asctime)s:%(message)s')
 
     stop_event = threading.Event()
-    t = threading.Thread(
+    server_thread = threading.Thread(
             target=server_runner,
             args=(args.server_path, [str(args.server_port)], stop_event))
-    t.start()
-    time.sleep(0.2)
+    server_thread.start()
+    time.sleep(0.3)
 
-    sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sockobj.connect(('localhost', args.server_port))
+    tester1_thread = threading.Thread(
+            target=client_tester1,
+            args=(args.server_port, 0.5))
+    tester1_thread.start()
 
-    readq = queue.Queue()
-    tread = threading.Thread(
-            target=socket_reader,
-            args=(sockobj, readq))
-    tread.start()
+    tester2_thread = threading.Thread(
+            target=client_tester2,
+            args=(args.server_port, 2.5))
+    tester2_thread.start()
 
-    try:
-        time.sleep(0.2)
+    time.sleep(2.0)
 
-        print(readq.get())
-        #if sockobj.recv(1) != b'*':
-            #logging.error('Something is wrong! Did not receive *')
-        #sockobj.send(b'abcde')
-
-        time.sleep(1)
-    finally:
-        # Closing the socket before killing the server helps the bound socket be
-        # fully released on the server side; otherwise it may be kept alive by
-        # the kernel for a while after the server process exits.
-        sockobj.close()
-        stop_event.set()
-        t.join()
-        tread.join()
+    stop_event.set()
+    server_thread.join()
+    tester1_thread.join()
 
 
 if __name__ == '__main__':
