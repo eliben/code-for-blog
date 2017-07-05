@@ -17,13 +17,11 @@ def main():
     proc.stdin.flush() # without this it hangs...
     print(proc.stdout.readline())
 
-    proc.stdin.write(b'2+3\n')
+    proc.stdin.write(b'len("foobar")\n')
     proc.stdin.flush()
     print(proc.stdout.readline())
 
-    #proc.terminate()
-    #proc.stdin.write(b'quit()\n')
-    #proc.stdin.flush()
+    proc.terminate()
     proc.wait(timeout=0.2)
 
 

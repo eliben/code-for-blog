@@ -22,7 +22,7 @@ def main():
         proc.terminate()
         try:
             outs, _ = proc.communicate(timeout=0.2)
-            # We;ll see it exiting with -15 which means killed by SIGTERM
+            # We'll see it exiting with -15 which means killed by SIGTERM
             print('== subprocess exited with rc =', proc.returncode)
             print(outs.decode('utf-8'))
         except subprocess.TimeoutExpired:
