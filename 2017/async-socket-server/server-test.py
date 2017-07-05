@@ -150,6 +150,7 @@ def test_main():
         level=logging.DEBUG,
         format='%(levelname)s:%(asctime)s:%(message)s')
 
+    # Launch the server in a thread, listening on the port.
     stop_event = threading.Event()
     server_thread = threading.Thread(
             target=server_runner,
@@ -157,6 +158,8 @@ def test_main():
     server_thread.start()
     time.sleep(0.3)
 
+    # Launch two clients in parallel; the second gets a longer initial timeout
+    # to work with sequential servers.
     tester1_thread = threading.Thread(
             target=client_tester1,
             args=(args.server_port, 0.5))
