@@ -20,7 +20,6 @@ def socket_reader(sockobj, outq, exit_event):
         except socket.timeout:
             continue
         except OSError as e:
-            print(e)
             break
 
 
@@ -33,10 +32,10 @@ def main():
         sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sockobj.settimeout(0.1)
         sockobj.connect(('localhost', 29999))
-        readq = queue.Queue()
+        outq = queue.Queue()
         exit = threading.Event()
 
-        t = threading.Thread(target=socket_reader, args=(sockobj, readq, exit))
+        t = threading.Thread(target=socket_reader, args=(sockobj, outq, exit))
         t.start()
 
         time.sleep(0.2)
@@ -47,7 +46,7 @@ def main():
         # instead, but this is just for demonstration.
         while True:
             try:
-                v = readq.get(block=False)
+                v = outq.get(block=False)
                 print(v)
             except queue.Empty:
                 break
