@@ -1,3 +1,10 @@
+# Interaction with an HTTP server as a child process, using a thread to read the
+# child's stdout and push it into a queue.
+#
+# Tested with Python 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import queue
 import subprocess
 import time
@@ -11,7 +18,7 @@ def output_reader(proc, outq):
 
 
 def main():
-    # note the -u here: essential for not buffering the stdout of the subprocess
+    # Note the -u here: essential for not buffering the stdout of the subprocess
     proc = subprocess.Popen(['python3', '-u', '-m', 'http.server', '8070'],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)

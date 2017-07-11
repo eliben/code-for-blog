@@ -1,13 +1,16 @@
+# Simple interaction with an HTTP server as a child process.
+#
+# Tested with Python 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import subprocess
 import time
 import urllib.request
 
-# python3 -m http.server 8070
-
-# then send requests...
 
 def main():
-    # note the -u here: essential for not buffering the stdout of the subprocess
+    # Note the -u here: essential for not buffering the stdout of the subprocess
     proc = subprocess.Popen(['python3', '-u', '-m', 'http.server', '8070'],
                             stdout=subprocess.PIPE,
                             stderr=subprocess.STDOUT)

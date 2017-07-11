@@ -1,3 +1,10 @@
+# Non-blocking interaction with a socket server child process, using a thread
+# and a queue.
+#
+# Tested with Python 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import queue
 import socket
 import subprocess
