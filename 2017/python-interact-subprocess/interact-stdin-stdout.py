@@ -1,3 +1,9 @@
+# Interaction with a child process via stdin/stdout.
+#
+# Tested with Python 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import subprocess
 import time
 

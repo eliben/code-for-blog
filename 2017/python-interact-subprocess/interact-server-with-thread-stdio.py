@@ -1,3 +1,10 @@
+# Interaction with an HTTP server as a child process, using a thread to read the
+# child's stdout and print it out.
+#
+# Tested with Python 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import subprocess
 import time
 import threading
