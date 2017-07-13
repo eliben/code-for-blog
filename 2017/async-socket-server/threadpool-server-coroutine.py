@@ -62,6 +62,7 @@ if __name__ == '__main__':
     # blocking in effect.
     pool = ThreadPoolExecutor(64)
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockobj.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sockobj.bind(('localhost', portnum))
     sockobj.listen(15)
 
