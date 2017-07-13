@@ -142,8 +142,11 @@ def client_tester2(port, initial_timeout=0.1):
 def test_main():
     argparser = argparse.ArgumentParser('Server test')
     argparser.add_argument('server_path', help='path to the server executable')
-    argparser.add_argument('-p', '--server_port', default=9090, type=int,
+    argparser.add_argument('-p', '--server-port', default=9090, type=int,
                            help='the server listens on this port')
+    argparser.add_argument('--timeout-bump', default=0.0, type=float,
+                           help='amount of time (in sec) by which to bump the '
+                                'timeout between consecutive clients')
     args = argparser.parse_args()
 
     logging.basicConfig(
@@ -158,19 +161,19 @@ def test_main():
     server_thread.start()
     time.sleep(0.3)
 
-    # Launch two clients in parallel; the second gets a longer initial timeout
-    # to work with sequential servers.
+    TIMEOUT = 0.5
+
     tester1_thread = threading.Thread(
             target=client_tester1,
-            args=(args.server_port, 0.5))
+            args=(args.server_port, TIMEOUT))
     tester1_thread.start()
 
     tester2_thread = threading.Thread(
             target=client_tester2,
-            args=(args.server_port, 2.5))
+            args=(args.server_port, TIMEOUT + args.timeout_bump))
     tester2_thread.start()
 
-    time.sleep(2.0)
+    time.sleep(TIMEOUT + args.timeout_bump)
 
     stop_event.set()
     server_thread.join()
