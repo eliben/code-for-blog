@@ -1,10 +1,10 @@
-# A simple recursive descent parser that implements an integer 
+# A simple recursive descent parser that implements an integer
 # calculator. This parser suffers from an associativity problem
 # due to using BNF-y recursion for rules like <term> ad <expr>
 #
 # BNF:
-# 
-# <stmt>    : set <id> = <expr> 
+#
+# <stmt>    : set <id> = <expr>
 #           | <expr>
 # <expr>    : <term> + <expr>
 #           | <term> - <expr>
@@ -12,7 +12,7 @@
 # <term>    : <factor> * <term>
 #           | <factor> / <term>
 #           | <factor>
-# <factor>  : <id> 
+# <factor>  : <id>
 #           | <number>
 #           | ( <expr> )
 #
@@ -33,7 +33,7 @@ except ImportError:
     import lexer
 
 
-class ParseError(Exception): pass        
+class ParseError(Exception): pass
 
 
 class CalcParser(object):
@@ -53,13 +53,13 @@ class CalcParser(object):
 
         self.lexer = lexer.Lexer(lex_rules, skip_whitespace=True)
         self._clear()
-    
+
     def parse(self, line):
-        """ Parse a new line of input and return its result. 
-            
+        """ Parse a new line of input and return its result.
+
             Variables defined in previous calls to parse can be
             used in following ones.
-            
+
             ParseError can be raised in case of errors.
         """
         self.lexer.input(line)
@@ -72,20 +72,20 @@ class CalcParser(object):
 
     def _error(self, msg):
         raise ParseError(msg)
-    
+
     def _get_next_token(self):
         try:
             self.cur_token = self.lexer.token()
-            
+
             if self.cur_token is None:
                 self.cur_token = lexer.Token(None, None, None)
         except lexer.LexerError, e:
             self._error('Lexer error at position %d' % e.pos)
-    
+
     def _match(self, type):
-        """ The 'match' primitive of RD parsers. 
-        
-            * Verifies that the current token is of the given type 
+        """ The 'match' primitive of RD parsers.
+
+            * Verifies that the current token is of the given type
             * Returns the value of the current token
             * Reads in the next token
         """
@@ -95,10 +95,10 @@ class CalcParser(object):
             return val
         else:
             self._error('Unmatched %s' % type)
-    
+
     # The toplevel rule of the parser.
     #
-    # <stmt>    : set <id> = <expr> 
+    # <stmt>    : set <id> = <expr>
     #           | <expr>
     #
     def _stmt(self):
@@ -109,7 +109,7 @@ class CalcParser(object):
             id_name = self._match('IDENTIFIER')
             self._match('=')
             expr_val = self._expr()
-            
+
             self.var_table[id_name] = expr_val
             return expr_val
         else:
@@ -121,7 +121,7 @@ class CalcParser(object):
     #
     def _expr(self):
         lval = self._term()
-        
+
         if self.cur_token.type == '+':
             self._match('+')
             op = lambda a, b: a + b
@@ -131,7 +131,7 @@ class CalcParser(object):
         else:
             print 'returning lval = %s' % lval
             return lval
-        
+
         rval = self._expr()
         print 'lval = %s, rval = %s, res = %s' % (
             lval, rval, op(lval, rval))
@@ -143,7 +143,7 @@ class CalcParser(object):
     #
     def _term(self):
         lval = self._factor()
-        
+
         if self.cur_token.type == '*':
             self._match('*')
             op = lambda a, b: a * b
@@ -152,11 +152,11 @@ class CalcParser(object):
             op = lambda a, b: a / b
         else:
             return lval
-        
+
         rval = self._term()
         return op(lval, rval)
 
-    # <factor>  : <id> 
+    # <factor>  : <id>
     #           | <number>
     #           | ( <expr> )
     #
@@ -170,8 +170,8 @@ class CalcParser(object):
             return int(self._match('NUMBER'))
         elif self.cur_token.type == 'IDENTIFIER':
             id_name = self._match('IDENTIFIER')
-            
-            try: 
+
+            try:
                 val = self.var_table[id_name]
             except KeyError:
                 self._error('Unknown identifier `%s`' % id_name)
