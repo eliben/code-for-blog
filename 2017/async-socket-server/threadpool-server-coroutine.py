@@ -19,8 +19,10 @@ def client_protocol(target=None):
         if b == ord(b'^'):
             # Frame starts. Loop until end is encountered and send replies to
             # target.
-            while b != ord(b'$'):
+            while True:
                 b = (yield)
+                if b == ord(b'$'):
+                    break
                 target.send(bytes([b + 1]))
 
 
