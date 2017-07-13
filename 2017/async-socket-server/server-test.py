@@ -71,6 +71,7 @@ def client_tester1(port, initial_timeout=0.1):
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sockobj.settimeout(0.1)
     sockobj.connect(('localhost', port))
+    logging.info('client_tester1 connected to server')
 
     readq = queue.Queue()
     exit_event = threading.Event()
@@ -119,6 +120,7 @@ def client_tester2(port, initial_timeout=0.1):
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sockobj.settimeout(0.1)
     sockobj.connect(('localhost', port))
+    logging.info('client_tester2 connected to server')
 
     exit_event = threading.Event()
     readq = queue.Queue()
@@ -147,7 +149,10 @@ def test_main():
     argparser.add_argument('--timeout-bump', default=0.0, type=float,
                            help='amount of time (in sec) by which to bump the '
                                 'timeout between consecutive clients')
+    argparser.add_argument('-n', '--num-clients', default=2, type=int,
+                           help='number of clients to launch simultaneously; ')
     args = argparser.parse_args()
+    assert args.num_clients >= 1
 
     logging.basicConfig(
         level=logging.DEBUG,
@@ -161,23 +166,23 @@ def test_main():
     server_thread.start()
     time.sleep(0.3)
 
-    TIMEOUT = 0.5
+    TIMEOUT = 0.5 + (args.num_clients - 1) * args.timeout_bump
 
-    tester1_thread = threading.Thread(
-            target=client_tester1,
-            args=(args.server_port, TIMEOUT))
-    tester1_thread.start()
+    client_kind = 1
+    threads = []
+    for i in range(args.num_clients):
+        tester_thread = threading.Thread(
+                target=client_tester1 if client_kind == 1 else client_tester2,
+                args=(args.server_port, TIMEOUT))
+        tester_thread.start()
+        threads.append(tester_thread)
+        client_kind = 2 if client_kind == 1 else 1
 
-    tester2_thread = threading.Thread(
-            target=client_tester2,
-            args=(args.server_port, TIMEOUT + args.timeout_bump))
-    tester2_thread.start()
-
-    time.sleep(TIMEOUT + args.timeout_bump)
-
+    time.sleep(TIMEOUT)
     stop_event.set()
-    server_thread.join()
-    tester1_thread.join()
+
+    for thread in threads:
+        thread.join()
 
 
 if __name__ == '__main__':
