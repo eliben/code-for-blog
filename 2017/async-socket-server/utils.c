@@ -12,21 +12,18 @@
 
 #define N_BACKLOG 15
 
-
 void die(char* fmt, ...) {
-    va_list args;
-    va_start(args, fmt);
-    vfprintf(stderr, fmt, args);
-    va_end(args);
-    exit(EXIT_FAILURE);
+  va_list args;
+  va_start(args, fmt);
+  vfprintf(stderr, fmt, args);
+  va_end(args);
+  exit(EXIT_FAILURE);
 }
-
 
 void perror_die(char* msg) {
   perror(msg);
   exit(EXIT_FAILURE);
 }
-
 
 void report_peer_connected(struct sockaddr_in* sa, socklen_t salen) {
   char hostbuf[NI_MAXHOST];
@@ -38,7 +35,6 @@ void report_peer_connected(struct sockaddr_in* sa, socklen_t salen) {
     printf("peer (unknonwn) connected\n");
   }
 }
-
 
 int listen_inet_socket(int portnum) {
   int sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -69,7 +65,6 @@ int listen_inet_socket(int portnum) {
 
   return sockfd;
 }
-
 
 void make_socket_non_blocking(int sockfd) {
   int flags = fcntl(sockfd, F_GETFL, 0);

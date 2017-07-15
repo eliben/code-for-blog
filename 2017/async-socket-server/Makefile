@@ -18,5 +18,10 @@ select-server: utils.c select-server.c
 threaded-server: utils.c threaded-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
+.PHONY: clean format
+
 clean:
 	rm -f $(EXECUTABLES) *.o
+
+format:
+	clang-format -style=file -i *.c *.h
