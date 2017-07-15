@@ -9,6 +9,16 @@
 
 #include "utils.h"
 
+// Note: FD_SETSIZE is 1024 on Linux
+#define MAXFDS 1000
+
+typedef enum { WAIT_FOR_MSG, IN_MSG } ProcessingState;
+
+typedef struct {
+  ProcessingState state;
+} peer_state_t;
+
+peer_state_t global_state[MAXFDS];
 
 void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
                        socklen_t peer_addr_len) {
@@ -21,8 +31,16 @@ void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
     perror_die("send");
   }
 
-  // TODO: create a new state for sockfd and map it to this sockfd with a
-  // registration the main loop can see.
+  global_state[sockfd].state = WAIT_FOR_MSG;
+}
+
+void on_peer_data(int sockfd, char* buf, int buflen) {
+  // Got data from the client
+  printf("got data from %d: ", sockfd);
+  for (int i = 0; i < buflen; ++i) {
+    printf("0x%x ", (unsigned)buf[i]);
+  }
+  printf("\n");
 }
 
 int main(int argc, char** argv) {
@@ -43,7 +61,7 @@ int main(int argc, char** argv) {
   FD_ZERO(&select_fdset);
 
   if (listener_sockfd >= FD_SETSIZE) {
-    die("listener socket fd (%d) >= FD_SETSIZE (%d)\n", listener_sockfd,
+    die("listener socket fd (%d) >= FD_SETSIZE (%d)", listener_sockfd,
         FD_SETSIZE);
   }
 
@@ -88,7 +106,7 @@ int main(int argc, char** argv) {
             FD_SET(newsockfd, &select_fdset);
             if (newsockfd > fdset_max) {
               if (newsockfd >= FD_SETSIZE) {
-                die("socket fd (%d) >= FD_SETSIZE (%d)\n", newsockfd,
+                die("socket fd (%d) >= FD_SETSIZE (%d)", newsockfd,
                     FD_SETSIZE);
               }
               fdset_max = newsockfd;
@@ -112,12 +130,7 @@ int main(int argc, char** argv) {
               perror_die("recv");
             }
           } else {
-            // Got data from the client
-            printf("got data from %d: ", fd);
-            for (int i = 0; i < nbytes; ++i) {
-              printf("0x%x ", (unsigned)buf[i]);
-            }
-            printf("\n");
+            on_peer_data(fd, buf, nbytes);
           }
         }
       }
