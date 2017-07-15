@@ -81,6 +81,9 @@ int main(int argc, char** argv) {
             // TODO: send the starting * to the client here. Simplification:
             // assuming socket is ready for send; if i get EAGAIN etc. it's an
             // error
+            if (send(newsockfd, "*", 1, 0) < 1) {
+              perror_die("send");
+            }
           }
         } else {
           // One of the peer sockets is ready to receive data.
@@ -98,7 +101,11 @@ int main(int argc, char** argv) {
             }
           } else {
             // Got data from the client
-            printf("got data from %d:\n", fd);
+            printf("got data from %d: ", fd);
+            for (int i = 0; i < nbytes; ++i) {
+              printf("0x%x ", (unsigned)buf[i]);
+            }
+            printf("\n");
           }
         }
       }
