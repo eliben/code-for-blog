@@ -5,11 +5,14 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+void die(char* fmt, ...);
+
 void perror_die(char* msg);
 
-void report_peer_name(char* peername, size_t peernamelen,
-                      struct sockaddr_in* sa, socklen_t salen);
+void report_peer_connected(struct sockaddr_in* sa, socklen_t salen);
 
 int listen_inet_socket(int portnum);
+
+void make_socket_non_blocking(int sockfd);
 
 #endif /* UTILS_H */
