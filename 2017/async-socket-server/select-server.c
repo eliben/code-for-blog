@@ -9,10 +9,21 @@
 
 #include "utils.h"
 
-typedef void (*connected_peer_callback_func_t)(
-    const struct sockaddr_in* peer_addr, socklen_t peer_addr_len, void* data);
 
-/*void register_connected_peer_callback(*/
+void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
+                       socklen_t peer_addr_len) {
+  report_peer_connected(peer_addr, peer_addr_len);
+
+  // TODO: send the starting * to the client here. Simplification:
+  // assuming socket is ready for send; if i get EAGAIN etc. it's an
+  // error
+  if (send(sockfd, "*", 1, 0) < 1) {
+    perror_die("send");
+  }
+
+  // TODO: create a new state for sockfd and map it to this sockfd with a
+  // registration the main loop can see.
+}
 
 int main(int argc, char** argv) {
   setvbuf(stdout, NULL, _IONBF, 0);
@@ -82,13 +93,9 @@ int main(int argc, char** argv) {
               }
               fdset_max = newsockfd;
             }
-            report_peer_connected(&peer_addr, peer_addr_len);
-            // TODO: send the starting * to the client here. Simplification:
-            // assuming socket is ready for send; if i get EAGAIN etc. it's an
-            // error
-            if (send(newsockfd, "*", 1, 0) < 1) {
-              perror_die("send");
-            }
+
+            // Notify the user that a new peer connected.
+            on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
           }
         } else {
           // One of the peer sockets is ready to receive data.

@@ -25,7 +25,7 @@ void perror_die(char* msg) {
   exit(EXIT_FAILURE);
 }
 
-void report_peer_connected(struct sockaddr_in* sa, socklen_t salen) {
+void report_peer_connected(const struct sockaddr_in* sa, socklen_t salen) {
   char hostbuf[NI_MAXHOST];
   char portbuf[NI_MAXSERV];
   if (getnameinfo((struct sockaddr*)sa, salen, hostbuf, NI_MAXHOST, portbuf,
