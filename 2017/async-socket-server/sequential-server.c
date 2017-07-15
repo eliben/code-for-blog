@@ -7,11 +7,7 @@
 
 #include "utils.h"
 
-typedef enum {
-  WAIT_FOR_MSG,
-  IN_MSG
-} ProcessingState;
-
+typedef enum { WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 void serve_connection(int sockfd) {
   // Clients attempting to connect and even send data will succeed even before
@@ -35,30 +31,29 @@ void serve_connection(int sockfd) {
 
     for (int i = 0; i < len; ++i) {
       switch (state) {
-        case WAIT_FOR_MSG:
-          if (buf[i] == '^') {
-            state = IN_MSG;
+      case WAIT_FOR_MSG:
+        if (buf[i] == '^') {
+          state = IN_MSG;
+        }
+        break;
+      case IN_MSG:
+        if (buf[i] == '$') {
+          state = WAIT_FOR_MSG;
+        } else {
+          buf[i] += 1;
+          if (send(sockfd, &buf[i], 1, 0) < 1) {
+            perror("send error");
+            close(sockfd);
+            return;
           }
-          break;
-        case IN_MSG:
-          if (buf[i] == '$') {
-            state = WAIT_FOR_MSG;
-          } else {
-            buf[i] += 1;
-            if (send(sockfd, &buf[i], 1, 0) < 1) {
-              perror("send error");
-              close(sockfd);
-              return;
-            }
-          }
-          break;
+        }
+        break;
       }
     }
   }
 
   close(sockfd);
 }
-
 
 int main(int argc, char** argv) {
   setvbuf(stdout, NULL, _IONBF, 0);

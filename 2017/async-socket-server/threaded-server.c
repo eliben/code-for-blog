@@ -8,16 +8,9 @@
 
 #include "utils.h"
 
-typedef struct {
-  int sockfd;
-} thread_config_t;
+typedef struct { int sockfd; } thread_config_t;
 
-
-typedef enum {
-  WAIT_FOR_MSG,
-  IN_MSG
-} ProcessingState;
-
+typedef enum { WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 void serve_connection(int sockfd) {
   if (send(sockfd, "*", 1, 0) < 1) {
@@ -37,30 +30,29 @@ void serve_connection(int sockfd) {
 
     for (int i = 0; i < len; ++i) {
       switch (state) {
-        case WAIT_FOR_MSG:
-          if (buf[i] == '^') {
-            state = IN_MSG;
+      case WAIT_FOR_MSG:
+        if (buf[i] == '^') {
+          state = IN_MSG;
+        }
+        break;
+      case IN_MSG:
+        if (buf[i] == '$') {
+          state = WAIT_FOR_MSG;
+        } else {
+          buf[i] += 1;
+          if (send(sockfd, &buf[i], 1, 0) < 1) {
+            perror("send error");
+            close(sockfd);
+            return;
           }
-          break;
-        case IN_MSG:
-          if (buf[i] == '$') {
-            state = WAIT_FOR_MSG;
-          } else {
-            buf[i] += 1;
-            if (send(sockfd, &buf[i], 1, 0) < 1) {
-              perror("send error");
-              close(sockfd);
-              return;
-            }
-          }
-          break;
+        }
+        break;
       }
     }
   }
 
   close(sockfd);
 }
-
 
 void* server_thread(void* arg) {
   thread_config_t* config = (thread_config_t*)arg;
@@ -71,7 +63,6 @@ void* server_thread(void* arg) {
   printf("Thread %u done\n", id);
   return 0;
 }
-
 
 int main(int argc, char** argv) {
   setvbuf(stdout, NULL, _IONBF, 0);

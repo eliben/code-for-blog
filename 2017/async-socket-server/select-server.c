@@ -9,6 +9,11 @@
 
 #include "utils.h"
 
+typedef void (*connected_peer_callback_func_t)(
+    const struct sockaddr_in* peer_addr, socklen_t peer_addr_len, void* data);
+
+/*void register_connected_peer_callback(*/
+
 int main(int argc, char** argv) {
   setvbuf(stdout, NULL, _IONBF, 0);
 
@@ -54,7 +59,7 @@ int main(int argc, char** argv) {
           struct sockaddr_in peer_addr;
           socklen_t peer_addr_len = sizeof(peer_addr);
           int newsockfd = accept(listener_sockfd, (struct sockaddr*)&peer_addr,
-              &peer_addr_len);
+                                 &peer_addr_len);
           if (newsockfd < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
               // This can happen due to the nonblocking socket mode; in this
