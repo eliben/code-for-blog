@@ -88,7 +88,6 @@ int main(int argc, char** argv) {
   while (1) {
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof(peer_addr);
-    char peername[1024];
 
     int newsockfd =
         accept(sockfd, (struct sockaddr*)&peer_addr, &peer_addr_len);
@@ -97,9 +96,7 @@ int main(int argc, char** argv) {
       perror_die("ERROR on accept");
     }
 
-    report_peer_name(peername, 1024, &peer_addr, peer_addr_len);
-    printf("%s connected\n", peername);
-
+    report_peer_connected(&peer_addr, peer_addr_len);
     pthread_t the_thread;
     thread_config_t config = {.sockfd = newsockfd};
     pthread_create(&the_thread, NULL, server_thread, &config);

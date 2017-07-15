@@ -1,30 +1,41 @@
 #include "utils.h"
 
+#include <fcntl.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #define _GNU_SOURCE
 #include <netdb.h>
 
 #define N_BACKLOG 15
 
-void perror_die(char* msg) {
-  perror(msg);
-  exit(1);
+
+void die(char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+    va_end(args);
+    exit(EXIT_FAILURE);
 }
 
 
-void report_peer_name(char* peername, size_t peernamelen,
-                      struct sockaddr_in* sa, socklen_t salen) {
+void perror_die(char* msg) {
+  perror(msg);
+  exit(EXIT_FAILURE);
+}
+
+
+void report_peer_connected(struct sockaddr_in* sa, socklen_t salen) {
   char hostbuf[NI_MAXHOST];
   char portbuf[NI_MAXSERV];
   if (getnameinfo((struct sockaddr*)sa, salen, hostbuf, NI_MAXHOST, portbuf,
                   NI_MAXSERV, 0) == 0) {
-    snprintf(peername, peernamelen, "(%s, %s)", hostbuf, portbuf);
+    printf("peer (%s, %s) connected\n", hostbuf, portbuf);
   } else {
-    snprintf(peername, peernamelen, "(UNKNOWN)");
+    printf("peer (unknonwn) connected\n");
   }
 }
 
@@ -57,4 +68,16 @@ int listen_inet_socket(int portnum) {
   }
 
   return sockfd;
+}
+
+
+void make_socket_non_blocking(int sockfd) {
+  int flags = fcntl(sockfd, F_GETFL, 0);
+  if (flags == -1) {
+    perror_die("fcntl F_GETFL");
+  }
+
+  if (fcntl(sockfd, F_SETFL, flags | O_NONBLOCK) == -1) {
+    perror_die("fcntl F_SETFL O_NONBLOCK");
+  }
 }
