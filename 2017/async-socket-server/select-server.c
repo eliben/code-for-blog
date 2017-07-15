@@ -35,12 +35,26 @@ void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
 }
 
 void on_peer_data(int sockfd, char* buf, int buflen) {
-  // Got data from the client
-  printf("got data from %d: ", sockfd);
   for (int i = 0; i < buflen; ++i) {
-    printf("0x%x ", (unsigned)buf[i]);
+    switch (global_state[sockfd].state) {
+      case WAIT_FOR_MSG:
+        if (buf[i] == '^') {
+          global_state[sockfd].state = IN_MSG;
+        }
+        break;
+      case IN_MSG:
+        if (buf[i] == '$') {
+          global_state[sockfd].state = WAIT_FOR_MSG;
+        } else {
+          buf[i] += 1;
+          if (send(sockfd, &buf[i], 1, 0) < 1) {
+            // TODO: can return EAGAIN - have to handle this
+            perror_die("socket error");
+          }
+        }
+        break;
+    }
   }
-  printf("\n");
 }
 
 int main(int argc, char** argv) {
@@ -89,6 +103,7 @@ int main(int argc, char** argv) {
           socklen_t peer_addr_len = sizeof(peer_addr);
           int newsockfd = accept(listener_sockfd, (struct sockaddr*)&peer_addr,
                                  &peer_addr_len);
+          // shutdown here if > MAXFDs?
           if (newsockfd < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
               // This can happen due to the nonblocking socket mode; in this
