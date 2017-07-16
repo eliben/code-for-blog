@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,31 +13,44 @@
 // Note: FD_SETSIZE is 1024 on Linux
 #define MAXFDS 1000
 
-typedef enum { WAIT_FOR_MSG, IN_MSG } ProcessingState;
+typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 typedef struct {
   ProcessingState state;
+  char sendbuf[1024];
+  int sendptr;
 } peer_state_t;
 
 peer_state_t global_state[MAXFDS];
 
+void initialize_state(int fd) {
+  assert(fd < MAXFDS);
+  global_state[fd].state = INITIAL_ACK;
+  global_state[fd].sendptr = 0;
+}
+
 void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
                        socklen_t peer_addr_len) {
   report_peer_connected(peer_addr, peer_addr_len);
-
-  // TODO: send the starting * to the client here. Simplification:
-  // assuming socket is ready for send; if i get EAGAIN etc. it's an
-  // error
-  if (send(sockfd, "*", 1, 0) < 1) {
-    perror_die("send");
-  }
-
-  global_state[sockfd].state = WAIT_FOR_MSG;
+  initialize_state(sockfd);
 }
 
-void on_peer_data(int sockfd, char* buf, int buflen) {
-  for (int i = 0; i < buflen; ++i) {
-    switch (global_state[sockfd].state) {
+// TODO: returns recv's rc if rc <= 0, otherwise 1.
+int on_peer_ready_recv(int sockfd) {
+  if (global_state[sockfd].state == INITIAL_ACK) {
+    return 1;
+  }
+
+  char buf[1024];
+  int nbytes = recv(sockfd, buf, sizeof buf, 0);
+  if (nbytes <= 0) {
+    return nbytes;
+  } else {
+    for (int i = 0; i < nbytes; ++i) {
+      switch (global_state[sockfd].state) {
+        case INITIAL_ACK:
+          assert(0 && "can't reach here");
+          break;
       case WAIT_FOR_MSG:
         if (buf[i] == '^') {
           global_state[sockfd].state = IN_MSG;
@@ -48,11 +62,30 @@ void on_peer_data(int sockfd, char* buf, int buflen) {
         } else {
           buf[i] += 1;
           if (send(sockfd, &buf[i], 1, 0) < 1) {
-            // TODO: can return EAGAIN - have to handle this
+            // TODO: don't send here, just add to the send buffer.
+            // don't even start receiving before all send buffer drained.
             perror_die("socket error");
           }
         }
         break;
+      }
+    }
+  }
+  return 1;
+}
+
+void on_peer_ready_send(int sockfd) {
+  if (global_state[sockfd].state == INITIAL_ACK) {
+    int nsent = send(sockfd, "*", 1, 0);
+    if (nsent < 1) {
+      if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // Can't really send right now; state remains unchanged.
+        return;
+      } else {
+        perror_die("send");
+      }
+    } else {
+      global_state[sockfd].state = WAIT_FOR_MSG;
     }
   }
 }
@@ -71,29 +104,28 @@ int main(int argc, char** argv) {
   // TODO: comment here why
   make_socket_non_blocking(listener_sockfd);
 
-  fd_set select_fdset;
-  FD_ZERO(&select_fdset);
+  fd_set master_fdset;
+  FD_ZERO(&master_fdset);
 
   if (listener_sockfd >= FD_SETSIZE) {
     die("listener socket fd (%d) >= FD_SETSIZE (%d)", listener_sockfd,
         FD_SETSIZE);
   }
 
-  FD_SET(listener_sockfd, &select_fdset);
+  FD_SET(listener_sockfd, &master_fdset);
   int fdset_max = listener_sockfd;
 
   while (1) {
-    // Since select modifies the fd set in place to indicate ready fds, we pass
-    // a copy to keep the original fdset unchanged.
-    fd_set select_fdset_ready = select_fdset;
+    fd_set readfds = master_fdset;
+    fd_set writefds = master_fdset;
 
-    int nready = select(fdset_max + 1, &select_fdset_ready, NULL, NULL, NULL);
+    int nready = select(fdset_max + 1, &readfds, &writefds, NULL, NULL);
     if (nready < 0) {
       perror_die("select");
     }
 
     for (int fd = 0; fd <= fdset_max && nready > 0; ++fd) {
-      if (FD_ISSET(fd, &select_fdset_ready)) {
+      if (FD_ISSET(fd, &readfds)) {
         nready--;
 
         if (fd == listener_sockfd) {
@@ -118,7 +150,7 @@ int main(int argc, char** argv) {
             // add it to the main select set, so that we'll wait for it to
             // become ready in the next iteration of this select loop.
             make_socket_non_blocking(newsockfd);
-            FD_SET(newsockfd, &select_fdset);
+            FD_SET(newsockfd, &master_fdset);
             if (newsockfd > fdset_max) {
               if (newsockfd >= FD_SETSIZE) {
                 die("socket fd (%d) >= FD_SETSIZE (%d)", newsockfd,
@@ -131,23 +163,23 @@ int main(int argc, char** argv) {
             on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
           }
         } else {
-          // One of the peer sockets is ready to receive data.
-          char buf[1024];
-          int nbytes = recv(fd, buf, sizeof buf, 0);
-          if (nbytes <= 0) {
-            if (nbytes == 0) {
-              printf("socket %d hung up\n", fd);
-              close(fd);
-              FD_CLR(fd, &select_fdset);
-            } else if (errno == EAGAIN || errno == EWOULDBLOCK) {
+          int nbytes = on_peer_ready_recv(fd);
+          if (nbytes == 0) {
+            printf("socket %d hung up\n", fd);
+            close(fd);
+            FD_CLR(fd, &master_fdset);
+          } else if (nbytes < 0) {
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
               printf("recv returned EAGAIN or EWOULDBLOCK\n");
             } else {
               perror_die("recv");
             }
-          } else {
-            on_peer_data(fd, buf, nbytes);
           }
         }
+      }
+      if (FD_ISSET(fd, &writefds)) {
+        nready--;
+        on_peer_ready_send(fd);
       }
     }
   }
