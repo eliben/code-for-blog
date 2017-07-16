@@ -18,6 +18,7 @@ typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 typedef struct {
   ProcessingState state;
   char sendbuf[1024];
+  int sendbuf_end;
   int sendptr;
 } peer_state_t;
 
@@ -26,6 +27,7 @@ peer_state_t global_state[MAXFDS];
 void initialize_state(int fd) {
   assert(fd < MAXFDS);
   global_state[fd].state = INITIAL_ACK;
+  global_state[fd].sendbuf_end = 0;
   global_state[fd].sendptr = 0;
 }
 
@@ -38,6 +40,11 @@ void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
 // TODO: returns recv's rc if rc <= 0, otherwise 1.
 int on_peer_ready_recv(int sockfd) {
   if (global_state[sockfd].state == INITIAL_ACK) {
+    return 1;
+  }
+  if (global_state[sockfd].sendptr < global_state[sockfd].sendbuf_end) {
+    // There's still data remaining to be sent back; don't receive new data for
+    // now.
     return 1;
   }
 
@@ -60,12 +67,8 @@ int on_peer_ready_recv(int sockfd) {
         if (buf[i] == '$') {
           global_state[sockfd].state = WAIT_FOR_MSG;
         } else {
-          buf[i] += 1;
-          if (send(sockfd, &buf[i], 1, 0) < 1) {
-            // TODO: don't send here, just add to the send buffer.
-            // don't even start receiving before all send buffer drained.
-            perror_die("socket error");
-          }
+          global_state[sockfd].sendbuf[global_state[sockfd].sendbuf_end++] =
+              buf[i] + 1;
         }
         break;
       }
@@ -87,6 +90,24 @@ void on_peer_ready_send(int sockfd) {
     } else {
       global_state[sockfd].state = WAIT_FOR_MSG;
     }
+  } else {
+    if (global_state[sockfd].sendptr < global_state[sockfd].sendbuf_end) {
+      int sendlen = global_state[sockfd].sendbuf_end - global_state[sockfd].sendptr;
+      int nsent = send(sockfd, global_state[sockfd].sendbuf, sendlen, 0);
+      if (nsent == -1) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK) {
+          return;
+        } else {
+          perror_die("send");
+        }
+      }
+      if (nsent < sendlen) {
+        global_state[sockfd].sendptr += nsent;
+      } else {
+        global_state[sockfd].sendptr = 0;
+        global_state[sockfd].sendbuf_end = 0;
+      }
+    }
   }
 }
 
@@ -104,6 +125,7 @@ int main(int argc, char** argv) {
   // TODO: comment here why
   make_socket_non_blocking(listener_sockfd);
 
+  // TODO: need separate master for reading and writing.
   fd_set master_fdset;
   FD_ZERO(&master_fdset);
 
@@ -163,12 +185,12 @@ int main(int argc, char** argv) {
             on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
           }
         } else {
-          int nbytes = on_peer_ready_recv(fd);
-          if (nbytes == 0) {
+          int rc = on_peer_ready_recv(fd);
+          if (rc == 0) {
             printf("socket %d hung up\n", fd);
             close(fd);
             FD_CLR(fd, &master_fdset);
-          } else if (nbytes < 0) {
+          } else if (rc < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
               printf("recv returned EAGAIN or EWOULDBLOCK\n");
             } else {
