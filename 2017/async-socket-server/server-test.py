@@ -1,4 +1,5 @@
 import argparse
+import itertools
 import logging
 import queue
 import socket
@@ -67,11 +68,17 @@ def assert_queue_empty(q, wait=0.1):
     assert q.empty(), 'queue had {0}'.format(q.get())
 
 
-def client_tester1(port, initial_timeout=0.1):
+def client_thread_runner(client_body_func, port, initial_timeout=0.1):
+    """Abstracts the function running within a client thread.
+
+    Connects to the port with a socket, launches a reading thread and makes sure
+    to shut down properly. client_body_func is the actual interaction with a
+    socket, once connected.
+    """
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sockobj.settimeout(0.1)
+    sockobj.settimeout(initial_timeout)
     sockobj.connect(('localhost', port))
-    logging.info('client_tester1 connected to server')
+    logging.info('{0} connected to server'.format(client_body_func.__name__))
 
     readq = queue.Queue()
     exit_event = threading.Event()
@@ -81,32 +88,7 @@ def client_tester1(port, initial_timeout=0.1):
     tread.start()
 
     try:
-        assert_queue_contains(readq, b'*', timeout=initial_timeout)
-
-        sockobj.send(b'abcdef')
-        assert_queue_empty(readq)
-
-        sockobj.send(b'^')
-        assert_queue_empty(readq)
-
-        sockobj.send(b'f')
-        assert_queue_contains(readq, b'g')
-
-        sockobj.send(b'1234')
-        assert_queue_contains(readq, b'2')
-        assert_queue_contains(readq, b'3')
-        assert_queue_contains(readq, b'4')
-        assert_queue_contains(readq, b'5')
-
-        sockobj.send(b'$')
-        assert_queue_empty(readq)
-        sockobj.send(b'1234')
-        assert_queue_empty(readq)
-
-        sockobj.send(b'^')
-        sockobj.send(b'xy')
-        assert_queue_contains(readq, b'y')
-        assert_queue_contains(readq, b'z')
+        client_body_func(sockobj, readq, initial_timeout)
     finally:
         # Closing the socket before killing the server helps the bound socket be
         # fully released on the server side; otherwise it may be kept alive by
@@ -116,29 +98,52 @@ def client_tester1(port, initial_timeout=0.1):
         tread.join()
 
 
-def client_tester2(port, initial_timeout=0.1):
-    sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sockobj.settimeout(0.1)
-    sockobj.connect(('localhost', port))
-    logging.info('client_tester2 connected to server')
+def client0(sock, readq, initial_timeout):
+    assert_queue_contains(readq, b'*', timeout=initial_timeout)
+    assert_queue_empty(readq)
 
-    exit_event = threading.Event()
-    readq = queue.Queue()
-    tread = threading.Thread(
-            target=socket_reader,
-            args=(sockobj, readq, exit_event))
-    tread.start()
 
-    try:
-        assert_queue_contains(readq, b'*', timeout=initial_timeout)
-        sockobj.send(b'^ab$^kl$^80$50')
-        for b in [b'b', b'c', b'l', b'm', b'9', b'1']:
-            assert_queue_contains(readq, b)
-        assert_queue_empty(readq)
-    finally:
-        sockobj.close()
-        exit_event.set()
-        tread.join()
+def client1(sock, readq, initial_timeout):
+    assert_queue_contains(readq, b'*', timeout=initial_timeout)
+
+    sock.send(b'abcdef')
+    assert_queue_empty(readq)
+
+    sock.send(b'^')
+    assert_queue_empty(readq)
+
+    sock.send(b'f')
+    assert_queue_contains(readq, b'g')
+
+    sock.send(b'1234')
+    assert_queue_contains(readq, b'2')
+    assert_queue_contains(readq, b'3')
+    assert_queue_contains(readq, b'4')
+    assert_queue_contains(readq, b'5')
+
+    sock.send(b'$')
+    assert_queue_empty(readq)
+    sock.send(b'1234')
+    assert_queue_empty(readq)
+
+    sock.send(b'^')
+    sock.send(b'xy')
+    assert_queue_contains(readq, b'y')
+    assert_queue_contains(readq, b'z')
+
+
+def client2(sock, readq, initial_timeout):
+    assert_queue_contains(readq, b'*', timeout=initial_timeout)
+    sock.send(b'^ab$^kl$^80$50')
+    for b in [b'b', b'c', b'l', b'm', b'9', b'1']:
+        assert_queue_contains(readq, b)
+    assert_queue_empty(readq)
+
+
+def client3(sock, readq, initial_timeout):
+    assert_queue_contains(readq, b'*', timeout=initial_timeout)
+    sock.send(b'^$^$^$^$^$^$$^$$$$foobarjoemoedoe^$$')
+    assert_queue_empty(readq)
 
 
 def test_main():
@@ -168,15 +173,14 @@ def test_main():
 
     TIMEOUT = 0.5 + (args.num_clients - 1) * args.timeout_bump
 
-    client_kind = 1
+    client_iter = itertools.cycle([client0, client1, client2, client3])
     threads = []
     for i in range(args.num_clients):
         tester_thread = threading.Thread(
-                target=client_tester1 if client_kind == 1 else client_tester2,
-                args=(args.server_port, TIMEOUT))
+                target=client_thread_runner,
+                args=(next(client_iter), args.server_port, TIMEOUT))
         tester_thread.start()
         threads.append(tester_thread)
-        client_kind = 2 if client_kind == 1 else 1
 
     time.sleep(TIMEOUT)
     stop_event.set()

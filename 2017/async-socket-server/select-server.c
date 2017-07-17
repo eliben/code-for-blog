@@ -166,6 +166,7 @@ int main(int argc, char** argv) {
     }
 
     for (int fd = 0; fd <= fdset_max && nready > 0; ++fd) {
+      // Check if this fd became readable.
       if (FD_ISSET(fd, &readfds)) {
         nready--;
 
@@ -228,6 +229,8 @@ int main(int argc, char** argv) {
           }
         }
       }
+
+      // Check if this fd became writable.
       if (FD_ISSET(fd, &writefds)) {
         nready--;
         fd_status_t status = on_peer_ready_send(fd);

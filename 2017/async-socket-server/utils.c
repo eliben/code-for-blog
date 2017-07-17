@@ -10,7 +10,7 @@
 #define _GNU_SOURCE
 #include <netdb.h>
 
-#define N_BACKLOG 15
+#define N_BACKLOG 64
 
 void die(char* fmt, ...) {
   va_list args;
