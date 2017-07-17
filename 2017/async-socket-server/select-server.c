@@ -26,11 +26,18 @@ typedef struct {
 
 peer_state_t global_state[MAXFDS];
 
+// Callbacks (on_XXX functions) return this status to the main loop; the status
+// instructs the loop about the next steps for the FD for which the callback was
+// invoked.
+// want_read=true means we want to keep monitoring this FD for reading.
+// want_write=true means we want to keep monitoring this FD for writing.
+// When both are false it means the FD is no longer needed and can be closed.
 typedef struct {
   bool want_read;
   bool want_write;
 } fd_status_t;
 
+// These constants make creating fd_status_t values less verbose.
 const fd_status_t fd_status_R = {.want_read = true, .want_write = false};
 const fd_status_t fd_status_W = {.want_read = false, .want_write = true};
 const fd_status_t fd_status_RW = {.want_read = true, .want_write = true};
@@ -56,15 +63,20 @@ fd_status_t on_peer_ready_recv(int sockfd) {
 
   if (peerstate->state == INITIAL_ACK ||
       peerstate->sendptr < peerstate->sendbuf_end) {
+    // Until the initial ACK has been sent to the peer, there's nothing we
+    // want to receive. Also, wait until all data staged for sending is sent to
+    // receive more data.
     return fd_status_W;
   }
 
   char buf[1024];
   int nbytes = recv(sockfd, buf, sizeof buf, 0);
   if (nbytes == 0) {
+    // The peer disconnected.
     return fd_status_NORW;
   } else if (nbytes < 0) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      // The socket is not *really* ready for recv; wait until it is.
       return fd_status_R;
     } else {
       perror_die("recv");
@@ -91,6 +103,8 @@ fd_status_t on_peer_ready_recv(int sockfd) {
       break;
     }
   }
+  // Report reading readiness iff there's nothing to send to the peer as a
+  // result of the latest recv.
   return (fd_status_t){.want_read = !ready_to_send,
                        .want_write = ready_to_send};
 }
@@ -99,6 +113,8 @@ fd_status_t on_peer_ready_send(int sockfd) {
   assert(sockfd < MAXFDs);
   peer_state_t* peerstate = &global_state[sockfd];
 
+  // TODO: should just put "*" in the send buf here when peer connected... this way this whole
+  // special case can be deleted
   if (peerstate->state == INITIAL_ACK) {
     int nsent = send(sockfd, "*", 1, 0);
     if (nsent < 1) {
@@ -146,23 +162,34 @@ int main(int argc, char** argv) {
 
   int listener_sockfd = listen_inet_socket(portnum);
 
-  // TODO: comment here why
+  // The select() manpage warns that select() can return a read notification
+  // for a socket that isn't actually readable. Thus using blocking I/O isn't
+  // safe.
   make_socket_non_blocking(listener_sockfd);
-
-  fd_set readfds_master;
-  FD_ZERO(&readfds_master);
-  fd_set writefds_master;
-  FD_ZERO(&writefds_master);
 
   if (listener_sockfd >= FD_SETSIZE) {
     die("listener socket fd (%d) >= FD_SETSIZE (%d)", listener_sockfd,
         FD_SETSIZE);
   }
 
+  // The "master" sets are owned by the loop, tracking which FDs we want to
+  // monitor for reading and which FDs we want to monitor for writing.
+  fd_set readfds_master;
+  FD_ZERO(&readfds_master);
+  fd_set writefds_master;
+  FD_ZERO(&writefds_master);
+
+  // The listenting socket is always monitored for read, to detect when new
+  // peer connections are incoming.
   FD_SET(listener_sockfd, &readfds_master);
+
+  // For more efficiency, fdset_max tracks the maximal FD seen so far; this
+  // makes it unnecessary for select to iterate all the way to FD_SETSIZE on
+  // every call.
   int fdset_max = listener_sockfd;
 
   while (1) {
+    // select() modifies the fd_sets passed to it, so we have to pass in copies.
     fd_set readfds = readfds_master;
     fd_set writefds = writefds_master;
 
@@ -171,7 +198,10 @@ int main(int argc, char** argv) {
       perror_die("select");
     }
 
-    for (int fd = 0; fd <= fdset_max && nready > 0; ++fd) {
+    // nready tells us the total number of ready events; if one socket is both
+    // readable and writable it will be 2. Therefore, it's decremented when
+    // either a readable or a writable socket is encountered.
+    for (int fd = 0; fd <= fdset_max && nready > 0; fd++) {
       // Check if this fd became readable.
       if (FD_ISSET(fd, &readfds)) {
         nready--;
@@ -183,7 +213,6 @@ int main(int argc, char** argv) {
           socklen_t peer_addr_len = sizeof(peer_addr);
           int newsockfd = accept(listener_sockfd, (struct sockaddr*)&peer_addr,
                                  &peer_addr_len);
-          // shutdown here if > MAXFDs?
           if (newsockfd < 0) {
             if (errno == EAGAIN || errno == EWOULDBLOCK) {
               // This can happen due to the nonblocking socket mode; in this
@@ -202,7 +231,6 @@ int main(int argc, char** argv) {
               fdset_max = newsockfd;
             }
 
-            // Notify the user that a new peer connected.
             fd_status_t status =
                 on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
             if (status.want_read) {
