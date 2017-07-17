@@ -23,16 +23,13 @@ def server_runner(path, args, stop_event):
     runcmd = ['python3.6', '-u', path] if path.endswith('.py') else [path]
     runcmd.extend(args)
     logging.info('server_runner: executing subprocess "{0}"'.format(runcmd))
-    proc = subprocess.Popen(runcmd, stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+    proc = subprocess.Popen(runcmd)
     logging.info('server_runner waiting for stop event')
     stop_event.wait()
     logging.info('server_runner sending kill to subprocess')
     proc.terminate()
     try:
-        outs, errs = proc.communicate(timeout=0.2)
-        print('outs=', outs.decode())
-        print('errs=', errs.decode())
+        proc.wait(timeout=0.2)
     except subprocess.TimeoutExpired:
         logging.info('server_runner: subprocess did not die within timeout')
 
@@ -93,7 +90,9 @@ def client_thread_runner(client_body_func, port, initial_timeout=0.1):
         # Closing the socket before killing the server helps the bound socket be
         # fully released on the server side; otherwise it may be kept alive by
         # the kernel for a while after the server process exits.
+        sockobj.shutdown(socket.SHUT_RDWR)
         sockobj.close()
+        time.sleep(0.1)
         exit_event.set()
         tread.join()
 
