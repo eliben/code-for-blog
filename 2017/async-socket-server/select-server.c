@@ -11,7 +11,8 @@
 
 #include "utils.h"
 
-// Note: FD_SETSIZE is 1024 on Linux
+// Note: FD_SETSIZE is 1024 on Linux, which is tricky to change. This provides a
+// natural limit to the number of simultaneous FDs monitored by select().
 #define MAXFDS 1000
 
 typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
@@ -50,8 +51,11 @@ fd_status_t on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
 }
 
 fd_status_t on_peer_ready_recv(int sockfd) {
-  if (global_state[sockfd].state == INITIAL_ACK ||
-      global_state[sockfd].sendptr < global_state[sockfd].sendbuf_end) {
+  assert(sockfd < MAXFDs);
+  peer_state_t* peerstate = &global_state[sockfd];
+
+  if (peerstate->state == INITIAL_ACK ||
+      peerstate->sendptr < peerstate->sendbuf_end) {
     return fd_status_W;
   }
 
@@ -68,21 +72,20 @@ fd_status_t on_peer_ready_recv(int sockfd) {
   }
   bool ready_to_send = false;
   for (int i = 0; i < nbytes; ++i) {
-    switch (global_state[sockfd].state) {
-      case INITIAL_ACK:
-        assert(0 && "can't reach here");
-        break;
+    switch (peerstate->state) {
+    case INITIAL_ACK:
+      assert(0 && "can't reach here");
+      break;
     case WAIT_FOR_MSG:
       if (buf[i] == '^') {
-        global_state[sockfd].state = IN_MSG;
+        peerstate->state = IN_MSG;
       }
       break;
     case IN_MSG:
       if (buf[i] == '$') {
-        global_state[sockfd].state = WAIT_FOR_MSG;
+        peerstate->state = WAIT_FOR_MSG;
       } else {
-        global_state[sockfd].sendbuf[global_state[sockfd].sendbuf_end++] =
-            buf[i] + 1;
+        peerstate->sendbuf[peerstate->sendbuf_end++] = buf[i] + 1;
         ready_to_send = true;
       }
       break;
@@ -93,7 +96,10 @@ fd_status_t on_peer_ready_recv(int sockfd) {
 }
 
 fd_status_t on_peer_ready_send(int sockfd) {
-  if (global_state[sockfd].state == INITIAL_ACK) {
+  assert(sockfd < MAXFDs);
+  peer_state_t* peerstate = &global_state[sockfd];
+
+  if (peerstate->state == INITIAL_ACK) {
     int nsent = send(sockfd, "*", 1, 0);
     if (nsent < 1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
@@ -102,16 +108,16 @@ fd_status_t on_peer_ready_send(int sockfd) {
         perror_die("send");
       }
     } else {
-      global_state[sockfd].state = WAIT_FOR_MSG;
+      peerstate->state = WAIT_FOR_MSG;
       return fd_status_R;
     }
   }
-  if (global_state[sockfd].sendptr >= global_state[sockfd].sendbuf_end) {
+  if (peerstate->sendptr >= peerstate->sendbuf_end) {
     // Nothing to send.
     return fd_status_W;
   }
-  int sendlen = global_state[sockfd].sendbuf_end - global_state[sockfd].sendptr;
-  int nsent = send(sockfd, global_state[sockfd].sendbuf, sendlen, 0);
+  int sendlen = peerstate->sendbuf_end - peerstate->sendptr;
+  int nsent = send(sockfd, peerstate->sendbuf, sendlen, 0);
   if (nsent == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return fd_status_W;
@@ -120,11 +126,11 @@ fd_status_t on_peer_ready_send(int sockfd) {
     }
   }
   if (nsent < sendlen) {
-    global_state[sockfd].sendptr += nsent;
+    peerstate->sendptr += nsent;
     return fd_status_W;
   } else {
-    global_state[sockfd].sendptr = 0;
-    global_state[sockfd].sendbuf_end = 0;
+    peerstate->sendptr = 0;
+    peerstate->sendbuf_end = 0;
     return fd_status_R;
   }
 }
@@ -191,8 +197,7 @@ int main(int argc, char** argv) {
             make_socket_non_blocking(newsockfd);
             if (newsockfd > fdset_max) {
               if (newsockfd >= FD_SETSIZE) {
-                die("socket fd (%d) >= FD_SETSIZE (%d)", newsockfd,
-                    FD_SETSIZE);
+                die("socket fd (%d) >= FD_SETSIZE (%d)", newsockfd, FD_SETSIZE);
               }
               fdset_max = newsockfd;
             }

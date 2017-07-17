@@ -92,7 +92,6 @@ def client_thread_runner(client_body_func, port, initial_timeout=0.1):
         # the kernel for a while after the server process exits.
         sockobj.shutdown(socket.SHUT_RDWR)
         sockobj.close()
-        time.sleep(0.1)
         exit_event.set()
         tread.join()
 
