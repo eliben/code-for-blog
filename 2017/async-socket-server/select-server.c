@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,6 +25,16 @@ typedef struct {
 
 peer_state_t global_state[MAXFDS];
 
+typedef struct {
+  bool want_read;
+  bool want_write;
+} fd_status_t;
+
+const fd_status_t fd_status_R = {.want_read = true, .want_write = false};
+const fd_status_t fd_status_W = {.want_read = false, .want_write = true};
+const fd_status_t fd_status_RW = {.want_read = true, .want_write = true};
+const fd_status_t fd_status_NORW = {.want_read = false, .want_write = false};
+
 void initialize_state(int fd) {
   assert(fd < MAXFDS);
   global_state[fd].state = INITIAL_ACK;
@@ -31,83 +42,90 @@ void initialize_state(int fd) {
   global_state[fd].sendptr = 0;
 }
 
-void on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
-                       socklen_t peer_addr_len) {
+fd_status_t on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
+                              socklen_t peer_addr_len) {
   report_peer_connected(peer_addr, peer_addr_len);
   initialize_state(sockfd);
+  return fd_status_W;
 }
 
-// TODO: returns recv's rc if rc <= 0, otherwise 1.
-int on_peer_ready_recv(int sockfd) {
-  if (global_state[sockfd].state == INITIAL_ACK) {
-    return 1;
-  }
-  if (global_state[sockfd].sendptr < global_state[sockfd].sendbuf_end) {
-    // There's still data remaining to be sent back; don't receive new data for
-    // now.
-    return 1;
+fd_status_t on_peer_ready_recv(int sockfd) {
+  if (global_state[sockfd].state == INITIAL_ACK ||
+      global_state[sockfd].sendptr < global_state[sockfd].sendbuf_end) {
+    return fd_status_W;
   }
 
   char buf[1024];
   int nbytes = recv(sockfd, buf, sizeof buf, 0);
-  if (nbytes <= 0) {
-    return nbytes;
-  } else {
-    for (int i = 0; i < nbytes; ++i) {
-      switch (global_state[sockfd].state) {
-        case INITIAL_ACK:
-          assert(0 && "can't reach here");
-          break;
-      case WAIT_FOR_MSG:
-        if (buf[i] == '^') {
-          global_state[sockfd].state = IN_MSG;
-        }
-        break;
-      case IN_MSG:
-        if (buf[i] == '$') {
-          global_state[sockfd].state = WAIT_FOR_MSG;
-        } else {
-          global_state[sockfd].sendbuf[global_state[sockfd].sendbuf_end++] =
-              buf[i] + 1;
-        }
-        break;
-      }
+  if (nbytes == 0) {
+    return fd_status_NORW;
+  } else if (nbytes < 0) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      return fd_status_R;
+    } else {
+      perror_die("recv");
     }
   }
-  return 1;
+  bool ready_to_send = false;
+  for (int i = 0; i < nbytes; ++i) {
+    switch (global_state[sockfd].state) {
+      case INITIAL_ACK:
+        assert(0 && "can't reach here");
+        break;
+    case WAIT_FOR_MSG:
+      if (buf[i] == '^') {
+        global_state[sockfd].state = IN_MSG;
+      }
+      break;
+    case IN_MSG:
+      if (buf[i] == '$') {
+        global_state[sockfd].state = WAIT_FOR_MSG;
+      } else {
+        global_state[sockfd].sendbuf[global_state[sockfd].sendbuf_end++] =
+            buf[i] + 1;
+        ready_to_send = true;
+      }
+      break;
+    }
+  }
+  return (fd_status_t){.want_read = !ready_to_send,
+                       .want_write = ready_to_send};
 }
 
-void on_peer_ready_send(int sockfd) {
+fd_status_t on_peer_ready_send(int sockfd) {
   if (global_state[sockfd].state == INITIAL_ACK) {
     int nsent = send(sockfd, "*", 1, 0);
     if (nsent < 1) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        // Can't really send right now; state remains unchanged.
-        return;
+        return fd_status_W;
       } else {
         perror_die("send");
       }
     } else {
       global_state[sockfd].state = WAIT_FOR_MSG;
+      return fd_status_R;
     }
+  }
+  if (global_state[sockfd].sendptr >= global_state[sockfd].sendbuf_end) {
+    // Nothing to send.
+    return fd_status_W;
+  }
+  int sendlen = global_state[sockfd].sendbuf_end - global_state[sockfd].sendptr;
+  int nsent = send(sockfd, global_state[sockfd].sendbuf, sendlen, 0);
+  if (nsent == -1) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      return fd_status_W;
+    } else {
+      perror_die("send");
+    }
+  }
+  if (nsent < sendlen) {
+    global_state[sockfd].sendptr += nsent;
+    return fd_status_W;
   } else {
-    if (global_state[sockfd].sendptr < global_state[sockfd].sendbuf_end) {
-      int sendlen = global_state[sockfd].sendbuf_end - global_state[sockfd].sendptr;
-      int nsent = send(sockfd, global_state[sockfd].sendbuf, sendlen, 0);
-      if (nsent == -1) {
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-          return;
-        } else {
-          perror_die("send");
-        }
-      }
-      if (nsent < sendlen) {
-        global_state[sockfd].sendptr += nsent;
-      } else {
-        global_state[sockfd].sendptr = 0;
-        global_state[sockfd].sendbuf_end = 0;
-      }
-    }
+    global_state[sockfd].sendptr = 0;
+    global_state[sockfd].sendbuf_end = 0;
+    return fd_status_R;
   }
 }
 
@@ -125,21 +143,22 @@ int main(int argc, char** argv) {
   // TODO: comment here why
   make_socket_non_blocking(listener_sockfd);
 
-  // TODO: need separate master for reading and writing.
-  fd_set master_fdset;
-  FD_ZERO(&master_fdset);
+  fd_set readfds_master;
+  FD_ZERO(&readfds_master);
+  fd_set writefds_master;
+  FD_ZERO(&writefds_master);
 
   if (listener_sockfd >= FD_SETSIZE) {
     die("listener socket fd (%d) >= FD_SETSIZE (%d)", listener_sockfd,
         FD_SETSIZE);
   }
 
-  FD_SET(listener_sockfd, &master_fdset);
+  FD_SET(listener_sockfd, &readfds_master);
   int fdset_max = listener_sockfd;
 
   while (1) {
-    fd_set readfds = master_fdset;
-    fd_set writefds = master_fdset;
+    fd_set readfds = readfds_master;
+    fd_set writefds = writefds_master;
 
     int nready = select(fdset_max + 1, &readfds, &writefds, NULL, NULL);
     if (nready < 0) {
@@ -168,11 +187,7 @@ int main(int argc, char** argv) {
               perror_die("accept");
             }
           } else {
-            // newsockfd is a valid new fd for a peer. Make it nonblocking and
-            // add it to the main select set, so that we'll wait for it to
-            // become ready in the next iteration of this select loop.
             make_socket_non_blocking(newsockfd);
-            FD_SET(newsockfd, &master_fdset);
             if (newsockfd > fdset_max) {
               if (newsockfd >= FD_SETSIZE) {
                 die("socket fd (%d) >= FD_SETSIZE (%d)", newsockfd,
@@ -182,26 +197,54 @@ int main(int argc, char** argv) {
             }
 
             // Notify the user that a new peer connected.
-            on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
+            fd_status_t status =
+                on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
+            if (status.want_read) {
+              FD_SET(newsockfd, &readfds_master);
+            } else {
+              FD_CLR(newsockfd, &readfds_master);
+            }
+            if (status.want_write) {
+              FD_SET(newsockfd, &writefds_master);
+            } else {
+              FD_CLR(newsockfd, &writefds_master);
+            }
           }
         } else {
-          int rc = on_peer_ready_recv(fd);
-          if (rc == 0) {
-            printf("socket %d hung up\n", fd);
+          fd_status_t status = on_peer_ready_recv(fd);
+          if (status.want_read) {
+            FD_SET(fd, &readfds_master);
+          } else {
+            FD_CLR(fd, &readfds_master);
+          }
+          if (status.want_write) {
+            FD_SET(fd, &writefds_master);
+          } else {
+            FD_CLR(fd, &writefds_master);
+          }
+          if (!status.want_read && !status.want_write) {
+            printf("socket %d closing\n", fd);
             close(fd);
-            FD_CLR(fd, &master_fdset);
-          } else if (rc < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-              printf("recv returned EAGAIN or EWOULDBLOCK\n");
-            } else {
-              perror_die("recv");
-            }
           }
         }
       }
       if (FD_ISSET(fd, &writefds)) {
         nready--;
-        on_peer_ready_send(fd);
+        fd_status_t status = on_peer_ready_send(fd);
+        if (status.want_read) {
+          FD_SET(fd, &readfds_master);
+        } else {
+          FD_CLR(fd, &readfds_master);
+        }
+        if (status.want_write) {
+          FD_SET(fd, &writefds_master);
+        } else {
+          FD_CLR(fd, &writefds_master);
+        }
+        if (!status.want_read && !status.want_write) {
+          printf("socket %d closing\n", fd);
+          close(fd);
+        }
       }
     }
   }
