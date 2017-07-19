@@ -5,6 +5,7 @@ LDFLAGS = -lpthread -pthread
 EXECUTABLES = \
 	sequential-server \
 	select-server \
+	epoll-server \
 	threaded-server
 
 all: $(EXECUTABLES)
@@ -16,6 +17,9 @@ select-server: utils.c select-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 threaded-server: utils.c threaded-server.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+epoll-server: utils.c epoll-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 .PHONY: clean format
