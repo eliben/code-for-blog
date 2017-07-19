@@ -43,19 +43,22 @@ const fd_status_t fd_status_W = {.want_read = false, .want_write = true};
 const fd_status_t fd_status_RW = {.want_read = true, .want_write = true};
 const fd_status_t fd_status_NORW = {.want_read = false, .want_write = false};
 
-void initialize_state(int fd) {
-  assert(fd < MAXFDS);
-  global_state[fd].state = INITIAL_ACK;
-  global_state[fd].sendbuf_end = 0;
-  global_state[fd].sendptr = 0;
-}
 
-fd_status_t on_connected_peer(int sockfd, const struct sockaddr_in* peer_addr,
+fd_status_t on_peer_connected(int sockfd, const struct sockaddr_in* peer_addr,
                               socklen_t peer_addr_len) {
+  assert(sockfd < MAXFDs);
   report_peer_connected(peer_addr, peer_addr_len);
-  initialize_state(sockfd);
+
+  // Initialize state to send back a '*' to the peer immediately.
+  peer_state_t* peerstate = &global_state[sockfd];
+  peerstate->state = INITIAL_ACK;
+  peerstate->sendbuf[0] = '*';
+  peerstate->sendptr = 0;
+  peerstate->sendbuf_end = 1;
+
   return fd_status_W;
 }
+
 
 fd_status_t on_peer_ready_recv(int sockfd) {
   assert(sockfd < MAXFDs);
@@ -113,24 +116,9 @@ fd_status_t on_peer_ready_send(int sockfd) {
   assert(sockfd < MAXFDs);
   peer_state_t* peerstate = &global_state[sockfd];
 
-  // TODO: should just put "*" in the send buf here when peer connected... this way this whole
-  // special case can be deleted
-  if (peerstate->state == INITIAL_ACK) {
-    int nsent = send(sockfd, "*", 1, 0);
-    if (nsent < 1) {
-      if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        return fd_status_W;
-      } else {
-        perror_die("send");
-      }
-    } else {
-      peerstate->state = WAIT_FOR_MSG;
-      return fd_status_R;
-    }
-  }
   if (peerstate->sendptr >= peerstate->sendbuf_end) {
     // Nothing to send.
-    return fd_status_W;
+    return fd_status_RW;
   }
   int sendlen = peerstate->sendbuf_end - peerstate->sendptr;
   int nsent = send(sockfd, peerstate->sendbuf, sendlen, 0);
@@ -147,6 +135,11 @@ fd_status_t on_peer_ready_send(int sockfd) {
   } else {
     peerstate->sendptr = 0;
     peerstate->sendbuf_end = 0;
+
+    if (peerstate->state == INITIAL_ACK) {
+      peerstate->state = WAIT_FOR_MSG;
+    }
+
     return fd_status_R;
   }
 }
@@ -232,7 +225,7 @@ int main(int argc, char** argv) {
             }
 
             fd_status_t status =
-                on_connected_peer(newsockfd, &peer_addr, peer_addr_len);
+                on_peer_connected(newsockfd, &peer_addr, peer_addr_len);
             if (status.want_read) {
               FD_SET(newsockfd, &readfds_master);
             } else {
