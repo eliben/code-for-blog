@@ -24,14 +24,19 @@ typedef struct {
   int sendptr;
 } peer_state_t;
 
+// Each peer is globally identified by the file descriptor (fd) it's connected
+// on. As long as the peer is connected, the fd is uqique to it. When a peer
+// disconnects, a new peer may connect and get the same fd. on_peer_connected
+// should initialize the state properly to remove any trace of the old peer on
+// the same fd.
 peer_state_t global_state[MAXFDS];
 
 // Callbacks (on_XXX functions) return this status to the main loop; the status
-// instructs the loop about the next steps for the FD for which the callback was
+// instructs the loop about the next steps for the fd for which the callback was
 // invoked.
-// want_read=true means we want to keep monitoring this FD for reading.
-// want_write=true means we want to keep monitoring this FD for writing.
-// When both are false it means the FD is no longer needed and can be closed.
+// want_read=true means we want to keep monitoring this fd for reading.
+// want_write=true means we want to keep monitoring this fd for writing.
+// When both are false it means the fd is no longer needed and can be closed.
 typedef struct {
   bool want_read;
   bool want_write;
@@ -42,7 +47,6 @@ const fd_status_t fd_status_R = {.want_read = true, .want_write = false};
 const fd_status_t fd_status_W = {.want_read = false, .want_write = true};
 const fd_status_t fd_status_RW = {.want_read = true, .want_write = true};
 const fd_status_t fd_status_NORW = {.want_read = false, .want_write = false};
-
 
 fd_status_t on_peer_connected(int sockfd, const struct sockaddr_in* peer_addr,
                               socklen_t peer_addr_len) {
@@ -56,9 +60,9 @@ fd_status_t on_peer_connected(int sockfd, const struct sockaddr_in* peer_addr,
   peerstate->sendptr = 0;
   peerstate->sendbuf_end = 1;
 
+  // Signal that this socket is ready for writing now.
   return fd_status_W;
 }
-
 
 fd_status_t on_peer_ready_recv(int sockfd) {
   assert(sockfd < MAXFDs);
@@ -133,9 +137,11 @@ fd_status_t on_peer_ready_send(int sockfd) {
     peerstate->sendptr += nsent;
     return fd_status_W;
   } else {
+    // Everything was sent successfully; reset the send queue.
     peerstate->sendptr = 0;
     peerstate->sendbuf_end = 0;
 
+    // Special-case state transition in if we were in INITIAL_ACK until now.
     if (peerstate->state == INITIAL_ACK) {
       peerstate->state = WAIT_FOR_MSG;
     }
