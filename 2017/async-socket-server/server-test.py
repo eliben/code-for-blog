@@ -62,7 +62,7 @@ def assert_queue_contains(q, val, timeout=0.1):
 
 def assert_queue_empty(q, wait=0.1):
     time.sleep(wait)
-    assert q.empty(), 'queue had {0}'.format(q.get())
+    assert q.empty(), 'queue had {0} with wait={1}'.format(q.get(), wait)
 
 
 def client_thread_runner(client_body_func, port, initial_timeout=0.1):
@@ -154,6 +154,8 @@ def test_main():
                                 'timeout between consecutive clients')
     argparser.add_argument('-n', '--num-clients', default=2, type=int,
                            help='number of clients to launch simultaneously; ')
+    argparser.add_argument('--loop', default=1, type=int,
+                           help='launch test in a loop')
     args = argparser.parse_args()
     assert args.num_clients >= 1
 
@@ -171,20 +173,22 @@ def test_main():
 
     TIMEOUT = 0.5 + (args.num_clients - 1) * args.timeout_bump
 
-    client_iter = itertools.cycle([client0, client1, client2, client3])
-    threads = []
-    for i in range(args.num_clients):
-        tester_thread = threading.Thread(
-                target=client_thread_runner,
-                args=(next(client_iter), args.server_port, TIMEOUT))
-        tester_thread.start()
-        threads.append(tester_thread)
+    for i in range(args.loop):
+        logging.info('** Test iteration {}'.format(i))
+        client_iter = itertools.cycle([client0, client1, client2, client3])
+        threads = []
+        for i in range(args.num_clients):
+            tester_thread = threading.Thread(
+                    target=client_thread_runner,
+                    args=(next(client_iter), args.server_port, TIMEOUT))
+            tester_thread.start()
+            threads.append(tester_thread)
 
-    time.sleep(TIMEOUT)
+        time.sleep(TIMEOUT)
+        for thread in threads:
+            thread.join()
+
     stop_event.set()
-
-    for thread in threads:
-        thread.join()
 
 
 if __name__ == '__main__':

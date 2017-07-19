@@ -4,16 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/select.h>
+#include <sys/epoll.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
 
 #include "utils.h"
 
-// Note: FD_SETSIZE is 1024 on Linux, which is tricky to change. This provides a
-// natural limit to the number of simultaneous FDs monitored by select().
-#define MAXFDS 1000
+#define MAXFDS 16 * 1024
 
 typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
@@ -150,7 +148,7 @@ fd_status_t on_peer_ready_send(int sockfd) {
   }
 }
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
   setvbuf(stdout, NULL, _IONBF, 0);
 
   int portnum = 9090;
@@ -160,124 +158,114 @@ int main(int argc, char** argv) {
   printf("Serving on port %d\n", portnum);
 
   int listener_sockfd = listen_inet_socket(portnum);
-
-  // The select() manpage warns that select() can return a read notification
-  // for a socket that isn't actually readable. Thus using blocking I/O isn't
-  // safe.
   make_socket_non_blocking(listener_sockfd);
 
-  if (listener_sockfd >= FD_SETSIZE) {
-    die("listener socket fd (%d) >= FD_SETSIZE (%d)", listener_sockfd,
-        FD_SETSIZE);
+  int epollfd = epoll_create1(0);
+  if (epollfd < 0) {
+    perror_die("epoll_create1");
   }
 
-  // The "master" sets are owned by the loop, tracking which FDs we want to
-  // monitor for reading and which FDs we want to monitor for writing.
-  fd_set readfds_master;
-  FD_ZERO(&readfds_master);
-  fd_set writefds_master;
-  FD_ZERO(&writefds_master);
+  struct epoll_event accept_event;
+  accept_event.data.fd = listener_sockfd;
+  accept_event.events = EPOLLIN;
+  if (epoll_ctl(epollfd, EPOLL_CTL_ADD, listener_sockfd, &accept_event) < 0) {
+    perror_die("epoll_ctl EPOLL_CTL_ADD");
+  }
 
-  // The listenting socket is always monitored for read, to detect when new
-  // peer connections are incoming.
-  FD_SET(listener_sockfd, &readfds_master);
-
-  // For more efficiency, fdset_max tracks the maximal FD seen so far; this
-  // makes it unnecessary for select to iterate all the way to FD_SETSIZE on
-  // every call.
-  int fdset_max = listener_sockfd;
+  struct epoll_event* events = calloc(MAXFDS, sizeof(struct epoll_event));
+  if (events == NULL) {
+    die("Unable to allocate memory for epoll_events");
+  }
 
   while (1) {
-    // select() modifies the fd_sets passed to it, so we have to pass in copies.
-    fd_set readfds = readfds_master;
-    fd_set writefds = writefds_master;
-
-    int nready = select(fdset_max + 1, &readfds, &writefds, NULL, NULL);
-    if (nready < 0) {
-      perror_die("select");
-    }
-
-    // nready tells us the total number of ready events; if one socket is both
-    // readable and writable it will be 2. Therefore, it's decremented when
-    // either a readable or a writable socket is encountered.
-    for (int fd = 0; fd <= fdset_max && nready > 0; fd++) {
-      // Check if this fd became readable.
-      if (FD_ISSET(fd, &readfds)) {
-        nready--;
-
-        if (fd == listener_sockfd) {
-          // The listening socket is ready; this means a new peer is connecting.
-          struct sockaddr_in peer_addr;
-          socklen_t peer_addr_len = sizeof(peer_addr);
-          int newsockfd = accept(listener_sockfd, (struct sockaddr*)&peer_addr,
-                                 &peer_addr_len);
-          if (newsockfd < 0) {
-            if (errno == EAGAIN || errno == EWOULDBLOCK) {
-              // This can happen due to the nonblocking socket mode; in this
-              // case don't do anything, but print a notice (since these events
-              // are extremely rare and interesting to observe...)
-              printf("accept returned EAGAIN or EWOULDBLOCK\n");
-            } else {
-              perror_die("accept");
-            }
-          } else {
-            make_socket_non_blocking(newsockfd);
-            if (newsockfd > fdset_max) {
-              if (newsockfd >= FD_SETSIZE) {
-                die("socket fd (%d) >= FD_SETSIZE (%d)", newsockfd, FD_SETSIZE);
-              }
-              fdset_max = newsockfd;
-            }
-
-            fd_status_t status =
-                on_peer_connected(newsockfd, &peer_addr, peer_addr_len);
-            if (status.want_read) {
-              FD_SET(newsockfd, &readfds_master);
-            } else {
-              FD_CLR(newsockfd, &readfds_master);
-            }
-            if (status.want_write) {
-              FD_SET(newsockfd, &writefds_master);
-            } else {
-              FD_CLR(newsockfd, &writefds_master);
-            }
-          }
-        } else {
-          fd_status_t status = on_peer_ready_recv(fd);
-          if (status.want_read) {
-            FD_SET(fd, &readfds_master);
-          } else {
-            FD_CLR(fd, &readfds_master);
-          }
-          if (status.want_write) {
-            FD_SET(fd, &writefds_master);
-          } else {
-            FD_CLR(fd, &writefds_master);
-          }
-          if (!status.want_read && !status.want_write) {
-            printf("socket %d closing\n", fd);
-            close(fd);
-          }
-        }
+    int nready = epoll_wait(epollfd, events, MAXFDS, -1);
+    for (int i = 0; i < nready; i++) {
+      if (events[i].events & EPOLLERR) {
+        perror_die("epoll_wait returned EPOLLERR");
       }
 
-      // Check if this fd became writable.
-      if (FD_ISSET(fd, &writefds)) {
-        nready--;
-        fd_status_t status = on_peer_ready_send(fd);
-        if (status.want_read) {
-          FD_SET(fd, &readfds_master);
+      if (events[i].data.fd == listener_sockfd) {
+        // The listening socket is ready; this means a new peer is connecting.
+
+        struct sockaddr_in peer_addr;
+        socklen_t peer_addr_len = sizeof(peer_addr);
+        int newsockfd = accept(listener_sockfd, (struct sockaddr*)&peer_addr,
+                               &peer_addr_len);
+        if (newsockfd < 0) {
+          if (errno == EAGAIN || errno == EWOULDBLOCK) {
+            // This can happen due to the nonblocking socket mode; in this
+            // case don't do anything, but print a notice (since these events
+            // are extremely rare and interesting to observe...)
+            printf("accept returned EAGAIN or EWOULDBLOCK\n");
+          } else {
+            perror_die("accept");
+          }
         } else {
-          FD_CLR(fd, &readfds_master);
+          make_socket_non_blocking(newsockfd);
+          if (newsockfd >= MAXFDS) {
+            die("socket fd (%d) >= MAXFDS (%d)", newsockfd, MAXFDS);
+          }
+
+          fd_status_t status =
+              on_peer_connected(newsockfd, &peer_addr, peer_addr_len);
+          struct epoll_event event = {0};
+          event.data.fd = newsockfd;
+          if (status.want_read) {
+            event.events |= EPOLLIN;
+          }
+          if (status.want_write) {
+            event.events |= EPOLLOUT;
+          }
+
+          if (epoll_ctl(epollfd, EPOLL_CTL_ADD, newsockfd, &event) < 0) {
+            perror_die("epoll_ctl EPOLL_CTL_ADD");
+          }
         }
-        if (status.want_write) {
-          FD_SET(fd, &writefds_master);
-        } else {
-          FD_CLR(fd, &writefds_master);
-        }
-        if (!status.want_read && !status.want_write) {
-          printf("socket %d closing\n", fd);
-          close(fd);
+      } else {
+        // A peer socket is ready.
+        if (events[i].events & EPOLLIN) {
+          // Ready for reading.
+          int fd = events[i].data.fd;
+          fd_status_t status = on_peer_ready_recv(fd);
+          struct epoll_event event = {0};
+          event.data.fd = fd;
+          if (status.want_read) {
+            event.events |= EPOLLIN;
+          }
+          if (status.want_write) {
+            event.events |= EPOLLOUT;
+          }
+          if (event.events == 0) {
+            printf("socket %d closing\n", fd);
+            if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL) < 0) {
+              perror_die("epoll_ctl EPOLL_CTL_DEL");
+            }
+            close(fd);
+          } else if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event) < 0) {
+            perror_die("epoll_ctl EPOLL_CTL_MOD");
+          }
+        } else if (events[i].events & EPOLLOUT) {
+          // Ready for writing.
+          int fd = events[i].data.fd;
+          fd_status_t status = on_peer_ready_send(fd);
+          struct epoll_event event = {0};
+          event.data.fd = fd;
+
+          if (status.want_read) {
+            event.events |= EPOLLIN;
+          }
+          if (status.want_write) {
+            event.events |= EPOLLOUT;
+          }
+          if (event.events == 0) {
+            printf("socket %d closing\n", fd);
+            if (epoll_ctl(epollfd, EPOLL_CTL_DEL, fd, NULL) < 0) {
+              perror_die("epoll_ctl EPOLL_CTL_DEL");
+            }
+            close(fd);
+          } else if (epoll_ctl(epollfd, EPOLL_CTL_MOD, fd, &event) < 0) {
+            perror_die("epoll_ctl EPOLL_CTL_MOD");
+          }
         }
       }
     }
