@@ -21,3 +21,5 @@ myfoldl _ z [] = z
 myfoldl f z (x:xs) = myfoldl f (f z x) xs
 
 digitsToNumWithFoldl = myfoldl (\acc x -> acc * 10 + x) 0
+
+myratioWithFoldl = foldl1 (/)
