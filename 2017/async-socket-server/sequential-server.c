@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -10,8 +11,8 @@
 typedef enum { WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 void serve_connection(int sockfd) {
-  // Clients attempting to connect and even send data will succeed even before
-  // the connection is accept()-ed by the server. Therefore, to better simulate
+  // Clients attempting to connect and send data will succeed even before the
+  // connection is accept()-ed by the server. Therefore, to better simulate
   // blocking of other clients while one is being served, do this "ack" from the
   // server which the client expects to see before proceeding.
   if (send(sockfd, "*", 1, 0) < 1) {
@@ -21,7 +22,7 @@ void serve_connection(int sockfd) {
   ProcessingState state = WAIT_FOR_MSG;
 
   while (1) {
-    char buf[1024];
+    uint8_t buf[1024];
     int len = recv(sockfd, buf, sizeof buf, 0);
     if (len < 0) {
       perror_die("recv");

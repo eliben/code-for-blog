@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
@@ -19,7 +20,7 @@ typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 typedef struct {
   ProcessingState state;
-  char sendbuf[1024];
+  uint8_t sendbuf[1024];
   int sendbuf_end;
   int sendptr;
 } peer_state_t;
@@ -76,7 +77,7 @@ fd_status_t on_peer_ready_recv(int sockfd) {
     return fd_status_W;
   }
 
-  char buf[1024];
+  uint8_t buf[1024];
   int nbytes = recv(sockfd, buf, sizeof buf, 0);
   if (nbytes == 0) {
     // The peer disconnected.

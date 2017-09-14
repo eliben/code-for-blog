@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
@@ -20,7 +21,7 @@ void serve_connection(int sockfd) {
   ProcessingState state = WAIT_FOR_MSG;
 
   while (1) {
-    char buf[1024];
+    uint8_t buf[1024];
     int len = recv(sockfd, buf, sizeof buf, 0);
     if (len < 0) {
       perror_die("recv");
