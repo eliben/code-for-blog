@@ -17,7 +17,7 @@ class ReadThread(threading.Thread):
         fullbuf = b''
         while True:
             buf = self.sockobj.recv(self.bufsize)
-            logging.info('{0} Received: {1}'.format(self.name, buf))
+            logging.info('{0} received {1}'.format(self.name, buf))
             fullbuf += buf
             if b'1111' in fullbuf:
                 break
@@ -32,18 +32,25 @@ def make_new_connection(name, host, port):
 
     rthread = ReadThread(name, sockobj)
     rthread.start()
-    logging.info('{0} sending'.format(name))
-    sockobj.send(b'^abc$de^abte$f')
+
+    s = b'^abc$de^abte$f'
+    logging.info('{0} sending {1}'.format(name, s))
+    sockobj.send(s)
     time.sleep(1.0)
-    logging.info('{0} sending'.format(name))
-    sockobj.send(b'xyz^123')
+
+    s = b'xyz^123'
+    logging.info('{0} sending {1}'.format(name, s))
+    sockobj.send(s)
     time.sleep(1.0)
-    logging.info('{0} sending'.format(name))
-    sockobj.send(b'25$^ab0000$abab')
+
+    s = b'25$^ab0000$abab'
+    logging.info('{0} sending {1}'.format(name, s))
+    sockobj.send(s)
     time.sleep(0.2)
 
     sockobj.close()
     rthread.join()
+    logging.info('{0} disconnecting'.format(name))
 
 
 def main():
