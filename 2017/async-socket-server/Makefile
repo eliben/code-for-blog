@@ -6,6 +6,7 @@ EXECUTABLES = \
 	sequential-server \
 	select-server \
 	epoll-server \
+	threadspammer \
 	threaded-server
 
 all: $(EXECUTABLES)
@@ -20,6 +21,9 @@ threaded-server: utils.c threaded-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 epoll-server: utils.c epoll-server.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+threadspammer: threadspammer.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 .PHONY: clean format
