@@ -16,6 +16,7 @@
 
 typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
+// TODO: no handling of overflows
 typedef struct {
   ProcessingState state;
   uint8_t sendbuf[1024];
