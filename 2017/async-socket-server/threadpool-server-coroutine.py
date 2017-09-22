@@ -14,7 +14,8 @@ def coroutine(func):
 @coroutine
 def client_protocol(target=None):
     while True:
-        # This loops over whole "frames" delimited in ^...$
+        # Each iteration of this outer loop processes a whole "frame" (bytes
+        # delimited by ^....$).
         b = (yield)
         if b == ord(b'^'):
             # Frame starts. Loop until end is encountered and send replies to
