@@ -1,3 +1,4 @@
+import argparse
 from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 import socket
@@ -26,8 +27,7 @@ def serve_connection(sockobj, client_address):
                 if b == ord(b'$'):
                     state = ProcessingState.WAIT_FOR_MSG
                 else:
-                    nb = b + 1
-                    sockobj.send(bytes([nb]))
+                    sockobj.send(bytes([b + 1]))
             else:
                 assert False
 
@@ -37,16 +37,16 @@ def serve_connection(sockobj, client_address):
 
 
 if __name__ == '__main__':
-    portnum = 9090
-    if len(sys.argv) >= 2:
-        portnum = int(sys.argv[1])
+    argparser = argparse.ArgumentParser('Threadpool server')
+    argparser.add_argument('--port', type=int, default=9090, help='Server port')
+    argparser.add_argument('-n', type=int,
+                           default=64, help='Number of threads in pool')
+    args = argparser.parse_args()
 
-    # TODO: we can set # client to just below or above this number to see
-    # blocking in effect.
-    pool = ThreadPoolExecutor(64)
+    pool = ThreadPoolExecutor(args.n)
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sockobj.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sockobj.bind(('localhost', portnum))
+    sockobj.bind(('localhost', args.port))
     sockobj.listen(15)
 
     try:
