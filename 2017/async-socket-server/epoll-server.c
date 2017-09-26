@@ -16,10 +16,11 @@
 
 typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
-// TODO: no handling of overflows
+#define SENDBUF_SIZE 1024
+
 typedef struct {
   ProcessingState state;
-  uint8_t sendbuf[1024];
+  uint8_t sendbuf[SENDBUF_SIZE];
   int sendbuf_end;
   int sendptr;
 } peer_state_t;
@@ -104,6 +105,7 @@ fd_status_t on_peer_ready_recv(int sockfd) {
       if (buf[i] == '$') {
         peerstate->state = WAIT_FOR_MSG;
       } else {
+        assert(peerstate->sendbuf_end < SENDBUF_SIZE);
         peerstate->sendbuf[peerstate->sendbuf_end++] = buf[i] + 1;
         ready_to_send = true;
       }
