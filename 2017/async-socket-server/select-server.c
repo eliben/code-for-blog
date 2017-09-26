@@ -22,6 +22,11 @@ typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 typedef struct {
   ProcessingState state;
+
+  // sendbuf contains data the server has to send back to the client. The
+  // on_peer_ready_recv handler populates this buffer, and on_peer_ready_send
+  // drains it. sendbuf_end points to the last valid byte in the buffer, and
+  // sendptr at the next byte to send.
   uint8_t sendbuf[SENDBUF_SIZE];
   int sendbuf_end;
   int sendptr;
