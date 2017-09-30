@@ -1,3 +1,10 @@
+# Tests a concurrent server, by connecting multiple clients sending pre-set
+# messages, and comparing the echoes with expected values.
+#
+# Run with -h for full usage.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import argparse
 import itertools
 import logging
