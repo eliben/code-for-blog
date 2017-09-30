@@ -1,3 +1,7 @@
+// Utility functions for socket servers in C.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include "utils.h"
 
 #include <fcntl.h>
