@@ -1,3 +1,14 @@
+// Simple tool for measuring resource usage of a large number of idle threads
+// running simultaneously.
+//
+// Run it with some large argument, for example:
+//
+// $ ./threadspammer 10000
+//
+// And watch the process's resource usage via top or other tools.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>

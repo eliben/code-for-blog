@@ -1,3 +1,12 @@
+# Simple client used to interact with concurrent servers.
+#
+# Launches N concurrent client connections, each executing a pre-set sequence of
+# sends to the server, and logs what was received back.
+#
+# Tested with Python 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import argparse
 import logging
 import socket
@@ -24,6 +33,11 @@ class ReadThread(threading.Thread):
 
 
 def make_new_connection(name, host, port):
+    """Creates a single socket connection to the host:port.
+
+    Sets a pre-set sequence of messages to the server with pre-set delays; in
+    parallel, reads from the socket in a separate thread.
+    """
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sockobj.connect((host, port))
     if sockobj.recv(1) != b'*':
@@ -43,6 +57,8 @@ def make_new_connection(name, host, port):
     sockobj.send(s)
     time.sleep(1.0)
 
+    # The 0000 sent to the server here will result in an echo of 1111, which is
+    # a sign for the reading thread to terminate.
     s = b'25$^ab0000$abab'
     logging.info('{0} sending {1}'.format(name, s))
     sockobj.send(s)

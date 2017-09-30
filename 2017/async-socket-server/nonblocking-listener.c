@@ -1,3 +1,7 @@
+// Simple non-blocking socket listener.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -43,6 +47,7 @@ int main(int argc, const char** argv) {
     int len = recv(newsockfd, buf, sizeof buf, 0);
     if (len < 0) {
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
+        // No data on the socket; sleep a bit and re-try recv().
         usleep(200 * 1000);
         continue;
       }
