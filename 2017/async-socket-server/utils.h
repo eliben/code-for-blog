@@ -5,9 +5,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 // Dies (exits with a failure status) after printing the given printf-like
 // message to stdout.
