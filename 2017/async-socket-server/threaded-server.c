@@ -63,10 +63,13 @@ void serve_connection(int sockfd) {
 void* server_thread(void* arg) {
   thread_config_t* config = (thread_config_t*)arg;
   int sockfd = config->sockfd;
-  unsigned id = (unsigned)pthread_self();
-  printf("Thread %u created to handle connection with socket %d\n", id, sockfd);
+
+  // This cast will work for Linux, but in general casting pthread_id to an
+  // integral type isn't portable.
+  unsigned long id = (unsigned long)pthread_self();
+  printf("Thread %lu created to handle connection with socket %d\n", id, sockfd);
   serve_connection(sockfd);
-  printf("Thread %u done\n", id);
+  printf("Thread %lu done\n", id);
   return 0;
 }
 
@@ -97,6 +100,10 @@ int main(int argc, char** argv) {
     pthread_t the_thread;
     thread_config_t config = {.sockfd = newsockfd};
     pthread_create(&the_thread, NULL, server_thread, &config);
+
+    // Detach the thread - when it's done, its resources will be cleaned up.
+    // Since the main thread lives forever, it will outlive the serving threads.
+    pthread_detach(the_thread);
   }
 
   return 0;
