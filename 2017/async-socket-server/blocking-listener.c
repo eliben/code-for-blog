@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
+#include <unistd.h>
 
 #include "utils.h"
 
@@ -40,6 +41,9 @@ int main(int argc, const char** argv) {
     }
     printf("recv returned %d bytes\n", len);
   }
+
+  close(newsockfd);
+  close(sockfd);
 
   return 0;
 }
