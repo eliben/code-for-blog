@@ -59,5 +59,8 @@ int main(int argc, const char** argv) {
     printf("recv returned %d bytes\n", len);
   }
 
+  close(newsockfd);
+  close(sockfd);
+
   return 0;
 }
