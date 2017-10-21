@@ -10,6 +10,7 @@ EXECUTABLES = \
 	sequential-server \
 	select-server \
 	epoll-server \
+	uv-server \
 	threadspammer \
 	blocking-listener \
 	nonblocking-listener \
@@ -28,6 +29,14 @@ threaded-server: utils.c threaded-server.c
 
 epoll-server: utils.c epoll-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+# It's possible to compile uv-server after installing libuv. The full
+# instructions for installation I used (including `make install`) are from:
+# https://github.com/libuv/libuv/blob/master/README.md.
+# libuv compiles into a shared library which is placed alongside the .a in the
+# installation directory. 
+uv-server: utils.c uv-server.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) -luv -Wl,-rpath=/usr/local/lib
 
 threadspammer: threadspammer.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
