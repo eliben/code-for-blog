@@ -75,6 +75,8 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     // nread > 0
     assert(buf->len >= nread);
 
+    printf("received %ld bytes\n", nread);
+
     peer_state_t* peerstate = (peer_state_t*)client->data;
     if (peerstate->state == INITIAL_ACK) {
       // If the initial ACK hasn't been sent for some reason, ignore whatever
@@ -82,6 +84,9 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       free(buf->base);
       return;
     }
+
+    printf("peerstate->state = %d\n", peerstate->state);
+    printf("peerstate->sendbuf_end = %d\n", peerstate->sendbuf_end);
 
     for (int i = 0; i < nread; ++i) {
       switch (peerstate->state) {
