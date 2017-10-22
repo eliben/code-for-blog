@@ -18,6 +18,16 @@ void* xmalloc(size_t size) {
   return ptr;
 }
 
+typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
+
+#define SENDBUF_SIZE 1024
+
+typedef struct {
+  ProcessingState state;
+  char sendbuf[SENDBUF_SIZE];
+  int sendbuf_end;
+} peer_state_t;
+
 
 void on_alloc_buffer(uv_handle_t* handle, size_t suggested_size,
                      uv_buf_t* buf) {
@@ -36,7 +46,8 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     if (nread != UV_EOF) {
       fprintf(stderr, "Read error: %s\n", uv_strerror(nread));
     }
-    // TODO: close connection here?
+    // TODO: close connection here? Need to attach the on_handle_closed callback
+    // to uv_close and rename it too...
     //uv_close((uv_handle_t*)client, NULL);
     return;
   } else if (nread > 0) {
@@ -48,6 +59,17 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   }
 
   free(buf->base);
+}
+
+
+void on_peer_write(uv_write_t* req, int status) {
+  if (status) {
+    die("Write error: %s\n", uv_strerror(status));
+  }
+  peer_state_t* peerstate = (peer_state_t*)req->data;
+  peerstate->state = WAIT_FOR_MSG;
+  peerstate->sendbuf_end = 0;
+  free(req);
 }
 
 
@@ -71,7 +93,22 @@ void on_peer_connected(uv_stream_t* server, int status) {
       die("uv_tcp_getpeername failed: %s", uv_strerror(rc));
     }
     report_peer_connected((const struct sockaddr_in*)&peername, namelen);
-    uv_read_start((uv_stream_t*)client, on_alloc_buffer, on_peer_read);
+
+    peer_state_t* peerstate = (peer_state_t*)xmalloc(sizeof(*peerstate));
+    peerstate->state = INITIAL_ACK;
+    peerstate->sendbuf[0] = '*';
+    peerstate->sendbuf_end = 1;
+    client->data = peerstate;
+
+    uv_buf_t writebuf = uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
+    uv_write_t* req = (uv_write_t*)xmalloc(sizeof(*req));
+    req->data = peerstate;
+    if ((rc = uv_write(req, (uv_stream_t*)client, &writebuf, 1,
+                       on_peer_write)) < 0) {
+      die("uv_write failed: %s", uv_strerror(rc));
+    }
+
+    /*uv_read_start((uv_stream_t*)client, on_alloc_buffer, on_peer_read);*/
   } else {
     uv_close((uv_handle_t*)client, NULL);
   }

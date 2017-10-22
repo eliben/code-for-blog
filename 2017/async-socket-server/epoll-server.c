@@ -31,7 +31,7 @@ typedef struct {
 } peer_state_t;
 
 // Each peer is globally identified by the file descriptor (fd) it's connected
-// on. As long as the peer is connected, the fd is uqique to it. When a peer
+// on. As long as the peer is connected, the fd is unique to it. When a peer
 // disconnects, a new peer may connect and get the same fd. on_peer_connected
 // should initialize the state properly to remove any trace of the old peer on
 // the same fd.
