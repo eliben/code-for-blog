@@ -14,9 +14,7 @@
 
 #include "utils.h"
 
-typedef struct {
-  int sockfd;
-} thread_config_t;
+typedef struct { int sockfd; } thread_config_t;
 
 typedef enum { WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
