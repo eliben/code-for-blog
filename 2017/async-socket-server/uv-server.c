@@ -24,6 +24,7 @@ typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 typedef struct {
   ProcessingState state;
+  uv_tcp_t* handle;
   char sendbuf[SENDBUF_SIZE];
   int sendbuf_end;
 } peer_state_t;
@@ -48,9 +49,9 @@ void on_wrote_init_ack(uv_write_t* req, int status) {
   if (status) {
     die("Write error: %s\n", uv_strerror(status));
   }
+  peer_state_t* peerstate = (peer_state_t*)req->data;
   // Flip the peer state to WAIT_FOR_MSG. Note: the write request doesn't own
   // the peer state, hence we only free the request itself, not the state.
-  peer_state_t* peerstate = (peer_state_t*)req->data;
   peerstate->state = WAIT_FOR_MSG;
   peerstate->sendbuf_end = 0;
   free(req);
@@ -60,8 +61,25 @@ void on_wrote_buf(uv_write_t* req, int status) {
   if (status) {
     die("Write error: %s\n", uv_strerror(status));
   }
-  // The send buffer is done; move pointer back to 0.
   peer_state_t* peerstate = (peer_state_t*)req->data;
+
+  // Escape hatch for testing leaks in the server. When a client sends a message
+  // ending with WXY (note the shift-by-1 in sendbuf), this signals the server
+  // to clean up and exit, by stopping the default event loop. Running the
+  // server under valgrind can now track memory leaks, and a run should be
+  // clean, except a single uv_tcp_t allocated for the client that sent the kill
+  // signal (it's still connected when we stop the loop and exit).
+  if (peerstate->sendbuf_end >= 3 &&
+      peerstate->sendbuf[peerstate->sendbuf_end - 3] == 'X' &&
+      peerstate->sendbuf[peerstate->sendbuf_end - 2] == 'Y' &&
+      peerstate->sendbuf[peerstate->sendbuf_end - 1] == 'Z') {
+    free(peerstate);
+    free(req);
+    uv_stop(uv_default_loop());
+    return;
+  }
+
+  // The send buffer is done; move pointer back to 0.
   peerstate->sendbuf_end = 0;
   free(req);
 }
@@ -72,6 +90,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       fprintf(stderr, "Read error: %s\n", uv_strerror(nread));
     }
     uv_close((uv_handle_t*)client, on_client_closed);
+    free(buf->base);
     return;
   } else if (nread == 0) {
     // From the documentation of uv_read_cb: nread might be 0, which does not
@@ -82,8 +101,6 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     // nread > 0
     assert(buf->len >= nread);
 
-    /*printf("received %ld bytes\n", nread);*/
-
     peer_state_t* peerstate = (peer_state_t*)client->data;
     if (peerstate->state == INITIAL_ACK) {
       // If the initial ACK hasn't been sent for some reason, ignore whatever
@@ -91,9 +108,6 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       free(buf->base);
       return;
     }
-
-    /*printf("peerstate->state = %d\n", peerstate->state);*/
-    /*printf("peerstate->sendbuf_end = %d\n", peerstate->sendbuf_end);*/
 
     // Run the protocol state machine.
     for (int i = 0; i < nread; ++i) {
@@ -151,9 +165,10 @@ void on_peer_connected(uv_stream_t* server, int status) {
   client->data = NULL;
 
   if (uv_accept(server, (uv_stream_t*)client) == 0) {
-    struct sockaddr peername;
-    int namelen;
-    if ((rc = uv_tcp_getpeername(client, &peername, &namelen)) < 0) {
+    struct sockaddr_storage peername;
+    int namelen = sizeof(peername);
+    if ((rc = uv_tcp_getpeername(client, (struct sockaddr*)&peername,
+                                 &namelen)) < 0) {
       die("uv_tcp_getpeername failed: %s", uv_strerror(rc));
     }
     report_peer_connected((const struct sockaddr_in*)&peername, namelen);
@@ -219,5 +234,9 @@ int main(int argc, const char** argv) {
     die("uv_listen failed: %s", uv_strerror(rc));
   }
 
-  return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+  // Run the libuv event loop.
+  uv_run(uv_default_loop(), UV_RUN_DEFAULT);
+
+  // If uv_run returned, close the default loop before exiting.
+  return uv_loop_close(uv_default_loop());
 }
