@@ -34,14 +34,22 @@ void on_alloc_buffer(uv_handle_t* handle, size_t suggested_size,
   buf->len = suggested_size;
 }
 
-void on_handle_closed(uv_handle_t* handle) {
-  free(handle);
+void on_client_closed(uv_handle_t* handle) {
+  uv_tcp_t* client = (uv_tcp_t*)handle;
+  // The client handle owns the peer state storing its address in the data
+  // field, so we free it here.
+  if (client->data) {
+    free(client->data);
+  }
+  free(client);
 }
 
 void on_wrote_init_ack(uv_write_t* req, int status) {
   if (status) {
     die("Write error: %s\n", uv_strerror(status));
   }
+  // Flip the peer state to WAIT_FOR_MSG. Note: the write request doesn't own
+  // the peer state, hence we only free the request itself, not the state.
   peer_state_t* peerstate = (peer_state_t*)req->data;
   peerstate->state = WAIT_FOR_MSG;
   peerstate->sendbuf_end = 0;
@@ -52,6 +60,7 @@ void on_wrote_buf(uv_write_t* req, int status) {
   if (status) {
     die("Write error: %s\n", uv_strerror(status));
   }
+  // The send buffer is done; move pointer back to 0.
   peer_state_t* peerstate = (peer_state_t*)req->data;
   peerstate->sendbuf_end = 0;
   free(req);
@@ -62,9 +71,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     if (nread != UV_EOF) {
       fprintf(stderr, "Read error: %s\n", uv_strerror(nread));
     }
-    // TODO: close connection here? Need to attach the on_handle_closed callback
-    // to uv_close and rename it too...
-    // uv_close((uv_handle_t*)client, NULL);
+    uv_close((uv_handle_t*)client, on_client_closed);
     return;
   } else if (nread == 0) {
     // From the documentation of uv_read_cb: nread might be 0, which does not
@@ -75,7 +82,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     // nread > 0
     assert(buf->len >= nread);
 
-    printf("received %ld bytes\n", nread);
+    /*printf("received %ld bytes\n", nread);*/
 
     peer_state_t* peerstate = (peer_state_t*)client->data;
     if (peerstate->state == INITIAL_ACK) {
@@ -85,9 +92,10 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       return;
     }
 
-    printf("peerstate->state = %d\n", peerstate->state);
-    printf("peerstate->sendbuf_end = %d\n", peerstate->sendbuf_end);
+    /*printf("peerstate->state = %d\n", peerstate->state);*/
+    /*printf("peerstate->sendbuf_end = %d\n", peerstate->sendbuf_end);*/
 
+    // Run the protocol state machine.
     for (int i = 0; i < nread; ++i) {
       switch (peerstate->state) {
       case INITIAL_ACK:
@@ -131,27 +139,37 @@ void on_peer_connected(uv_stream_t* server, int status) {
     return;
   }
 
+  // client will represent this peer; it's allocated on the heap and only
+  // released when the client disconnects. The client holds a pointer to
+  // peer_state_t in its data field; this peer state tracks the protocol state
+  // with this client throughout interaction.
   uv_tcp_t* client = (uv_tcp_t*)xmalloc(sizeof(*client));
   int rc;
   if ((rc = uv_tcp_init(uv_default_loop(), client)) < 0) {
     die("uv_tcp_init failed: %s", uv_strerror(rc));
   }
+  client->data = NULL;
 
   if (uv_accept(server, (uv_stream_t*)client) == 0) {
     struct sockaddr peername;
     int namelen;
-
     if ((rc = uv_tcp_getpeername(client, &peername, &namelen)) < 0) {
       die("uv_tcp_getpeername failed: %s", uv_strerror(rc));
     }
     report_peer_connected((const struct sockaddr_in*)&peername, namelen);
 
+    // Initialize the peer state for a new client: we start by sending the peer
+    // the initial '*' ack.
     peer_state_t* peerstate = (peer_state_t*)xmalloc(sizeof(*peerstate));
     peerstate->state = INITIAL_ACK;
     peerstate->sendbuf[0] = '*';
     peerstate->sendbuf_end = 1;
     client->data = peerstate;
 
+    // Enqueue the write request to send the ack; when it's done,
+    // on_wrote_init_ack will be called. The peer state is passed to the write
+    // request via the data pointer; the write request does not own this peer
+    // state - it's owned by the client handle.
     uv_buf_t writebuf = uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
     uv_write_t* req = (uv_write_t*)xmalloc(sizeof(*req));
     req->data = peerstate;
@@ -160,12 +178,13 @@ void on_peer_connected(uv_stream_t* server, int status) {
       die("uv_write failed: %s", uv_strerror(rc));
     }
 
+    // Start reading on the peer socket.
     if ((rc = uv_read_start((uv_stream_t*)client, on_alloc_buffer,
                             on_peer_read)) < 0) {
       die("uv_read_start failed: %s", uv_strerror(rc));
     }
   } else {
-    uv_close((uv_handle_t*)client, NULL);
+    uv_close((uv_handle_t*)client, on_client_closed);
   }
 }
 
@@ -193,6 +212,8 @@ int main(int argc, const char** argv) {
     die("uv_tcp_bind failed: %s", uv_strerror(rc));
   }
 
+  // Listen on the socket for new peers to connect. When a new peer connects,
+  // the on_peer_connected callback will be invoked.
   if ((rc = uv_listen((uv_stream_t*)&server, N_BACKLOG, on_peer_connected)) <
       0) {
     die("uv_listen failed: %s", uv_strerror(rc));
