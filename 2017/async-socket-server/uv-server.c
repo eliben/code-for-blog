@@ -1,3 +1,8 @@
+// Asynchronous socket server - accepting multiple clients concurrently,
+// using libuv's event loop.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +29,6 @@ typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 typedef struct {
   ProcessingState state;
-  uv_tcp_t* handle;
   char sendbuf[SENDBUF_SIZE];
   int sendbuf_end;
 } peer_state_t;
@@ -63,11 +67,11 @@ void on_wrote_buf(uv_write_t* req, int status) {
   }
   peer_state_t* peerstate = (peer_state_t*)req->data;
 
-  // Escape hatch for testing leaks in the server. When a client sends a message
+  // Kill switch for testing leaks in the server. When a client sends a message
   // ending with WXY (note the shift-by-1 in sendbuf), this signals the server
   // to clean up and exit, by stopping the default event loop. Running the
   // server under valgrind can now track memory leaks, and a run should be
-  // clean, except a single uv_tcp_t allocated for the client that sent the kill
+  // clean except a single uv_tcp_t allocated for the client that sent the kill
   // signal (it's still connected when we stop the loop and exit).
   if (peerstate->sendbuf_end >= 3 &&
       peerstate->sendbuf[peerstate->sendbuf_end - 3] == 'X' &&
@@ -90,13 +94,10 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       fprintf(stderr, "Read error: %s\n", uv_strerror(nread));
     }
     uv_close((uv_handle_t*)client, on_client_closed);
-    free(buf->base);
-    return;
   } else if (nread == 0) {
     // From the documentation of uv_read_cb: nread might be 0, which does not
     // indicate an error or EOF. This is equivalent to EAGAIN or EWOULDBLOCK
     // under read(2).
-    return;
   } else {
     // nread > 0
     assert(buf->len >= nread);
@@ -130,10 +131,10 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
         break;
       }
     }
-    free(buf->base);
 
     if (peerstate->sendbuf_end > 0) {
-      // We have data to send.
+      // We have data to send. The write buffer will point to the buffer stored
+      // in the peer state for this client.
       uv_buf_t writebuf =
           uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
       uv_write_t* writereq = (uv_write_t*)xmalloc(sizeof(*writereq));
@@ -145,6 +146,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       }
     }
   }
+  free(buf->base);
 }
 
 void on_peer_connected(uv_stream_t* server, int status) {
