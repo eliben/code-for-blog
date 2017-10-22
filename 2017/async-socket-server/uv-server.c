@@ -19,8 +19,35 @@ void* xmalloc(size_t size) {
 }
 
 
+void on_alloc_buffer(uv_handle_t* handle, size_t suggested_size,
+                     uv_buf_t* buf) {
+  buf->base = (char*)xmalloc(suggested_size);
+  buf->len = suggested_size;
+}
+
+
 void on_handle_closed(uv_handle_t* handle) {
   free(handle);
+}
+
+
+void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
+  if (nread < 0) {
+    if (nread != UV_EOF) {
+      fprintf(stderr, "Read error: %s\n", uv_strerror(nread));
+    }
+    // TODO: close connection here?
+    //uv_close((uv_handle_t*)client, NULL);
+    return;
+  } else if (nread > 0) {
+    printf("received %ld bytes\n", nread);
+    /*write_req_t* req = (write_req_t*)malloc(sizeof(write_req_t));*/
+    /*req->buf = uv_buf_init(buf->base, nread);*/
+    /*uv_write((uv_write_t*)req, client, &req->buf, 1, echo_write);*/
+    return;
+  }
+
+  free(buf->base);
 }
 
 
@@ -44,7 +71,7 @@ void on_peer_connected(uv_stream_t* server, int status) {
       die("uv_tcp_getpeername failed: %s", uv_strerror(rc));
     }
     report_peer_connected((const struct sockaddr_in*)&peername, namelen);
-    /*uv_read_start((uv_stream_t*)client, alloc_buffer, echo_read);*/
+    uv_read_start((uv_stream_t*)client, on_alloc_buffer, on_peer_read);
   } else {
     uv_close((uv_handle_t*)client, NULL);
   }
