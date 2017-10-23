@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,6 +35,19 @@ void on_client_closed(uv_handle_t* handle) {
   free(client);
 }
 
+bool isprime(uint64_t n) {
+  if (n % 2 == 0) {
+    return n == 2 ? true : false;
+  }
+
+  for (uint64_t r = 3; r * r <= n; r += 2) {
+    if (n % r == 0) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   if (nread < 0) {
     if (nread != UV_EOF) {
@@ -64,6 +78,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     /*peer_state_t* peerstate = (peer_state_t*)client->data;*/
     printf("Got %zu bytes\n", nread);
     printf("Num %" PRIu64 "\n", number);
+    printf("Isprime: %d\n", isprime(number));
   }
   free(buf->base);
 }
