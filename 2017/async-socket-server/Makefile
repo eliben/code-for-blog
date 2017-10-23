@@ -11,6 +11,7 @@ EXECUTABLES = \
 	select-server \
 	epoll-server \
 	uv-server \
+	uv-isprime-server \
 	threadspammer \
 	blocking-listener \
 	nonblocking-listener \
@@ -34,8 +35,11 @@ epoll-server: utils.c epoll-server.c
 # instructions for installation I used (including `make install`) are from:
 # https://github.com/libuv/libuv/blob/master/README.md.
 # libuv compiles into a shared library which is placed alongside the .a in the
-# installation directory. 
+# installation directory.
 uv-server: utils.c uv-server.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) -luv -Wl,-rpath=/usr/local/lib
+
+uv-isprime-server: utils.c uv-isprime-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) -luv -Wl,-rpath=/usr/local/lib
 
 threadspammer: threadspammer.c
