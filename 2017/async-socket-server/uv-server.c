@@ -14,15 +14,6 @@
 
 #define N_BACKLOG 64
 
-// Wraps malloc with error checking: dies if malloc fails.
-void* xmalloc(size_t size) {
-  void* ptr = malloc(size);
-  if (!ptr) {
-    die("malloc failed");
-  }
-  return ptr;
-}
-
 typedef enum { INITIAL_ACK, WAIT_FOR_MSG, IN_MSG } ProcessingState;
 
 #define SENDBUF_SIZE 1024

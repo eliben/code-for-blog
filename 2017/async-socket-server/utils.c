@@ -25,6 +25,14 @@ void die(char* fmt, ...) {
   exit(EXIT_FAILURE);
 }
 
+void* xmalloc(size_t size) {
+  void* ptr = malloc(size);
+  if (!ptr) {
+    die("malloc failed");
+  }
+  return ptr;
+}
+
 void perror_die(char* msg) {
   perror(msg);
   exit(EXIT_FAILURE);

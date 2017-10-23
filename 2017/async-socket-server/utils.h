@@ -13,6 +13,9 @@
 // message to stdout.
 void die(char* fmt, ...);
 
+// Wraps malloc with error checking: dies if malloc fails.
+void* xmalloc(size_t size);
+
 // Dies (exits with a failure status) after printing the current perror status
 // prefixed with msg.
 void perror_die(char* msg);
