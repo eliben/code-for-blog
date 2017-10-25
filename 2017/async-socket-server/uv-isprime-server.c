@@ -19,6 +19,17 @@ typedef struct {
   int sendbuf_end;
 } peer_state_t;
 
+// Sets sendbuf/sendbuf_end in the given state to the contents of the
+// NULL-terminated string passed as 'str'.
+void set_peer_sendbuf(peer_state_t* state, const char* str) {
+  int i = 0;
+  for (; str[i]; ++i) {
+    assert(i < SENDBUF_SIZE);
+    state->sendbuf[i] = str[i];
+  }
+  state->sendbuf_end = i;
+}
+
 void on_alloc_buffer(uv_handle_t* handle, size_t suggested_size,
                      uv_buf_t* buf) {
   buf->base = (char*)xmalloc(suggested_size);
@@ -48,6 +59,13 @@ bool isprime(uint64_t n) {
   return true;
 }
 
+void on_sent_response(uv_write_t* req, int status) {
+  if (status) {
+    die("Write error: %s\n", uv_strerror(status));
+  }
+  free(req);
+}
+
 void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   if (nread < 0) {
     if (nread != UV_EOF) {
@@ -75,10 +93,28 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
       }
     }
 
-    /*peer_state_t* peerstate = (peer_state_t*)client->data;*/
+    peer_state_t* peerstate = (peer_state_t*)client->data;
     printf("Got %zu bytes\n", nread);
     printf("Num %" PRIu64 "\n", number);
-    printf("Isprime: %d\n", isprime(number));
+
+    uint64_t t1 = uv_hrtime();
+    if (isprime(number)) {
+      set_peer_sendbuf(peerstate, "prime\n");
+    } else {
+      set_peer_sendbuf(peerstate, "composite\n");
+    }
+    uint64_t t2 = uv_hrtime();
+    printf("Elapsed %" PRIu64 " ns\n", t2 - t1);
+
+    uv_buf_t writebuf =
+      uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
+    uv_write_t* writereq = (uv_write_t*)xmalloc(sizeof(*writereq));
+    writereq->data = peerstate;
+    int rc;
+    if ((rc = uv_write(writereq, (uv_stream_t*)client, &writebuf, 1,
+                       on_sent_response)) < 0) {
+      die("uv_write failed: %s", uv_strerror(rc));
+    }
   }
   free(buf->base);
 }
