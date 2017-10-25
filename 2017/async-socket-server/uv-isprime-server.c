@@ -15,6 +15,8 @@
 #define SENDBUF_SIZE 1024
 
 typedef struct {
+  uint64_t number;
+  uv_tcp_t* client;
   char sendbuf[SENDBUF_SIZE];
   int sendbuf_end;
 } peer_state_t;
@@ -66,6 +68,32 @@ void on_sent_response(uv_write_t* req, int status) {
   free(req);
 }
 
+// Runs in a separate thread, can do blocking/time-consuming operations.
+void on_work_submitted(uv_work_t* req) {
+  peer_state_t* peerstate = (peer_state_t*)req->data;
+  if (isprime(peerstate->number)) {
+    set_peer_sendbuf(peerstate, "prime\n");
+  } else {
+    set_peer_sendbuf(peerstate, "composite\n");
+  }
+}
+
+void on_work_completed(uv_work_t* req, int status) {
+  if (status) {
+    die("on_work_completed error: %s\n", uv_strerror(status));
+  }
+  peer_state_t* peerstate = (peer_state_t*)req->data;
+  uv_buf_t writebuf = uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
+  uv_write_t* writereq = (uv_write_t*)xmalloc(sizeof(*writereq));
+  writereq->data = peerstate;
+  int rc;
+  if ((rc = uv_write(writereq, (uv_stream_t*)peerstate->client, &writebuf, 1,
+                     on_sent_response)) < 0) {
+    die("uv_write failed: %s", uv_strerror(rc));
+  }
+  free(req);
+}
+
 void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   if (nread < 0) {
     if (nread != UV_EOF) {
@@ -79,6 +107,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   } else {
     // nread > 0
     assert(buf->len >= nread);
+    int rc;
 
     // Parse the number from client request: assume for simplicity the request
     // all arrives at the same time and contains only digits (possibly followed
@@ -92,28 +121,42 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
         break;
       }
     }
-
     peer_state_t* peerstate = (peer_state_t*)client->data;
-    printf("Got %zu bytes\n", nread);
-    printf("Num %" PRIu64 "\n", number);
+    peerstate->client = (uv_tcp_t*)client;
+    peerstate->number = number;
 
-    uint64_t t1 = uv_hrtime();
-    if (isprime(number)) {
-      set_peer_sendbuf(peerstate, "prime\n");
+    char* mode = getenv("MODE");
+    if (mode && !strcmp(mode, "BLOCK")) {
+      // BLOCK mode: compute isprime synchronously, blocking the callback.
+      printf("Got %zu bytes\n", nread);
+      printf("Num %" PRIu64 "\n", number);
+
+      uint64_t t1 = uv_hrtime();
+      if (isprime(number)) {
+        set_peer_sendbuf(peerstate, "prime\n");
+      } else {
+        set_peer_sendbuf(peerstate, "composite\n");
+      }
+      uint64_t t2 = uv_hrtime();
+      printf("Elapsed %" PRIu64 " ns\n", t2 - t1);
+
+      uv_buf_t writebuf =
+          uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
+      uv_write_t* writereq = (uv_write_t*)xmalloc(sizeof(*writereq));
+      writereq->data = peerstate;
+      if ((rc = uv_write(writereq, (uv_stream_t*)client, &writebuf, 1,
+                         on_sent_response)) < 0) {
+        die("uv_write failed: %s", uv_strerror(rc));
+      }
     } else {
-      set_peer_sendbuf(peerstate, "composite\n");
-    }
-    uint64_t t2 = uv_hrtime();
-    printf("Elapsed %" PRIu64 " ns\n", t2 - t1);
-
-    uv_buf_t writebuf =
-      uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
-    uv_write_t* writereq = (uv_write_t*)xmalloc(sizeof(*writereq));
-    writereq->data = peerstate;
-    int rc;
-    if ((rc = uv_write(writereq, (uv_stream_t*)client, &writebuf, 1,
-                       on_sent_response)) < 0) {
-      die("uv_write failed: %s", uv_strerror(rc));
+      // Otherwise, compute isprime on the work queue, without blocking the
+      // callback.
+      uv_work_t* work_req = (uv_work_t*)xmalloc(sizeof(*work_req));
+      work_req->data = peerstate;
+      if ((rc = uv_queue_work(uv_default_loop(), work_req, on_work_submitted,
+                              on_work_completed)) < 0) {
+        die("uv_queue_work failed: %s", uv_strerror(rc));
+      }
     }
   }
   free(buf->base);
