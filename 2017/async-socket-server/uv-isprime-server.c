@@ -71,6 +71,7 @@ void on_sent_response(uv_write_t* req, int status) {
 // Runs in a separate thread, can do blocking/time-consuming operations.
 void on_work_submitted(uv_work_t* req) {
   peer_state_t* peerstate = (peer_state_t*)req->data;
+  printf("work submitted: %" PRIu64 "\n", peerstate->number);
   if (isprime(peerstate->number)) {
     set_peer_sendbuf(peerstate, "prime\n");
   } else {
@@ -83,6 +84,7 @@ void on_work_completed(uv_work_t* req, int status) {
     die("on_work_completed error: %s\n", uv_strerror(status));
   }
   peer_state_t* peerstate = (peer_state_t*)req->data;
+  printf("work completed: %" PRIu64 "\n", peerstate->number);
   uv_buf_t writebuf = uv_buf_init(peerstate->sendbuf, peerstate->sendbuf_end);
   uv_write_t* writereq = (uv_write_t*)xmalloc(sizeof(*writereq));
   writereq->data = peerstate;
