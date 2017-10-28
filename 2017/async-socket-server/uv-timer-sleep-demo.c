@@ -23,8 +23,6 @@ void on_timer(uv_timer_t* timer) {
 int main(int argc, const char** argv) {
   uv_timer_t timer;
   uv_timer_init(uv_default_loop(), &timer);
-
   uv_timer_start(&timer, on_timer, 0, 1000);
-
   return uv_run(uv_default_loop(), UV_RUN_DEFAULT);
 }
