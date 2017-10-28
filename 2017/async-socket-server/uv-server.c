@@ -140,7 +140,7 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   free(buf->base);
 }
 
-void on_peer_connected(uv_stream_t* server, int status) {
+void on_peer_connected(uv_stream_t* server_stream, int status) {
   if (status < 0) {
     fprintf(stderr, "Peer connection error: %s\n", uv_strerror(status));
     return;
@@ -157,7 +157,7 @@ void on_peer_connected(uv_stream_t* server, int status) {
   }
   client->data = NULL;
 
-  if (uv_accept(server, (uv_stream_t*)client) == 0) {
+  if (uv_accept(server_stream, (uv_stream_t*)client) == 0) {
     struct sockaddr_storage peername;
     int namelen = sizeof(peername);
     if ((rc = uv_tcp_getpeername(client, (struct sockaddr*)&peername,
@@ -206,24 +206,25 @@ int main(int argc, const char** argv) {
   printf("Serving on port %d\n", portnum);
 
   int rc;
-  uv_tcp_t server;
-  if ((rc = uv_tcp_init(uv_default_loop(), &server)) < 0) {
+  uv_tcp_t server_stream;
+  if ((rc = uv_tcp_init(uv_default_loop(), &server_stream)) < 0) {
     die("uv_tcp_init failed: %s", uv_strerror(rc));
   }
 
-  struct sockaddr_in addr;
-  if ((rc = uv_ip4_addr("0.0.0.0", portnum, &addr)) < 0) {
+  struct sockaddr_in server_address;
+  if ((rc = uv_ip4_addr("0.0.0.0", portnum, &server_address)) < 0) {
     die("uv_ip4_addr failed: %s", uv_strerror(rc));
   }
 
-  if ((rc = uv_tcp_bind(&server, (const struct sockaddr*)&addr, 0)) < 0) {
+  if ((rc = uv_tcp_bind(&server_stream, (const struct sockaddr*)&server_address,
+                        0)) < 0) {
     die("uv_tcp_bind failed: %s", uv_strerror(rc));
   }
 
   // Listen on the socket for new peers to connect. When a new peer connects,
   // the on_peer_connected callback will be invoked.
-  if ((rc = uv_listen((uv_stream_t*)&server, N_BACKLOG, on_peer_connected)) <
-      0) {
+  if ((rc = uv_listen((uv_stream_t*)&server_stream, N_BACKLOG,
+                      on_peer_connected)) < 0) {
     die("uv_listen failed: %s", uv_strerror(rc));
   }
 
