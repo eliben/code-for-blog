@@ -6,11 +6,19 @@ CC = gcc
 CCFLAGS = -std=gnu99 -Wall -O3 -g -DNDEBUG -pthread
 LDFLAGS = -lpthread -pthread
 
+# It's possible to compile uv-server after installing libuv. The full
+# instructions for installation I used (including `make install`) are from:
+# https://github.com/libuv/libuv/blob/master/README.md.
+# libuv compiles into a shared library which is placed alongside the .a in the
+# installation directory.
+LDLIBUV = -luv -Wl,-rpath=/usr/local/lib
+
 EXECUTABLES = \
 	sequential-server \
 	select-server \
 	epoll-server \
 	uv-server \
+	uv-timer-sleep-demo \
 	uv-isprime-server \
 	threadspammer \
 	blocking-listener \
@@ -31,16 +39,14 @@ threaded-server: utils.c threaded-server.c
 epoll-server: utils.c epoll-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
-# It's possible to compile uv-server after installing libuv. The full
-# instructions for installation I used (including `make install`) are from:
-# https://github.com/libuv/libuv/blob/master/README.md.
-# libuv compiles into a shared library which is placed alongside the .a in the
-# installation directory.
 uv-server: utils.c uv-server.c
-	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) -luv -Wl,-rpath=/usr/local/lib
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBUV)
+
+uv-timer-sleep-demo: utils.c uv-timer-sleep-demo.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBUV)
 
 uv-isprime-server: utils.c uv-isprime-server.c
-	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) -luv -Wl,-rpath=/usr/local/lib
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBUV)
 
 threadspammer: threadspammer.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
