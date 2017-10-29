@@ -19,6 +19,7 @@ EXECUTABLES = \
 	epoll-server \
 	uv-server \
 	uv-timer-sleep-demo \
+	uv-timer-work-demo \
 	uv-isprime-server \
 	threadspammer \
 	blocking-listener \
@@ -43,6 +44,9 @@ uv-server: utils.c uv-server.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBUV)
 
 uv-timer-sleep-demo: utils.c uv-timer-sleep-demo.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBUV)
+
+uv-timer-work-demo: utils.c uv-timer-work-demo.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS) $(LDLIBUV)
 
 uv-isprime-server: utils.c uv-isprime-server.c
