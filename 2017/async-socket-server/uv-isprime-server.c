@@ -1,3 +1,11 @@
+// Primality testing server. Accepts a number and sends back "prime" or
+// "composite" after testing the number for primality (in the naive, slow way).
+//
+// Can be configured via an environment variable to do this in a blocking way,
+// without using libuv's work queue (MODE=BLOCK).
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <assert.h>
 #include <ctype.h>
 #include <inttypes.h>
@@ -14,6 +22,7 @@
 
 #define SENDBUF_SIZE 1024
 
+// State maintained for each connected client.
 typedef struct {
   uint64_t number;
   uv_tcp_t* client;
@@ -48,6 +57,8 @@ void on_client_closed(uv_handle_t* handle) {
   free(client);
 }
 
+// Naive primality test, iterating all the way to sqrt(n) to find numbers that
+// divide n.
 bool isprime(uint64_t n) {
   if (n % 2 == 0) {
     return n == 2 ? true : false;
