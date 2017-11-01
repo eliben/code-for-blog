@@ -1,5 +1,8 @@
 /* Code sample: using ptrace for simple tracing of a child process.
 **
+** Note: this was originally developed for a 32-bit x86 Linux system; some
+** changes may be required to port to x86-64.
+**
 ** Eli Bendersky (http://eli.thegreenplace.net)
 ** This code is in the public domain.
 */
@@ -58,7 +61,7 @@ void run_debugger(pid_t child_pid)
         struct user_regs_struct regs;
         ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
         unsigned instr = ptrace(PTRACE_PEEKTEXT, child_pid, regs.eip, 0);
- 
+
         procmsg("icounter = %u.  EIP = 0x%08x.  instr = 0x%08x\n",
                     icounter, regs.eip, instr);
 
