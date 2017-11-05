@@ -35,7 +35,7 @@ class ClientReply(object):
                     data string, for others None.
     """
     ERROR, SUCCESS = range(2)
-    
+
     def __init__(self, type, data=None):
         self.type = type
         self.data = data
