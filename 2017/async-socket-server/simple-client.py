@@ -59,6 +59,7 @@ def make_new_connection(name, host, port):
 
     # The 0000 sent to the server here will result in an echo of 1111, which is
     # a sign for the reading thread to terminate.
+    # Add WXY after 0000 to enable kill-switch in some servers.
     s = b'25$^ab0000$abab'
     logging.info('{0} sending {1}'.format(name, s))
     sockobj.send(s)
