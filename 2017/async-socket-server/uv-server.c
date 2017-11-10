@@ -134,7 +134,8 @@ void on_wrote_init_ack(uv_write_t* req, int status) {
     die("Write error: %s\n", uv_strerror(status));
   }
   peer_state_t* peerstate = (peer_state_t*)req->data;
-  // Flip the peer state to WAIT_FOR_MSG, and start listening for incoming data from this peer.
+  // Flip the peer state to WAIT_FOR_MSG, and start listening for incoming data
+  // from this peer.
   peerstate->state = WAIT_FOR_MSG;
   peerstate->sendbuf_end = 0;
 
