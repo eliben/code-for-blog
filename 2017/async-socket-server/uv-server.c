@@ -145,8 +145,8 @@ void on_wrote_init_ack(uv_write_t* req, int status) {
     die("uv_read_start failed: %s", uv_strerror(rc));
   }
 
-  // Note: the write request doesn't own
-  // the peer state, hence we only free the request itself, not the state.
+  // Note: the write request doesn't own the peer state, hence we only free the
+  // request itself, not the state.
   free(req);
 }
 
