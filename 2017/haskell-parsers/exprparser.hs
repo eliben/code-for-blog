@@ -109,18 +109,22 @@ symbol xs = token (string xs)
 
 -- BNF grammar for our language:
 --
--- expr       ::= sumexpr ('==' expr | eps)
+-- expr       ::= ifexpr | cmpexpr
+-- ifexpr     ::= 'if' expr 'then' expr 'else' expr
+-- cmpexpr    ::= sumexpr ('==' cmpexpr | eps)
 -- sumexpr    ::= term ('+' sumexpr | eps)
 -- term       ::= factor ('*' term | eps)
--- factor     ::= '(' expr ')' | ifexpr | <natural>
--- ifexpr     ::= 'if' expr 'then' expr 'else' expr
+-- factor     ::= '(' expr ')' | <natural>
 
 expr :: Parser Int
-expr = do se <- sumexpr
-          do symbol "=="
-             e <- expr
-             return $ fromEnum (se == e) 
-           <|> return se
+expr = ifexpr' <|> cmpexpr
+
+cmpexpr :: Parser Int
+cmpexpr = do se <- sumexpr
+             do symbol "=="
+                e <- cmpexpr
+                return $ fromEnum (se == e)
+              <|> return se
 
 sumexpr :: Parser Int
 sumexpr = do t <- term
@@ -141,7 +145,6 @@ factor = do symbol "("
             e <- expr
             symbol ")"
             return e
-          <|> ifexpr'
           <|> natural
 
 -- Note: both the 'then' and 'else' clauses are evaluated eagerly; We can make
@@ -155,11 +158,10 @@ ifexpr = do symbol "if"
             elseExpr <- expr
             return (if cond == 0 then elseExpr else thenExpr)
 
+-- An applicative version of ifexpr.
 ifexpr' :: Parser Int
 ifexpr' =
   selector <$> symbol "if" <*> expr
            <*> symbol "then" <*> expr
            <*> symbol "else" <*> expr
   where selector _ cond _ t _ e = if cond == 0 then e else t
-
--- TODO: redo this to make ifexpr lowest priority - makes little sense otherwise
