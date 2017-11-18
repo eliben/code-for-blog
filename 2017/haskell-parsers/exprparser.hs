@@ -98,9 +98,6 @@ token p = do space
              space
              return v
 
-identifier :: Parser String
-identifier = token ident
-
 natural :: Parser Int
 natural = token nat
 
@@ -110,6 +107,59 @@ integer = token int
 symbol :: String -> Parser String
 symbol xs = token (string xs)
 
--- TODO: only support +,* and == for comparisions
--- need to spell out the syntax
+-- BNF grammar for our language:
+--
+-- expr       ::= sumexpr ('==' expr | eps)
+-- sumexpr    ::= term ('+' sumexpr | eps)
+-- term       ::= factor ('*' term | eps)
+-- factor     ::= '(' expr ')' | ifexpr | <natural>
+-- ifexpr     ::= 'if' expr 'then' expr 'else' expr
 
+expr :: Parser Int
+expr = do se <- sumexpr
+          do symbol "=="
+             e <- expr
+             return $ fromEnum (se == e) 
+           <|> return se
+
+sumexpr :: Parser Int
+sumexpr = do t <- term
+             do symbol "+"
+                se <- sumexpr
+                return (t + se)
+              <|> return t
+
+term :: Parser Int
+term = do f <- factor
+          do symbol "*"
+             t <- term
+             return (f * t)
+           <|> return f
+
+factor :: Parser Int
+factor = do symbol "("
+            e <- expr
+            symbol ")"
+            return e
+          <|> ifexpr'
+          <|> natural
+
+-- Note: both the 'then' and 'else' clauses are evaluated eagerly; We can make
+-- it lazy without too much effort, if needed.
+ifexpr :: Parser Int
+ifexpr = do symbol "if"
+            cond <- expr
+            symbol "then"
+            thenExpr <- expr
+            symbol "else"
+            elseExpr <- expr
+            return (if cond == 0 then elseExpr else thenExpr)
+
+ifexpr' :: Parser Int
+ifexpr' =
+  selector <$> symbol "if" <*> expr
+           <*> symbol "then" <*> expr
+           <*> symbol "else" <*> expr
+  where selector _ cond _ t _ e = if cond == 0 then e else t
+
+-- TODO: redo this to make ifexpr lowest priority - makes little sense otherwise
