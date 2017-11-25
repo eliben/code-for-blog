@@ -22,6 +22,7 @@ typedef struct {
   ProcessingState state;
   char sendbuf[SENDBUF_SIZE];
   int sendbuf_end;
+  uv_tcp_t* client;
 } peer_state_t;
 
 void on_alloc_buffer(uv_handle_t* handle, size_t suggested_size,
@@ -38,18 +39,6 @@ void on_client_closed(uv_handle_t* handle) {
     free(client->data);
   }
   free(client);
-}
-
-void on_wrote_init_ack(uv_write_t* req, int status) {
-  if (status) {
-    die("Write error: %s\n", uv_strerror(status));
-  }
-  peer_state_t* peerstate = (peer_state_t*)req->data;
-  // Flip the peer state to WAIT_FOR_MSG. Note: the write request doesn't own
-  // the peer state, hence we only free the request itself, not the state.
-  peerstate->state = WAIT_FOR_MSG;
-  peerstate->sendbuf_end = 0;
-  free(req);
 }
 
 void on_wrote_buf(uv_write_t* req, int status) {
@@ -140,6 +129,27 @@ void on_peer_read(uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
   free(buf->base);
 }
 
+void on_wrote_init_ack(uv_write_t* req, int status) {
+  if (status) {
+    die("Write error: %s\n", uv_strerror(status));
+  }
+  peer_state_t* peerstate = (peer_state_t*)req->data;
+  // Flip the peer state to WAIT_FOR_MSG, and start listening for incoming data
+  // from this peer.
+  peerstate->state = WAIT_FOR_MSG;
+  peerstate->sendbuf_end = 0;
+
+  int rc;
+  if ((rc = uv_read_start((uv_stream_t*)peerstate->client, on_alloc_buffer,
+                          on_peer_read)) < 0) {
+    die("uv_read_start failed: %s", uv_strerror(rc));
+  }
+
+  // Note: the write request doesn't own the peer state, hence we only free the
+  // request itself, not the state.
+  free(req);
+}
+
 void on_peer_connected(uv_stream_t* server_stream, int status) {
   if (status < 0) {
     fprintf(stderr, "Peer connection error: %s\n", uv_strerror(status));
@@ -172,6 +182,7 @@ void on_peer_connected(uv_stream_t* server_stream, int status) {
     peerstate->state = INITIAL_ACK;
     peerstate->sendbuf[0] = '*';
     peerstate->sendbuf_end = 1;
+    peerstate->client = client;
     client->data = peerstate;
 
     // Enqueue the write request to send the ack; when it's done,
@@ -184,12 +195,6 @@ void on_peer_connected(uv_stream_t* server_stream, int status) {
     if ((rc = uv_write(req, (uv_stream_t*)client, &writebuf, 1,
                        on_wrote_init_ack)) < 0) {
       die("uv_write failed: %s", uv_strerror(rc));
-    }
-
-    // Start reading on the peer socket.
-    if ((rc = uv_read_start((uv_stream_t*)client, on_alloc_buffer,
-                            on_peer_read)) < 0) {
-      die("uv_read_start failed: %s", uv_strerror(rc));
     }
   } else {
     uv_close((uv_handle_t*)client, on_client_closed);
