@@ -1,5 +1,7 @@
 -- Basic parser with applicative and monadic combinators.
 --
+-- Based upon chapter 13 of Hutton's "Programming in Haskell" (2nd ed)
+--
 -- Eli Bendersky [http://eli.thegreenplace.net]
 -- This code is in the public domain.
 import Control.Applicative
