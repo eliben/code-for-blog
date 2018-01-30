@@ -1,4 +1,4 @@
-// Expression problem solution in Go with interface.
+// Expression problem solution in Go with interfaces.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -10,7 +10,19 @@ import (
 	"strconv"
 )
 
-type Expression interface {
+type Expr interface {
+}
+
+type Constant struct {
+	value float64
+}
+
+type BinPlus struct {
+	left  Expr
+	right Expr
+}
+
+type Eval interface {
 	Eval() float64
 }
 
@@ -18,29 +30,20 @@ type Stringify interface {
 	ToString() string
 }
 
-type Constant struct {
-	value float64
-}
-
 func (c *Constant) Eval() float64 {
 	return c.value
+}
+
+func (bp *BinPlus) Eval() float64 {
+	return bp.left.(Eval).Eval() + bp.right.(Eval).Eval()
 }
 
 func (c *Constant) ToString() string {
 	return strconv.FormatFloat(c.value, 'E', -1, 64)
 }
 
-type BinPlus struct {
-	left  Expression
-	right Expression
-}
-
-func (bp *BinPlus) Eval() float64 {
-	return bp.left.Eval() + bp.right.Eval()
-}
-
 func (bp *BinPlus) ToString() string {
-	// The moment of truth is here... bp.left is an Expression, which does not
+	// The moment of truth is here... bp.left is an Expr, which does not
 	// have a ToString method. Obviously this will only work if left and right
 	// implement the Stringable interface. The type assertion makes this
 	// expectation explicit and will panic otherwise.
