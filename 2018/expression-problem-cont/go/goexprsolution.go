@@ -13,6 +13,7 @@ import (
 type Expr interface {
 }
 
+// Types
 type Constant struct {
 	value float64
 }
@@ -22,6 +23,7 @@ type BinaryPlus struct {
 	right Expr
 }
 
+// Functions wrapped in interfaces
 type Eval interface {
 	Eval() float64
 }
@@ -34,25 +36,24 @@ func (c *Constant) Eval() float64 {
 	return c.value
 }
 
-func (bp *BinaryPlus) Eval() float64 {
-	return bp.left.(Eval).Eval() + bp.right.(Eval).Eval()
-}
-
 func (c *Constant) ToString() string {
 	return strconv.FormatFloat(c.value, 'f', -1, 64)
 }
 
+// As far as the compiler is concerned, bp.left is an Expr. Expr doesn't have an
+// Eval method. Therefore, a cast is required - it will fail at runtime if
+// bp.left doesn't implement Eval.
+func (bp *BinaryPlus) Eval() float64 {
+	return bp.left.(Eval).Eval() + bp.right.(Eval).Eval()
+}
+
 func (bp *BinaryPlus) ToString() string {
-	// The moment of truth is here... bp.left is an Expr, which does not
-	// have a ToString method. Obviously this will only work if left and right
-	// implement the Stringable interface. The type assertion makes this
-	// expectation explicit and will panic otherwise.
 	ls := bp.left.(Stringify)
 	rs := bp.right.(Stringify)
 	return fmt.Sprintf("(%s + %s)", ls.ToString(), rs.ToString())
 }
 
-// Now adding a new node...
+// Now adding a new type...
 
 type BinaryMul struct {
 	left  Expr
@@ -69,8 +70,18 @@ func (bm *BinaryMul) ToString() string {
 	return fmt.Sprintf("(%s * %s)", ls.ToString(), rs.ToString())
 }
 
+// Function that emulates creating a new expression from some input. It has to
+// return Expr, which should then be casted with a type assertion.
+func CreateNewExpr() Expr {
+	c11 := Constant{value: 1.1}
+	c22 := Constant{value: 2.2}
+	c33 := Constant{value: 3.3}
+	bp := BinaryPlus{left: &BinaryPlus{left: &c11, right: &c22}, right: &c33}
+	return &bp
+}
+
 func main() {
-	fmt.Println("booya")
+	fmt.Println("hello")
 
 	// constants
 	c := Constant{value: 26.4}
@@ -85,6 +96,10 @@ func main() {
 
 	fmt.Printf("bp Eval = %g\n", bp.Eval())
 	fmt.Printf("bp ToString = %s\n", bp.ToString())
+
+	ne := CreateNewExpr()
+	fmt.Printf("ne Eval = %g\n", ne.(Eval).Eval())
+	fmt.Printf("ne ToString = %s\n", ne.(Stringify).ToString())
 
 	bm := BinaryMul{left: &bp, right: &c22}
 
