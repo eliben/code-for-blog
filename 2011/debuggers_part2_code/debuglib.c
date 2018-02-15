@@ -130,14 +130,15 @@ int resume_from_breakpoint(pid_t pid, debug_breakpoint* bp)
     regs.eip = (long) bp->addr;
     ptrace(PTRACE_SETREGS, pid, 0, &regs);
     disable_breakpoint(pid, bp);
-    if (ptrace(PTRACE_SINGLESTEP, pid, 0, 0)) {
+    if (ptrace(PTRACE_SINGLESTEP, pid, 0, 0) < 0) {
         perror("ptrace");
         return -1;
     }
     wait(&wait_status);
 
-    if (WIFEXITED(wait_status)) 
+    if (WIFEXITED(wait_status)) {
         return 0;
+    }
 
     /* Re-enable the breakpoint and let the process run.
     */
