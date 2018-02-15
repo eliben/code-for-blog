@@ -1,4 +1,4 @@
-""" 
+"""
 Sample GUI using SocketClientThread for socket communication, while doing other
 stuff in parallel.
 
@@ -44,8 +44,8 @@ class CircleWidget(QWidget):
                 painter.setPen(QPen(QColor(0, diameter / 2, 127, alpha), 3))
                 painter.drawEllipse(QRectF(
                     -diameter / 2.0,
-                    -diameter / 2.0, 
-                    diameter, 
+                    -diameter / 2.0,
+                    diameter,
                     diameter))
 
 
@@ -60,40 +60,40 @@ class LogWidget(QTextBrowser):
 class SampleGUIClientWindow(QMainWindow):
     def __init__(self, parent=None):
         super(SampleGUIClientWindow, self).__init__(parent)
-        
+
         self.create_main_frame()
         self.create_client()
         self.create_timers()
-    
+
     def create_main_frame(self):
         self.circle_widget = CircleWidget()
         self.doit_button = QPushButton('Do it!')
         self.doit_button.clicked.connect(self.on_doit)
         self.log_widget = LogWidget()
-        
+
         hbox = QHBoxLayout()
         hbox.addWidget(self.circle_widget)
         hbox.addWidget(self.doit_button)
         hbox.addWidget(self.log_widget)
-        
+
         main_frame = QWidget()
         main_frame.setLayout(hbox)
-        
+
         self.setCentralWidget(main_frame)
-    
+
     def create_client(self):
         self.client = SocketClientThread()
         self.client.start()
-        
+
     def create_timers(self):
         self.circle_timer = QTimer(self)
         self.circle_timer.timeout.connect(self.circle_widget.next)
         self.circle_timer.start(25)
-        
+
         self.client_reply_timer = QTimer(self)
         self.client_reply_timer.timeout.connect(self.on_client_reply_timer)
         self.client_reply_timer.start(100)
-    
+
     def on_doit(self):
         self.client.cmd_q.put(ClientCommand(ClientCommand.CONNECT, SERVER_ADDR))
         self.client.cmd_q.put(ClientCommand(ClientCommand.SEND, 'hello'))
@@ -111,7 +111,7 @@ class SampleGUIClientWindow(QMainWindow):
     def log(self, msg):
         timestamp = '[%010.3f]' % time.clock()
         self.log_widget.append(timestamp + ' ' + str(msg))
-    
+
 
 
 #-------------------------------------------------------------------------------
