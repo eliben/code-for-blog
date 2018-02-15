@@ -94,6 +94,10 @@ func main() {
 	c33 := Constant{value: 3.3}
 	bp := BinaryPlus{left: &BinaryPlus{left: &c11, right: &c22}, right: &c33}
 
+	// Uncomment this code - it will fail at run-time.
+	bp1 := BinaryPlus{left: "john", right: Constant{value: 2.2}}
+	fmt.Printf("bp1 Eval = %g\n", bp1.Eval())
+
 	fmt.Printf("bp Eval = %g\n", bp.Eval())
 	fmt.Printf("bp ToString = %s\n", bp.ToString())
 
