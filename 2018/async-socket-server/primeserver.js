@@ -1,3 +1,7 @@
+// Simple prime server that invokes a CPU-consuming operation for every request.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 var net = require('net');
 var utils = require('./utils.js');
 
@@ -23,12 +27,14 @@ function handleConnection(conn) {
 
   function onConnData(d) {
     var num = utils.buf2num(d);
-    console.log('got num %d', num);
+    console.log('num %d', num);
 
     if (utils.isPrime(num, true)) {
       conn.write('prime\n');
+      console.log('... %d is prime', num);
     } else {
       conn.write('composite\n');
+      console.log('... %d is composite', num);
     }
   }
 

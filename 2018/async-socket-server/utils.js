@@ -1,11 +1,11 @@
-// TODO: add comments and make sleeping optional here
+// Common utils.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 
-function sleep(ms) {
-  var awake_time = new Date().getTime() + ms;
-  while (awake_time > new Date().getTime()) {
-  }
-}
-
+// Check if n is prime, returning a boolean. The delay parameter is optional -
+// if it's true the function will block for n milliseconds before computing the
+// answer.
 exports.isPrime = function(n, delay) {
   if (delay === true) {
     sleep(n);
@@ -38,4 +38,12 @@ exports.buf2num = function(buf) {
     }
   }
   return num;
+}
+
+// Blocking sleep for the given number of milliseconds. Uses a spin-loop to
+// block; note that this loads the CPU and is only useful for simulating load.
+function sleep(ms) {
+  var awake_time = new Date().getTime() + ms;
+  while (awake_time > new Date().getTime()) {
+  }
 }
