@@ -1,4 +1,16 @@
-exports.isPrime = function(n) {
+// TODO: add comments and make sleeping optional here
+
+function sleep(ms) {
+  var awake_time = new Date().getTime() + ms;
+  while (awake_time > new Date().getTime()) {
+  }
+}
+
+exports.isPrime = function(n, delay) {
+  if (delay === true) {
+    sleep(n);
+  }
+
   if (n % 2 == 0) {
     return n == 2 ? true : false;
   }
