@@ -25,7 +25,7 @@ function handleConnection(conn) {
     var num = utils.buf2num(d);
     console.log('got num %d', num);
 
-    if (utils.isPrime(num)) {
+    if (utils.isPrime(num, true)) {
       conn.write('prime\n');
     } else {
       conn.write('composite\n');
