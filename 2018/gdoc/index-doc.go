@@ -1,12 +1,10 @@
-package main
-
-// TODO: move this into a README file
-// Run with -dumpraw to dump all found names
-// The dump is used like this:
+// Indexer of Go source code.
 //
-// gdoc() {
-//   cat $HOME/.gosyms | dmenu -l 20 -i -b -p "go doc" | xargs go doc
-// }
+// See README for usage instructions.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
+package main
 
 import (
 	"flag"
