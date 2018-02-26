@@ -10,10 +10,11 @@
 var utils = require('./utils.js');
 
 process.on('message', message => {
-  console.log('[child] received message from server:', message);
+  console.log('[child %d] received message from server:', process.pid, message);
 
   // Compute the result (with emulate ddelay) and send back a message.
   process.send({task: message, result: utils.isPrime(message, true)});
   process.disconnect();
+  console.log('[child %d] exiting', process.pid);
   process.exit();
 });
