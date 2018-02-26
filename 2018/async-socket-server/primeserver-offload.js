@@ -31,6 +31,9 @@ function handleConnection(conn) {
     var num = utils.buf2num(d);
     console.log('num %d', num);
 
+    // Fork off a worker to do this computation, and add a callback to handle
+    // the result when it's ready. After the callback is set up, this function
+    // returns so the server can resume the event loop.
     var worker = child_process.fork('./primeworker.js');
     worker.send(num);
     worker.on('message', message => {
