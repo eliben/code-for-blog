@@ -65,6 +65,7 @@ function handleConnection(conn) {
             });
           });
         } else {
+          // The strings 'prime' or 'composite' are stored in the Redis cache.
           console.log('cached num %d is %s', num, res);
           conn.write(res + '\n');
         }
