@@ -1,0 +1,149 @@
+<!-- Simple HTML container for Go symbol auto-completion.
+     Requires all_symbols.js to be present.
+
+     Eli Bendersky [http://eli.thegreenplace.net]
+     This code is in the public domain.
+-->
+<html>
+<head>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+  
+  <script src="all_symbols.js"></script>
+
+<style>
+.container {
+  /* Override default width of container */
+  width: 600px;
+  padding-top: 60px;
+}
+
+#resultbox {
+  background-color: #F0F0F0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
+
+<script>
+  $(function() {
+
+    function log(message) {
+      $("<div>").text(message).prependTo("#log");
+      $("#log").scrollTop(0);
+    }
+
+    function onSelected(name) {
+      var url = 'https://golang.org/pkg/' + name.replace(".", "#");
+      var linkHtml = '<a href="' + url + '">' + url + '</a>';
+      $("#resultbox").empty();
+      $("#resultbox").append(linkHtml);
+
+      if ($("#check_new_window").is(":checked")) {
+        window.open(url, '_blank');
+      }
+    }
+
+    // Returns true iff s matches the term, which consists of partial matches
+    // separated by spaces in the given order.
+    //
+    // For example, s="foobar.nexus.brother" matches term="foo nex her" because
+    // "foo", "nex", "her" all appear in s, in the right order. "nex foo"
+    // doesn't match, though, because "foo" won't be found after "nex" in s.
+    //
+    // Note: this function is case sensitive. For case-insensitive matching,
+    // preprocess term and s accordingly.
+    //
+    var matchPartials = function(term, s) {
+      var pos = 0;
+      var partials = term.split(/\s+/);
+      for (var i = 0; i < partials.length; i++) {
+        // If we ran out of data to search and there are still parts to match,
+        // it's a no-go.
+        if (pos >= s.length) {
+          return false;
+        }
+
+        var part = partials[i];
+        var partindex = s.indexOf(part, pos);
+        if (partindex < 0) {
+          return false;
+        }
+        pos = partindex + part.length;
+      }
+      return true;
+    }
+
+    $("#nametext").autocomplete({
+      source: function(request, response) {
+        // limit result size to 20 items
+        var results = $.grep(all_symbols, function(element, index) {
+          return matchPartials(request.term.toLowerCase(),
+                               element.toLowerCase());
+        });
+        response(results.slice(0, 20));
+      },
+      select: function(event, ui) {
+        onSelected(ui.item ? ui.item.value : "...");
+
+        // Prevent the form from submitting when a selection is made.
+        event.preventDefault();
+      }
+    });
+
+    $(document).keydown(function (e) {
+      // On F2 or numpad /
+      if (e.which == 111 || e.which == 113 && !($("nametext").is(":focus"))) {
+        $("#nametext").val('');
+        $("#nametext").focus();
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    });
+  });
+</script>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    <h3 class="panel-title">Go standard library quick lookup</h3>
+  </div>
+  <div class="panel-body">
+    <form class="form-horizontal">
+      <div class="form-group">
+        <label for="nameinput" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="nametext" placeholder="Name">
+        </div>
+      </div>
+    </form>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" id="check_new_window" checked>
+            Open selection in new window/tab
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-offset-2 col-sm-10">
+        <div id="resultbox"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
