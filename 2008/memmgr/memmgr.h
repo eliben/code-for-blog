@@ -73,7 +73,6 @@ typedef unsigned char byte;
 typedef unsigned long ulong;
 
 
-
 // Initialize the memory manager. This function should be called
 // only once in the beginning of the program.
 //
