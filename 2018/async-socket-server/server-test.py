@@ -18,6 +18,35 @@ import time
 PORTNUM = 8099
 
 
+def factorize_naive(n):
+    """ A naive factorization method. Take integer 'n', return list of
+        factors.
+    """
+    if n < 2:
+        return []
+    factors = []
+    p = 2
+
+    while True:
+        if n == 1:
+            return factors
+
+        r = n % p
+        if r == 0:
+            factors.append(p)
+            n = n // p
+        elif p * p >= n:
+            factors.append(n)
+            return factors
+        elif p > 2:
+            # Advance in steps of 2 over odd numbers
+            p += 2
+        else:
+            # If p == 2, get to 3
+            p += 1
+    assert False, "unreachable"
+
+
 def server_runner(path, args, stop_event):
     """Runs the server as a subprocess until stop is requested.
 
@@ -58,6 +87,12 @@ def client_thread_runner(port, nums=[], timeout=1.0):
         reply = sockobj.recv(20)
         logging.info('Client {0} received "{1}"'.format(tid, reply))
 
+        isprime = len(factorize_naive(num)) <= 1
+        if isprime:
+            assert b'prime' in reply
+        else:
+            assert b'composite' in reply
+
     sockobj.shutdown(socket.SHUT_RDWR)
     sockobj.close()
 
@@ -86,12 +121,14 @@ def test_main():
     for i in range(args.num_clients):
         tester_thread = threading.Thread(
             target=client_thread_runner,
-            args=(PORTNUM, [20, 43], 1.0))
+            args=(PORTNUM, [900, 431], 3.0))
         tester_thread.start()
         threads.append(tester_thread)
 
     for thread in threads:
         thread.join()
+
+    stop_event.set()
 
 
 if __name__ == '__main__':
