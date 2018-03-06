@@ -43,6 +43,25 @@ def server_runner(path, args, stop_event):
         logging.info('server_runner: subprocess did not die within timeout')
 
 
+def client_thread_runner(port, nums=[], timeout=1.0):
+    """Client.
+    """
+    tid = threading.current_thread().ident
+    sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sockobj.settimeout(timeout)
+    sockobj.connect(('localhost', port))
+    logging.info('Client {0} connected to server'.format(tid))
+
+    for num in nums:
+        sockobj.send(bytes(str(num), encoding='ascii'))
+        logging.info('Client {0} sent "{1}"'.format(tid, num))
+        reply = sockobj.recv(20)
+        logging.info('Client {0} received "{1}"'.format(tid, reply))
+
+    sockobj.shutdown(socket.SHUT_RDWR)
+    sockobj.close()
+
+
 def test_main():
     argparser = argparse.ArgumentParser('Server test')
     argparser.add_argument('server_path', help='path to the server executable')
@@ -61,26 +80,18 @@ def test_main():
             target=server_runner,
             args=(args.server_path, [str(PORTNUM)], stop_event))
     server_thread.start()
-    time.sleep(0.3)
+    time.sleep(0.2)
 
-    #TIMEOUT = 0.5 + (args.num_clients - 1) * args.timeout_bump
+    threads = []
+    for i in range(args.num_clients):
+        tester_thread = threading.Thread(
+            target=client_thread_runner,
+            args=(PORTNUM, [20, 43], 1.0))
+        tester_thread.start()
+        threads.append(tester_thread)
 
-    #for i in range(args.loop):
-        #logging.info('** Test iteration {}'.format(i))
-        #client_iter = itertools.cycle([client0, client1, client2, client3])
-        #threads = []
-        #for i in range(args.num_clients):
-            #tester_thread = threading.Thread(
-                    #target=client_thread_runner,
-                    #args=(next(client_iter), args.server_port, TIMEOUT))
-            #tester_thread.start()
-            #threads.append(tester_thread)
-
-        #time.sleep(TIMEOUT)
-        #for thread in threads:
-            #thread.join()
-
-    #stop_event.set()
+    for thread in threads:
+        thread.join()
 
 
 if __name__ == '__main__':
