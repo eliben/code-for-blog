@@ -37,13 +37,9 @@ function handleConnection(conn) {
     var worker = child_process.fork('./primeworker.js');
     worker.send(num);
     worker.on('message', message => {
-      if (message.result) {
-        conn.write('prime\n');
-        console.log('... %d is prime', num);
-      } else {
-        conn.write('composite\n');
-        console.log('... %d is composite', num);
-      }
+      var answer = message.result ? "prime" : "composite";
+      conn.write(answer + '\n');
+      console.log('... %d is %s', num, answer);
     });
   }
 
