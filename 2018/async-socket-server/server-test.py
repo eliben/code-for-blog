@@ -100,7 +100,7 @@ def client_thread_runner(port, nums=[], timeout=1.0):
 def test_main():
     argparser = argparse.ArgumentParser('Server test')
     argparser.add_argument('server_path', help='path to the server executable')
-    argparser.add_argument('-n', '--num-clients', default=2, type=int,
+    argparser.add_argument('-n', '--num-clients', default=4, type=int,
                            help='number of clients to launch simultaneously; ')
     args = argparser.parse_args()
     assert args.num_clients >= 1
@@ -121,7 +121,7 @@ def test_main():
     for i in range(args.num_clients):
         tester_thread = threading.Thread(
             target=client_thread_runner,
-            args=(PORTNUM, [900, 431], 3.0))
+            args=(PORTNUM, [900, 431], 5.0))
         tester_thread.start()
         threads.append(tester_thread)
 
