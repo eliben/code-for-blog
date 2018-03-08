@@ -29,13 +29,9 @@ function handleConnection(conn) {
     var num = utils.buf2num(d);
     console.log('num %d', num);
 
-    if (utils.isPrime(num, true)) {
-      conn.write('prime\n');
-      console.log('... %d is prime', num);
-    } else {
-      conn.write('composite\n');
-      console.log('... %d is composite', num);
-    }
+    var answer = utils.isPrime(num, true) ? "prime" : "composite";
+    conn.write(answer + '\n');
+    console.log('... %d is %s', num, answer);
   }
 
   function onConnClose() {
