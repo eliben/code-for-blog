@@ -124,7 +124,7 @@ def test_main():
 
     # Generate some pseudo-random numbers, with guaranteed repetition to hit
     # the caches.
-    nums = [random.randint(20, 990) for i in range(8)]
+    nums = [random.randint(20, 1990) // 2 for i in range(8)]
     nums.extend(nums[0:2])
 
     for i in range(args.num_clients):
