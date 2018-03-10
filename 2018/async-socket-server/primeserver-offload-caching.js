@@ -49,6 +49,7 @@ function handleConnection(conn) {
           var worker = child_process.fork('./primeworker.js');
           worker.send(num);
           worker.on('message', message => {
+            // TODO: this is done twice ?! why ?!
             var computed = message.result ? 'prime' : 'composite';
             redis_client.set(cachekey, computed, (err, res) => {
               if (err) {

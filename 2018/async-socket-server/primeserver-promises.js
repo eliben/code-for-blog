@@ -47,7 +47,10 @@ function handleConnection(conn) {
     }).then(res => {
       console.log(res);
       conn.write(res + '\n');
-    });
+      return redisSetAsync(cachekey, res);
+    }).then(res => {
+
+    });;
   }
 
   function onConnClose() {
@@ -64,7 +67,10 @@ function offload_isprime_promise(n) {
       function (resolve, reject) {
         var child = child_process.fork('./primeworker.js');
         child.send(n);
-        child.on('message', message => {resolve(message)});
+        child.on('message', message => {
+          var result = message.result ? 'prime' : 'composite';
+          resolve(result);
+        });
         child.on('error', message => {reject(message)});
       });
 }
