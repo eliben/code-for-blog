@@ -36,7 +36,6 @@ function handleConnection(conn) {
     console.log('num %d', num);
 
     var cachekey = 'primecache:' + num;
-    // TODO: attach error handler
     redisGetAsync(cachekey).then(res => {
       if (res === null) {
         return offload_isprime_promise(num);
@@ -45,12 +44,13 @@ function handleConnection(conn) {
         return Promise.resolve(res);
       }
     }).then(res => {
-      console.log(res);
-      conn.write(res + '\n');
-      return redisSetAsync(cachekey, res);
-    }).then(res => {
-
-    });;
+      // Using Promise.all to pass 'res' from here to the next .then handler.
+      return Promise.all([redisSetAsync(cachekey, res), res]);
+    }).then(([set_result, computation_result]) => {
+      conn.write(computation_result + '\n');
+    }).catch(err => {
+      console.log('error:', err);
+    });
   }
 
   function onConnClose() {
