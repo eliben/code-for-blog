@@ -8,6 +8,7 @@ import argparse
 import itertools
 import logging
 import queue
+import random
 import socket
 import subprocess
 import sys
@@ -74,12 +75,12 @@ def server_runner(path, args, stop_event):
         logging.info('server_runner: subprocess did not die within timeout')
 
 
-def client_thread_runner(port, nums=[], timeout=1.0):
+def client_thread_runner(port, nums=[]):
     """Client.
     """
     tid = threading.current_thread().ident
     sockobj = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sockobj.settimeout(timeout)
+    sockobj.settimeout(1.0 * len(nums))
     sockobj.connect(('localhost', port))
     logging.info('Client {0} connected to server'.format(tid))
 
@@ -120,10 +121,16 @@ def test_main():
     time.sleep(0.2)
 
     threads = []
+
+    # Generate some pseudo-random numbers, with guaranteed repetition to hit
+    # the caches.
+    nums = [random.randint(20, 990) for i in range(8)]
+    nums.extend(nums[0:2])
+
     for i in range(args.num_clients):
         tester_thread = threading.Thread(
             target=client_thread_runner,
-            args=(PORTNUM, [900, 431], 5.0))
+            args=(PORTNUM, nums))
         tester_thread.start()
         threads.append(tester_thread)
 
