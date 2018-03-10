@@ -31,27 +31,26 @@ function handleConnection(conn) {
   conn.once('close', onConnClose);
   conn.on('error', onConnError);
 
-  // TODO: make naming of vars consistent throughout the samples
-  function onConnData(d) {
+  async function onConnData(d) {
     var num = utils.buf2num(d);
     console.log('num %d', num);
 
-    var cachekey = 'primecache:' + num;
-    redisGetAsync(cachekey).then(res => {
-      if (res === null) {
-        return isPrimeAsync(num);
+    try {
+      var cachekey = 'primecache:' + num;
+      var cached = await redisGetAsync(cachekey);
+
+      if (cached === null) {
+        var computed = await isPrimeAsync(num);
+        await redisSetAsync(cachekey, computed);
+        conn.write(computed + '\n');
       } else {
-        console.log('cached num %d is %s', num, res);
-        return Promise.resolve(res);
+        console.log('cached num %d is %s', num, cached);
+        conn.write(cached + '\n');
       }
-    }).then(res => {
-      // Using Promise.all to pass 'res' from here to the next .then handler.
-      return Promise.all([redisSetAsync(cachekey, res), res]);
-    }).then(([set_result, computation_result]) => {
-      conn.write(computation_result + '\n');
-    }).catch(err => {
+    } catch (err) {
+      // TODO: make error handling consistent with other parts
       console.log('error:', err);
-    });
+    }
   }
 
   function onConnClose() {
@@ -63,7 +62,7 @@ function handleConnection(conn) {
   }
 }
 
-function isPrimeAsync(n) {
+async function isPrimeAsync(n) {
   return new Promise((resolve, reject) => {
     var child = child_process.fork('./primeworker.js');
     child.send(n);
