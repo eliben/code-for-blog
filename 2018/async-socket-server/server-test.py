@@ -18,6 +18,8 @@ import time
 PORTNUM = 8099
 
 
+# TODO: have to use random numbers to not hit cache all the time, and reuse some
+# numbers to hit it
 def factorize_naive(n):
     """ A naive factorization method. Take integer 'n', return list of
         factors.
