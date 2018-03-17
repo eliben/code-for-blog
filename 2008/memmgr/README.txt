@@ -26,5 +26,4 @@ memmgr.c
   
 main.c
    A sample main application that uses the memory manager, with
-   some tests.
-
+   some tests; the tests were designed for 32-bit systems.

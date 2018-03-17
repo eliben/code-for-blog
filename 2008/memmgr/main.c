@@ -2,7 +2,7 @@
 // Statically-allocated memory manager
 //
 // by Eli Bendersky (eliben@gmail.com)
-//  
+//
 // This code is in the public domain.
 //----------------------------------------------------------------
 #include <stdio.h>
@@ -20,6 +20,10 @@
 //
 void test_memmgr()
 {
+    if (sizeof(void*) != 4) {
+        printf("WARNING: this test was designed for systems with pointer size = 4\n");
+    }
+
     byte *p[30] = {0};
     int i;
 
@@ -48,10 +52,10 @@ void test_memmgr()
     memmgr_free(p[1]);
     p[1] = 0;
 
-    // Now we can allocate several smaller chunks from the 
-    // free list. There, they can be smaller than the 
+    // Now we can allocate several smaller chunks from the
+    // free list. There, they can be smaller than the
     // minimal allocation size.
-    // Allocations of 100 require 14 quantas (13 for the 
+    // Allocations of 100 require 14 quantas (13 for the
     // requested space, 1 for the header). So it allocates
     // 112 bytes. We have 18 allocations to make:
     //
@@ -85,4 +89,3 @@ int main()
     getchar();
     return 0;
 }
-
