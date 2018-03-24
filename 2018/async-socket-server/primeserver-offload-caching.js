@@ -6,7 +6,6 @@
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
-
 var child_process = require('child_process');
 var net = require('net');
 var redis = require('redis');
