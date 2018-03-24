@@ -1,18 +1,62 @@
 # Python 2
+from __future__ import print_function
+import sys
+PY3 = sys.version_info[0] == 3
+
 import multiprocessing
 from multiprocessing.managers import SyncManager
-import Queue
 import time
-from factorize import factorize_naive
+
+# Python 2 vs. 3 compatibility
+if PY3:
+    from functools import reduce
+    import queue
+else:
+    import Queue as queue
+
+def iteritems(d):
+    """Return an iterator over the items of a dictionary."""
+    return getattr(d, 'items' if PY3 else 'iteritems')()
+
+
 
 IP = 'localhost'
 PORTNUM = 55444
-AUTHKEY = 'shufflin'
+AUTHKEY = b'shufflin'
+
+
+def factorize_naive(n):
+    """ A naive factorization method. Take integer 'n', return list of
+        factors.
+    """
+    if n < 2:
+        return []
+    factors = []
+    p = 2
+
+    while True:
+        if n == 1:
+            return factors
+
+        r = n % p
+        if r == 0:
+            factors.append(p)
+            n = n // p
+        elif p * p >= n:
+            factors.append(n)
+            return factors
+        elif p > 2:
+            # Advance in steps of 2 over odd numbers
+            p += 2
+        else:
+            # If p == 2, get to 3
+            p += 1
+    assert False, "unreachable"
 
 
 def make_server_manager(port, authkey):
-    job_q = Queue.Queue()
-    result_q = Queue.Queue()
+    job_q = queue.Queue()
+    result_q = queue.Queue()
 
     class JobQueueManager(SyncManager):
         pass
@@ -22,7 +66,7 @@ def make_server_manager(port, authkey):
 
     manager = JobQueueManager(address=('', port), authkey=authkey)
     manager.start()
-    print 'Server started at port %s' % port
+    print('Server started at port %s' % port)
     return manager
 
 
@@ -36,7 +80,7 @@ def make_client_manager(ip, port, authkey):
     manager = ServerQueueManager(address=(ip, port), authkey=authkey)
     manager.connect()
 
-    print 'Client connected to %s:%s' % (ip, port)
+    print('Client connected to %s:%s' % (ip, port))
     return manager
 
 
@@ -45,11 +89,11 @@ def factorizer_worker(job_q, result_q):
     while True:
         try:
             job = job_q.get_nowait()
-            print '%s got %s nums...' % (myname, len(job))
+            print('%s got %s nums...' % (myname, len(job)))
             outdict = {n: factorize_naive(n) for n in job}
             result_q.put(outdict)
-            print '  %s done' % myname
-        except Queue.Empty:
+            print('  %s done' % myname)
+        except queue.Empty:
             return
 
 
@@ -68,7 +112,7 @@ def mp_factorizer(shared_job_q, shared_result_q, nprocs):
 
 def make_nums(N):
     nums = [999999999999]
-    for i in xrange(N):
+    for i in range(N):
         nums.append(nums[-1] + 2)
     return nums
 
@@ -92,12 +136,12 @@ def runserver():
         resultdict.update(outdict)
         numresults += len(outdict)
 
-    for num, factors in resultdict.iteritems():
+    for num, factors in iteritems(resultdict):
         product = reduce(lambda a, b: a * b, factors, 1)
         if num != product:
             assert False, "Verification failed for number %s" % num
 
-    print '--- DONE ---'
+    print('--- DONE ---')
     time.sleep(2)
     manager.shutdown()
 
@@ -111,7 +155,6 @@ def runclient():
 
 
 if __name__ == '__main__':
-    import sys
     if len(sys.argv) > 1 and sys.argv[1] == 'client':
         runclient()
     else:
