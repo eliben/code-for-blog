@@ -1,3 +1,10 @@
+// Similar to primeserver-offload-caching, but using promises.
+//
+// Requires a Redis server to run in the background, listening on the default
+// port.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 var child_process = require('child_process');
 var net = require('net');
 var redis = require('redis');
@@ -31,7 +38,6 @@ function handleConnection(conn) {
   conn.once('close', onConnClose);
   conn.on('error', onConnError);
 
-  // TODO: make naming of vars consistent throughout the samples
   function onConnData(d) {
     var num = utils.buf2num(d);
     console.log('num %d', num);
