@@ -1,3 +1,10 @@
+// Similar to primeserver-promises, but using async/await.
+//
+// Requires a Redis server to run in the background, listening on the default
+// port.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 var child_process = require('child_process');
 var net = require('net');
 var redis = require('redis');
@@ -48,7 +55,6 @@ function handleConnection(conn) {
         conn.write(cached + '\n');
       }
     } catch (err) {
-      // TODO: make error handling consistent with other parts
       console.log('error:', err);
     }
   }
