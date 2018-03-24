@@ -1,4 +1,17 @@
-# Python 2
+# Distributed multiprocessing with Python.
+#
+# In one terminal run this script without arguments - server.
+# In another terminal, run it in client mode as follows:
+#
+#   $ python <scriptname> client
+#
+# The client will find the server and get tasks from it; the server will exit
+# when all tasks are finished and verified.
+#
+# Tested with Python 2.7 and 3.6
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 from __future__ import print_function
 import sys
 PY3 = sys.version_info[0] == 3
@@ -17,7 +30,6 @@ else:
 def iteritems(d):
     """Return an iterator over the items of a dictionary."""
     return getattr(d, 'items' if PY3 else 'iteritems')()
-
 
 
 IP = 'localhost'
