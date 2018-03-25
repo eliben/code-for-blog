@@ -7,6 +7,7 @@
 import argparse
 import itertools
 import logging
+import math
 import queue
 import random
 import socket
@@ -19,33 +20,17 @@ import time
 PORTNUM = 8099
 
 
-def factorize_naive(n):
-    """ A naive factorization method. Take integer 'n', return list of
-        factors.
-    """
-    if n < 2:
-        return []
-    factors = []
-    p = 2
-
-    while True:
-        if n == 1:
-            return factors
-
-        r = n % p
-        if r == 0:
-            factors.append(p)
-            n = n // p
-        elif p * p >= n:
-            factors.append(n)
-            return factors
-        elif p > 2:
-            # Advance in steps of 2 over odd numbers
-            p += 2
-        else:
-            # If p == 2, get to 3
-            p += 1
-    assert False, "unreachable"
+def is_prime(num):
+    if num == 2:
+        return True
+    elif num < 2 or num % 2 == 0:
+        return False
+    else:
+        upto = int(math.sqrt(num)) + 1
+        for i in range(3, upto, 2):
+            if num % i == 0:
+                return False
+    return True
 
 
 def server_runner(path, args, stop_event):
@@ -88,8 +73,7 @@ def client_thread_runner(port, nums=[]):
         reply = sockobj.recv(20)
         logging.info('Client {0} received "{1}"'.format(tid, reply))
 
-        isprime = len(factorize_naive(num)) <= 1
-        if isprime:
+        if is_prime(num):
             assert b'prime' in reply
         else:
             assert b'composite' in reply
