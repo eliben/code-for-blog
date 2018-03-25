@@ -17,7 +17,7 @@ import threading
 import time
 
 # The port number the server will listen on.
-PORTNUM = 8099
+PORTNUM = 8070
 
 
 def is_prime(num):
