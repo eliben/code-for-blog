@@ -13,6 +13,8 @@ import sys
 
 from concurrent.futures import ThreadPoolExecutor
 
+rclient = redis.StrictRedis(host='localhost')
+
 
 def is_prime(num):
     if num == 2:
@@ -27,6 +29,19 @@ def is_prime(num):
     return True
 
 
+def handle_client_data(buf, sockobj):
+    """A new buffer of data was received from a client - handle it."""
+    cachekey = b'primecache:' + buf
+    cached = rclient.get(cachekey)
+
+    if cached is None:
+        computed = b'prime' if is_prime(int(buf)) else b'composite'
+        rclient.set(cachekey, computed)
+        sockobj.send(computed + b'\n')
+    else:
+        sockobj.send(cached + b'\n')
+
+
 def serve_connection(sockobj, client_address):
     print('peer {0} connected'.format(client_address))
 
@@ -35,14 +50,13 @@ def serve_connection(sockobj, client_address):
             buf = sockobj.recv(1024)
             if not buf:
                 break
+            print('boba')
+            handle_client_data(buf, sockobj)
         except IOError as e:
             break
-        # TODO: redis caching here, etc.
-        num = int(buf)
-        if is_prime(num):
-            sockobj.send(b'prime\n')
-        else:
-            sockobj.send(b'composite\n')
+        except Exception as e:
+            print('unknown exception', e)
+            raise
 
     print('connection from {0} closed'.format(client_address))
     sys.stdout.flush()

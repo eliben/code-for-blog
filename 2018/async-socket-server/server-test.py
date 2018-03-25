@@ -44,7 +44,12 @@ def server_runner(path, args, stop_event):
     stop_event is a threading.Event object; when it's set, the subprocess is
     killed and this function returns.
     """
-    runcmd = ['node', path] if path.endswith('.js') else [path]
+    if path.endswith('.js'):
+        runcmd = ['node', path]
+    elif path.endswith('.py'):
+        runcmd = ['python', path]
+    else:
+        runcmd = path
     runcmd.extend(args)
     logging.info('server_runner: executing subprocess "{0}"'.format(runcmd))
     proc = subprocess.Popen(runcmd)
