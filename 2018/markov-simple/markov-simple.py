@@ -1,3 +1,4 @@
+# TODO: remove all debugging code for presentation
 from collections import defaultdict, Counter
 import random
 import sys
@@ -8,6 +9,8 @@ import sys
 STATE_LEN = 4
 
 
+# TODO: mention possible optimization -- randrange is slow, we could precompute
+# sum total and most_common (binary search in post)
 def weighted_from_counter(c):
     total = sum(c.values())
     idx = random.randrange(total)
@@ -18,27 +21,27 @@ def weighted_from_counter(c):
 
 
 data = sys.stdin.read()
-states = defaultdict(Counter)
+model = defaultdict(Counter)
 
 print('Learning model...')
 for i in range(len(data) - STATE_LEN - 1):
     state = data[i:i + STATE_LEN]
     next = data[i + STATE_LEN]
-    states[state][next] += 1
+    model[state][next] += 1
 
-print('Model has {0} states'.format(len(states)))
+print('Model has {0} states'.format(len(model)))
 j = 0
-for k, v in states.items():
+for k, v in model.items():
     print(k, v)
     if j > 9:
         break
     j += 1
 
 print('Sampling...')
-state = random.choice(list(states))
+state = random.choice(list(model))
 sys.stdout.write(state)
-for i in range(200):
-    nextc = weighted_from_counter(states[state])
+for i in range(400):
+    nextc = weighted_from_counter(model[state])
     sys.stdout.write(nextc)
     state = state[1:] + nextc
 print()
