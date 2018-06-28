@@ -11,6 +11,9 @@ STATE_LEN = 4
 
 # TODO: mention possible optimization -- randrange is slow, we could precompute
 # sum total and most_common (binary search in post)
+# It likely doesn't matter because we only invoke this for sampling which isn't
+# too common (also we'd have to precompute sum/most_common for every possible
+# state counter)
 def weighted_from_counter(c):
     total = sum(c.values())
     idx = random.randrange(total)
