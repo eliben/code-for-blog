@@ -1,4 +1,3 @@
-# TODO: remove all debugging code for presentation
 from collections import defaultdict, Counter
 import random
 import sys
@@ -8,12 +7,6 @@ import sys
 # n is STATE_LEN+1 since it includes the predicted character as well.
 STATE_LEN = 4
 
-
-# TODO: mention possible optimization -- randrange is slow, we could precompute
-# sum total and most_common (binary search in post)
-# It likely doesn't matter because we only invoke this for sampling which isn't
-# too common (also we'd have to precompute sum/most_common for every possible
-# state counter)
 def weighted_from_counter(c):
     total = sum(c.values())
     idx = random.randrange(total)
@@ -21,7 +14,6 @@ def weighted_from_counter(c):
         idx -= count
         if idx < 0:
             return elem
-
 
 data = sys.stdin.read()
 model = defaultdict(Counter)
