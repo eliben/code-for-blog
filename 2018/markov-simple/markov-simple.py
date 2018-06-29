@@ -1,3 +1,14 @@
+# Markov chain generator.
+#
+# Run with:
+#
+#  $ python markov-simple.py < cnus-clean.txt
+#
+# The accompanying cnus-clean.txt is the complete works of Sherlock Holmes
+# cleaned up from special characters, excessive line breaks and lowercased.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 from collections import defaultdict, Counter
 import random
 import sys
