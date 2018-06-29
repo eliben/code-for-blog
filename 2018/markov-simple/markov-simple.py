@@ -42,9 +42,8 @@ for k, v in model.items():
 
 print('Sampling...')
 state = random.choice(list(model))
-sys.stdout.write(state)
+out = list(state)
 for i in range(400):
-    nextc = weighted_from_counter(model[state])
-    sys.stdout.write(nextc)
-    state = state[1:] + nextc
-print()
+    out.append(weighted_from_counter(model[state]))
+    state = state[1:] + out[-1]
+print(''.join(out))
