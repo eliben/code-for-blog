@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <linux/futex.h>
 #include <sched.h>
 #include <stdio.h>
@@ -36,8 +37,21 @@ int main(int argc, char** argv) {
     printf("child waiting for A\n");
     // Wait until 0xA is written to the shared data, taking spurious wake-ups
     // into account.
-    while (futex(shared_data, FUTEX_WAIT, 0xA, NULL, NULL, 0) != 0) {
-      sched_yield();
+    int blocked = 1;
+    while (blocked) {
+      int futex_rc = futex(shared_data, FUTEX_WAIT, 0xA, NULL, NULL, 0);
+      if (futex_rc == -1) {
+        if (errno != EAGAIN) {
+          perror("futex");
+          exit(1);
+        }
+      } else if (futex_rc == 0) {
+        if (*shared_data == 0xA) {
+          blocked = 0;
+        }
+      } else {
+        abort();
+      }
     }
 
     printf("child writing B\n");
