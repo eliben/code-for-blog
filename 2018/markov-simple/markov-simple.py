@@ -18,14 +18,6 @@ import sys
 # n is STATE_LEN+1 since it includes the predicted character as well.
 STATE_LEN = 4
 
-def weighted_from_counter(c):
-    total = sum(c.values())
-    idx = random.randrange(total)
-    for elem, count in c.most_common():
-        idx -= count
-        if idx < 0:
-            return elem
-
 data = sys.stdin.read()
 model = defaultdict(Counter)
 
@@ -47,6 +39,7 @@ print('Sampling...')
 state = random.choice(list(model))
 out = list(state)
 for i in range(400):
-    out.append(weighted_from_counter(model[state]))
+    nextc = random.choices(list(model[state]), model[state].values())[0]
+    out.append(nextc)
     state = state[1:] + out[-1]
 print(''.join(out))
