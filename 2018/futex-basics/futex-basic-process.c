@@ -16,6 +16,28 @@ int futex(int* uaddr, int futex_op, int val, const struct timespec* timeout,
   return syscall(SYS_futex, uaddr, futex_op, val, timeout, uaddr2, val3);
 }
 
+// Waits for the futex at futex_addr to have the value val, ignoring spurious
+// wakeups. This function only returns when the condition is fulfilled; the only
+// other way out is aborting with an error.
+void wait_on_futex_value(int* futex_addr, int val) {
+  while (1) {
+    int futex_rc = futex(futex_addr, FUTEX_WAIT, val, NULL, NULL, 0);
+    if (futex_rc == -1) {
+      if (errno != EAGAIN) {
+        perror("futex");
+        exit(1);
+      }
+      sched_yield();
+    } else if (futex_rc == 0) {
+      if (*futex_addr == val) {
+        return;
+      }
+    } else {
+      abort();
+    }
+  }
+}
+
 int main(int argc, char** argv) {
   int shm_id = shmget(IPC_PRIVATE, 4096, IPC_CREAT | 0666);
   if (shm_id < 0) {
@@ -35,24 +57,7 @@ int main(int argc, char** argv) {
     // Child process
 
     printf("child waiting for A\n");
-    // Wait until 0xA is written to the shared data, taking spurious wake-ups
-    // into account.
-    int blocked = 1;
-    while (blocked) {
-      int futex_rc = futex(shared_data, FUTEX_WAIT, 0xA, NULL, NULL, 0);
-      if (futex_rc == -1) {
-        if (errno != EAGAIN) {
-          perror("futex");
-          exit(1);
-        }
-      } else if (futex_rc == 0) {
-        if (*shared_data == 0xA) {
-          blocked = 0;
-        }
-      } else {
-        abort();
-      }
-    }
+    wait_on_futex_value(shared_data, 0xA);
 
     printf("child writing B\n");
     // Write 0xB to the shared data and send a wakeup call.
@@ -72,24 +77,7 @@ int main(int argc, char** argv) {
     }
 
     printf("parent waiting for B\n");
-    // Wait until 0xB is written to the shared data, taking spurious wake-ups
-    // into account.
-    int blocked = 1;
-    while (blocked) {
-      int futex_rc = futex(shared_data, FUTEX_WAIT, 0xB, NULL, NULL, 0);
-      if (futex_rc == -1) {
-        if (errno != EAGAIN) {
-          perror("futex");
-          exit(1);
-        }
-      } else if (futex_rc == 0) {
-        if (*shared_data == 0xB) {
-          blocked = 0;
-        }
-      } else {
-        abort();
-      }
-    }
+    wait_on_futex_value(shared_data, 0xB);
 
     // Wait for the child to terminate.
     wait(NULL);
