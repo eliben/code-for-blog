@@ -72,13 +72,27 @@ int main(int argc, char** argv) {
     }
 
     printf("parent waiting for B\n");
-    // Wait until 0xB is written to the shared data.
-    while (futex(shared_data, FUTEX_WAIT, 0xB, NULL, NULL, 0) != 0) {
-      sched_yield();
+    // Wait until 0xB is written to the shared data, taking spurious wake-ups
+    // into account.
+    int blocked = 1;
+    while (blocked) {
+      int futex_rc = futex(shared_data, FUTEX_WAIT, 0xB, NULL, NULL, 0);
+      if (futex_rc == -1) {
+        if (errno != EAGAIN) {
+          perror("futex");
+          exit(1);
+        }
+      } else if (futex_rc == 0) {
+        if (*shared_data == 0xB) {
+          blocked = 0;
+        }
+      } else {
+        abort();
+      }
     }
 
+    // Wait for the child to terminate.
     wait(NULL);
-    exit(0);
   }
 
   return 0;
