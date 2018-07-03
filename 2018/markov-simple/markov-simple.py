@@ -7,6 +7,8 @@
 # The accompanying cnus-clean.txt is the complete works of Sherlock Holmes
 # cleaned up from special characters, excessive line breaks and lowercased.
 #
+# Requires Python 3.6+
+#
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 from collections import defaultdict, Counter
@@ -39,7 +41,6 @@ print('Sampling...')
 state = random.choice(list(model))
 out = list(state)
 for i in range(400):
-    nextc = random.choices(list(model[state]), model[state].values())[0]
-    out.append(nextc)
+    out.extend(random.choices(list(model[state]), model[state].values()))
     state = state[1:] + out[-1]
 print(''.join(out))
