@@ -24,7 +24,7 @@ data = sys.stdin.read()
 model = defaultdict(Counter)
 
 print('Learning model...')
-for i in range(len(data) - STATE_LEN - 1):
+for i in range(len(data) - STATE_LEN):
     state = data[i:i + STATE_LEN]
     next = data[i + STATE_LEN]
     model[state][next] += 1
