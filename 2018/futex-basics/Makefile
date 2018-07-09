@@ -8,11 +8,15 @@ LDFLAGS = -lpthread
 
 EXECUTABLES = \
 	futex-basic-process \
+	futex-basic-thread \
 	futex-wait-timeout
 
 all: $(EXECUTABLES)
 
 futex-basic-process: futex-basic-process.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+futex-basic-thread: futex-basic-thread.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 futex-wait-timeout: futex-wait-timeout.c
