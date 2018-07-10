@@ -45,7 +45,6 @@ void wait_on_futex_value(int* futex_addr, int val) {
     } else {
       abort();
     }
-    sched_yield();
   }
 }
 
