@@ -1,5 +1,8 @@
 // Following the "mutex2" implementation in Drepper's "Futexes Are Tricky"
 // Note: this version works for threads, not between processes.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <atomic>
 #include <cstdint>
 #include <iostream>
