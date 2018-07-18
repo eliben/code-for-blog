@@ -33,4 +33,9 @@ run_on_prompt_command()
     log_bash_persistent_history
 }
 
-PROMPT_COMMAND="run_on_prompt_command"
+if [ "$PROMPT_COMMAND" = "" ]
+then
+    PROMPT_COMMAND="run_on_prompt_command"
+else
+    PROMPT_COMMAND="run_on_prompt_command; ""$PROMPT_COMMAND"
+fi
