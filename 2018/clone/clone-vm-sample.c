@@ -8,6 +8,8 @@
 #include <unistd.h>
 
 static int child_func(void* arg) {
+  char* buf = (char*)arg;
+  strcpy(buf, "hello");
   return 0;
 }
 
@@ -22,7 +24,12 @@ int main(int argc, char** argv) {
   }
 
   unsigned long flags = 0;
-  if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, NULL) == -1) {
+  if (argc > 1 && !strcmp(argv[1], "vm")) {
+    flags |= CLONE_VM;
+  }
+
+  char buf[100] = {0};
+  if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buf) == -1) {
     perror("clone");
     exit(1);
   }
@@ -34,7 +41,6 @@ int main(int argc, char** argv) {
     exit(1);
   }
 
-  printf("    Child PID=%ld\n", (long)pid);
-
+  printf("Child exited. buf = \"%s\"\n", buf);
   return 0;
 }
