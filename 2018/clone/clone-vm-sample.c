@@ -1,3 +1,5 @@
+// We have to define the _GNU_SOURCE to get access to clone(2) and the CLONE_*
+// flags from sched.h
 #define _GNU_SOURCE
 #include <sched.h>
 #include <sys/syscall.h>
@@ -14,15 +16,15 @@ static int child_func(void* arg) {
 }
 
 int main(int argc, char** argv) {
-  // Stack for child.
+  // Allocate stack for child task.
   const int STACK_SIZE = 65536;
-
   char* stack = malloc(STACK_SIZE);
   if (!stack) {
     perror("malloc");
     exit(1);
   }
 
+  // When called with the command-line argument "vm", set the CLONE_VM flag on.
   unsigned long flags = 0;
   if (argc > 1 && !strcmp(argv[1], "vm")) {
     flags |= CLONE_VM;
@@ -35,12 +37,11 @@ int main(int argc, char** argv) {
   }
 
   int status;
-  pid_t pid = waitpid(-1, &status, 0);
-  if (pid == -1) {
-    perror("waitpid");
+  if (wait(&status) == -1) {
+    perror("wait");
     exit(1);
   }
 
-  printf("Child exited. buf = \"%s\"\n", buf);
+  printf("Child exited with status %d. buf = \"%s\"\n", status, buf);
   return 0;
 }
