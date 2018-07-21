@@ -11,7 +11,8 @@
 
 static int child_func(void* arg) {
   char* buf = (char*)arg;
-  strcpy(buf, "hello");
+  printf("Child sees buf = \"%s\"\n", buf);
+  strcpy(buf, "hello from child");
   return 0;
 }
 
@@ -30,7 +31,8 @@ int main(int argc, char** argv) {
     flags |= CLONE_VM;
   }
 
-  char buf[100] = {0};
+  char buf[100];
+  strcpy(buf, "hello from parent");
   if (clone(child_func, stack + STACK_SIZE, flags | SIGCHLD, buf) == -1) {
     perror("clone");
     exit(1);
