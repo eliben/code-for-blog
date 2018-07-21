@@ -1,4 +1,4 @@
-# Makefile for the C/C++ code in async-socket-server.
+# Makefile for these samples.
 #
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
