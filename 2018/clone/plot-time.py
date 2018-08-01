@@ -30,18 +30,13 @@ ax.set_ylabel('Launch-time (usec)', fontsize=14)
 ax.set_xticks(ind + 2 * width)
 ax.set_xticklabels(('thread', 'fork'), fontsize=14)
 
-ax.legend((#rects1[0],
-           #rects2[0],
-           #rects3[0],
+ax.legend((
            rects4[0],
            rects5[0],
            rects6[0],
            rects7[0],
            ),
            (
-            #'simpleinterp',
-            #'optinterp',
-            #'optinterp2',
             '0 MB',
             '2 MB',
             '4 MB',

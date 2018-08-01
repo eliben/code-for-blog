@@ -1,6 +1,9 @@
 // Measure launch overhead / join time for processes (fork) or threads
 // (pthread_create), with optional malloc-ing before the launch to assess
 // effects on launch time.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
