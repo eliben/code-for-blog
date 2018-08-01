@@ -1,5 +1,8 @@
 // We have to define the _GNU_SOURCE to get access to clone(2) and the CLONE_*
 // flags from sched.h
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #define _GNU_SOURCE
 #include <sched.h>
 #include <sys/syscall.h>
