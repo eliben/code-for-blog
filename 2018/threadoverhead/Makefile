@@ -12,6 +12,7 @@ LDFLAGS = -lpthread
 
 
 EXECUTABLES = \
+	thread-pipe-msgpersec \
 	thread-switch-condvar \
 	thread-switch-pipe
 
@@ -21,6 +22,9 @@ thread-switch-condvar: thread-switch-condvar.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 thread-switch-pipe: thread-switch-pipe.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+thread-pipe-msgpersec: thread-pipe-msgpersec.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 .PHONY: clean format
