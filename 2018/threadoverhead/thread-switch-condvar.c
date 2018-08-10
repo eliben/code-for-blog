@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
 
   const int nswitches = NUM_ITERATIONS * 2;
   printf("%i context switches in %llu ns (%.1fns / switch)\n", nswitches,
-         elapsed, (delta / (float)nswitches));
+         elapsed, (elapsed / (float)nswitches));
 
   pthread_join(childt, 0);
   pthread_cond_destroy(&si.cv);
