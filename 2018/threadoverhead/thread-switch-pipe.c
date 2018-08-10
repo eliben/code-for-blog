@@ -1,3 +1,8 @@
+// Measuring thread switching time using a pthread condition variable.
+// Two threads signal the same condvar to each other in turns.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,7 +35,7 @@ struct PipeInfo {
 // This function accepts a pipe information structure. It then runs a loop for
 // num_iterations, where in each iteration it:
 //   * Reads a byte from pipeinfo.readfd
-//   * Writes a byte to pipeinfo.fd
+//   * Writes a byte to pipeinfo.writefd
 //
 // Each iteration also incurs two context switches - one to the other thread
 // (when read() is called) and one back (when it completes successfully).
@@ -128,8 +133,10 @@ int main(int argc, const char** argv) {
   const long long unsigned t1 = time_ns();
   ping_pong(main_fds, NUM_ITERATIONS);
   const long long unsigned elapsed = time_ns() - t1;
-  printf("ping pong main: %llu ns for %d iterations (%.2lf ns / iter)\n",
-         elapsed, NUM_ITERATIONS, (double)elapsed / NUM_ITERATIONS);
+
+  const int nswitches = NUM_ITERATIONS * 2;
+  printf("%i context switches in %llu ns (%.1fns / switch)\n", nswitches,
+         elapsed, (elapsed / (float)nswitches));
 
   if (pthread_join(childt, NULL)) {
     errExit("pthread_join");
