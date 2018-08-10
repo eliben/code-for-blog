@@ -1,17 +1,16 @@
+// Measuring thread switching time using a UNIX pipe.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <pthread.h>
-#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ipc.h>
 #include <sys/resource.h>
-#include <sys/syscall.h>
 #include <sys/time.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
-
-const int NUM_ITERS = 100000;
 
 static inline unsigned long long time_ns() {
   struct timespec ts;
@@ -22,18 +21,22 @@ static inline unsigned long long time_ns() {
          (unsigned long long)ts.tv_nsec;
 }
 
-struct sync_info {
+// The shared data between parent and child: a condvar with a mutex used to
+// protect access to it.
+struct SyncInfo {
   pthread_mutex_t mutex;
   pthread_cond_t cv;
 };
 
+const int NUM_ITERATIONS = 100000;
+
 void* threadfunc(void* p) {
-  struct sync_info* si = (struct sync_info*)p;
+  struct SyncInfo* si = (struct SyncInfo*)p;
 
   // The child thread signals first
   pthread_mutex_lock(&si->mutex);
   pthread_cond_signal(&si->cv);
-  for (int i = 0; i < NUM_ITERS; ++i) {
+  for (int i = 0; i < NUM_ITERATIONS; ++i) {
     pthread_cond_wait(&si->cv, &si->mutex);
     pthread_cond_signal(&si->cv);
   }
@@ -42,9 +45,9 @@ void* threadfunc(void* p) {
 }
 
 int main(int argc, char** argv) {
-  printf("Running for %d iterations\n", NUM_ITERS);
+  printf("Running for %d iterations\n", NUM_ITERATIONS);
 
-  struct sync_info si;
+  struct SyncInfo si;
   pthread_mutex_init(&si.mutex, 0);
   pthread_cond_init(&si.cv, 0);
 
@@ -52,21 +55,23 @@ int main(int argc, char** argv) {
   pthread_t childt;
   pthread_create(&childt, NULL, threadfunc, (void*)&si);
 
+  // Each iteration of this loop will switch context from the parent to the
+  // child and back - two context switches. The child signals first.
   const long long unsigned start_ns = time_ns();
-  for (int i = 0; i < NUM_ITERS; ++i) {
+  for (int i = 0; i < NUM_ITERATIONS; ++i) {
     pthread_cond_wait(&si.cv, &si.mutex);
     pthread_cond_signal(&si.cv);
   }
   pthread_mutex_unlock(&si.mutex);
-  const long long unsigned delta = time_ns() - start_ns;
+  const long long unsigned elapsed = time_ns() - start_ns;
+
+  const int nswitches = NUM_ITERATIONS * 2;
+  printf("%i context switches in %llu ns (%.1fns / switch)\n", nswitches,
+         elapsed, (delta / (float)nswitches));
 
   pthread_join(childt, 0);
   pthread_cond_destroy(&si.cv);
   pthread_mutex_destroy(&si.mutex);
-
-  const int nswitches = NUM_ITERS * 2;
-  printf("%i process context switches in %12lluns (%.1fns/ctxsw)\n",
-         nswitches, delta, (delta / (float)nswitches));
 
   struct rusage ru;
   if (getrusage(RUSAGE_SELF, &ru)) {

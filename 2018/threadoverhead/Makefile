@@ -29,4 +29,4 @@ clean:
 	rm -f $(EXECUTABLES) *.o
 
 format:
-	clang-format -style=file -i *.c *.cpp
+	clang-format -style=file -i *.c
