@@ -13,6 +13,7 @@ LDFLAGS = -lpthread
 
 EXECUTABLES = \
 	threadspammer \
+	malloc-memusage \
 	thread-pipe-msgpersec \
 	thread-switch-condvar \
 	thread-switch-pipe
@@ -20,6 +21,9 @@ EXECUTABLES = \
 all: $(EXECUTABLES)
 
 threadspammer: threadspammer.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
+
+malloc-memusage: malloc-memusage.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 thread-switch-condvar: thread-switch-condvar.c
