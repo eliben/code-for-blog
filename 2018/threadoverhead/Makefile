@@ -12,11 +12,15 @@ LDFLAGS = -lpthread
 
 
 EXECUTABLES = \
+	threadspammer \
 	thread-pipe-msgpersec \
 	thread-switch-condvar \
 	thread-switch-pipe
 
 all: $(EXECUTABLES)
+
+threadspammer: threadspammer.c
+	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
 
 thread-switch-condvar: thread-switch-condvar.c
 	$(CC) $(CCFLAGS) $^ -o $@ $(LDFLAGS)
