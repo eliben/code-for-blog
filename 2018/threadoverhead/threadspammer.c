@@ -23,7 +23,6 @@
 
 void* threadfunc(void* p) {
   // Sleep for 10 seconds total.
-	(void)malloc(50000);
   for (int i = 0; i < 10 * 20; ++i) {
     usleep(50 * 1000);
   }
