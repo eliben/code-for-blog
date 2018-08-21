@@ -95,7 +95,7 @@ int main(int argc, const char** argv) {
   }
   unsigned long long elapsed = time_ns() - t1;
   printf("%d iterations took %llu ns. %.2lf iters/sec\n", NUM_ITERATIONS,
-      elapsed, 1e9 * NUM_ITERATIONS / (double)elapsed);
+         elapsed, 1e9 * NUM_ITERATIONS / (double)elapsed);
 
   // Close parent-side pipe. The child thread will fail at read() at this point
   // and exit, so we can join it.
