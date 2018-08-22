@@ -1,3 +1,4 @@
+#include <ctype.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -6,6 +7,13 @@
 #include <unistd.h>
 
 // TODO: parse and report vsz here too
+
+// This function is used to prevent optimizations by the compiler for p, while
+// compiling to no instructions. It lets the compiler believe that p may be used
+// for updating all memory
+void escape(void* p) {
+  asm volatile("" : : "g"(p) : "memory");
+}
 
 void report_memory(const char* prefix) {
   struct rusage ru;
@@ -23,12 +31,16 @@ void report_memory(const char* prefix) {
 		exit(1);
 	}
 
-	char vmsizebuf[256];
-	char buf[256];
+	char buf[256] = {'\0'};
+	char* bufstart = buf;
 	while (fgets(buf, 256, f)) {
 		if (strstr(buf, "VmSize") == buf) {
-			strncpy(vmsizebuf, buf + 7, 255);
-			char* pos = strchr(vmsizebuf, '\n');
+			bufstart = buf + 7;
+			// Skip leading spaces and trim trailing newline.
+			while (isspace(*bufstart)) {
+				bufstart++;
+			}
+			char* pos = strchr(bufstart, '\n');
 			if (pos) {
 				*pos = '\0';
 			}
@@ -36,7 +48,7 @@ void report_memory(const char* prefix) {
 		}
 	}
 
-	printf("%s: max RSS = %ld; vm size = %s\n", prefix, ru.ru_maxrss, vmsizebuf);
+	printf("%s: max RSS = %ld; vm size = %s\n", prefix, ru.ru_maxrss, bufstart);
 }
 
 
@@ -46,14 +58,15 @@ int main(int argc, char** argv) {
 
 	int N = 100 * 1024 * 1024;
 	char* m = malloc(N);
+	escape(m);
 	report_memory("after malloc");
 
-	/*for (int i = 0; i < N; ++i) {*/
-		/*m[i] = i;*/
-	/*}*/
-	/*report_memory("after touch");*/
+	for (int i = 0; i < N; ++i) {
+		m[i] = i;
+	}
+	report_memory("after touch");
 
   printf("press ENTER\n");
   (void)fgetc(stdin);
-	return (int)m;
+	return 0;
 }
