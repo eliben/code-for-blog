@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
 	report_memory("started");
 
 	int N = 100 * 1024 * 1024;
-	char* m = malloc(N);
+	int* m = malloc(N * sizeof(int));
 	escape(m);
 	report_memory("after malloc");
 
