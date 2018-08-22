@@ -11,6 +11,8 @@
 //
 // Experiments: observe virtual memory vs. resident memory with different thread
 // number settings and stack size settings.
+// Set USE_MEMORY env var (to any value) to make the thread function actually
+// use the memory.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -21,7 +23,22 @@
 #include <sys/resource.h>
 #include <unistd.h>
 
+// This function is used to prevent optimizations by the compiler for p, while
+// compiling to no instructions. It lets the compiler believe that p may be used
+// for updating all memory
+void escape(void* p) {
+  asm volatile("" : : "g"(p) : "memory");
+}
+
 void* threadfunc(void* p) {
+	int m[100 * 1024];
+	pthread_t tid = pthread_self();
+  escape(m);
+	if (getenv("USE_MEMORY") != 0) {
+		for (int i = 0; i < 100 * 1024; ++i) {
+			m[i] = tid % 1000000 + i;
+		}
+	}
   // Sleep for 10 seconds total.
   for (int i = 0; i < 10 * 20; ++i) {
     usleep(50 * 1000);
@@ -39,10 +56,10 @@ int main(int argc, const char** argv) {
   printf("PID = %d\n", getpid());
   printf("Running with nthreads = %d\n", nthreads);
 
-	pthread_attr_t attr;
-	/*size_t stacksize = 100 * 1024;*/
-	pthread_attr_init(&attr);
-	/*pthread_attr_setstacksize(&attr, stacksize);*/
+  pthread_attr_t attr;
+  /*size_t stacksize = 100 * 1024;*/
+  pthread_attr_init(&attr);
+  /*pthread_attr_setstacksize(&attr, stacksize);*/
 
   for (long i = 0; i < nthreads; ++i) {
     pthread_t t;
@@ -59,7 +76,7 @@ int main(int argc, const char** argv) {
     perror("getrusage");
   } else {
     printf("From getrusage:\n");
-    printf("  max RSS = %ld\n", ru.ru_maxrss);
+    printf("  max RSS = %ld kB\n", ru.ru_maxrss);
   }
 
   return 0;
