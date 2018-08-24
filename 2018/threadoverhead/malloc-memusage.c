@@ -1,3 +1,7 @@
+// Demonstrate VSZ usage vs. RSS usage.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <ctype.h>
 #include <pthread.h>
 #include <stdio.h>
@@ -5,8 +9,6 @@
 #include <string.h>
 #include <sys/resource.h>
 #include <unistd.h>
-
-// TODO: parse and report vsz here too
 
 // This function is used to prevent optimizations by the compiler for p, while
 // compiling to no instructions. It lets the compiler believe that p may be used
