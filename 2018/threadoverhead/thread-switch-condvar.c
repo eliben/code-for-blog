@@ -1,4 +1,5 @@
-// Measuring thread switching time using a UNIX pipe.
+// Measuring thread switching time using a pthread condition variable.
+// Two threads signal the same condvar to each other in turns.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
