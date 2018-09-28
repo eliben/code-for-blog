@@ -8,9 +8,6 @@ CCFLAGS = -std=gnu99 -Wall -O3 -g -DNDEBUG -pthread
 CXX = g++
 CXXFLAGS = -std=c++11 -Wall -O3 -g -DNDEBUG -pthread
 
-LDFLAGS = -lpthread
-
-
 EXECUTABLES = \
 	threadspammer \
 	malloc-memusage \
