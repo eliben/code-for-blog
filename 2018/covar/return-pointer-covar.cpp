@@ -25,8 +25,12 @@ struct Dog : public Mammal {
   }
 };
 
+Mammal* DoSomething(Mammal* m) {
+  Mammal* cloned = m->Clone();
+  // Do something with cloned
+  return cloned;
+}
 
 int main(int argc, const char** argv) {
-  
   return 0;
 }
