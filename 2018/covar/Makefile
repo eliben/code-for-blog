@@ -10,12 +10,16 @@ LDFLAGS :=
 
 EXE_TARGETS := \
 	arg-pointer-invar \
+	std-function-covar-contravar \
 	return-pointer-covar
 
 all: $(EXE_TARGETS)
 .PHONY: all
 
 return-pointer-covar: return-pointer-covar.cpp
+	$(CXX) $(LDFLAGS) -o $@ $^ $(CXXFLAGS)
+
+std-function-covar-contravar: std-function-covar-contravar.cpp
 	$(CXX) $(LDFLAGS) -o $@ $^ $(CXXFLAGS)
 
 arg-pointer-invar: arg-pointer-invar.cpp
