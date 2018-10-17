@@ -27,3 +27,12 @@ class Const(Expr):
 
     def __str__(self):
         return self.value
+
+
+# TODO: implement these
+def parse_expr(s):
+    """Parses an expression in 's' into an Expr."""
+    pass
+
+
+# Need a bindings map to pass around for unify
