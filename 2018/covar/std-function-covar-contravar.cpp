@@ -26,8 +26,8 @@ void User(std::function<Mammal*(Mammal*)> f) {
 
 int main() {
   User(f1);       // works
-  User(f2);       // error: Vertebrate cannot be converted to Mammal
-  User(f3):       // error: Mammal cannot be converted to Cat
+  //User(f2);       // error: Vertebrate cannot be converted to Mammal
+  //User(f3):       // error: Mammal cannot be converted to Cat
 
   return 0;
 }
