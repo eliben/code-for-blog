@@ -48,7 +48,7 @@ class ExprParser:
         self.cur_token = None
         lexrules = (
             ('\d+',             'NUMBER'),
-            ('[a-zA-Z_]\w+',    'ID'),
+            ('[a-zA-Z_]\w*',    'ID'),
             (',',               'COMMA'),
             ('\(',              'LP'),
             ('\)',              'RP'),
@@ -120,12 +120,8 @@ def occurs_check(v, expr, bindings):
 
 
 if __name__ == '__main__':
-    ss = (
-        'from(joe, FOO, 5)',
-        'BRO',
-        'apply(BANG, ful(10, kwa, DA), SA)')
+    s = 'f(g(h(X)))'
 
-    for s in ss:
-        ep = ExprParser(s)
-        expr = ep.parse_expr()
-        print(expr)
+    ep = ExprParser(s)
+    expr = ep.parse_expr()
+    print(expr)
