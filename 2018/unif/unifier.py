@@ -25,7 +25,7 @@ class Var(Expr):
         return '$' + self.name
 
     def __eq__(self, other):
-        return self.name == other.name
+        return type(self) == type(other) and self.name == other.name
 
 
 class Const(Expr):
@@ -36,7 +36,7 @@ class Const(Expr):
         return self.value
 
     def __eq__(self, other):
-        return self.value == other.value
+        return type(self) == type(other) and self.value == other.value
 
 
 class ParseError(Exception): pass
@@ -105,13 +105,14 @@ class ExprParser:
 
 
 def occurs_check(v, expr, bindings):
+    """Does the variable v occur anywhere inside expr?"""
     assert isinstance(v, Var)
     if v == expr:
         return True
-    elif isinstance(x, Var) and x.name in bindings:
-        return occurs_check(v, bindings[x.name], bindings)
-    elif isinstance(x, App):
-        return any(occurs_check(v, arg, bindings) for arg in x.args)
+    elif isinstance(expr, Var) and expr.name in bindings:
+        return occurs_check(v, bindings[expr.name], bindings)
+    elif isinstance(expr, App):
+        return any(occurs_check(v, arg, bindings) for arg in expr.args)
     else:
         return False
 
