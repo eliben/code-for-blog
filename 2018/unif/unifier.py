@@ -19,7 +19,7 @@ class Var(Expr):
         self.name = name
 
     def __str__(self):
-        return self.name
+        return '$' + self.name
 
 
 class Const(Expr):
@@ -44,8 +44,8 @@ class ExprParser:
             ('\(',              'LP'),
             ('\)',              'RP'),
         )
-        self.lex = lexer.Lexer(lexrules, skip_whitespace=True)
-        self.lex.input(text)
+        self.lexer = lexer.Lexer(lexrules, skip_whitespace=True)
+        self.lexer.input(text)
         self._get_next_token()
 
     def _get_next_token(self):
@@ -54,7 +54,7 @@ class ExprParser:
 
             if self.cur_token is None:
                 self.cur_token = lexer.Token(None, None, None)
-        except lexer.LexerError, e:
+        except lexer.LexerError as e:
             self._error('Lexer error at position %d' % e.pos)
 
     def _error(self, msg):
@@ -72,6 +72,7 @@ class ExprParser:
             idtok = self.cur_token
             self._get_next_token()
             if self.cur_token.type == 'LP':
+                self._get_next_token()
                 args = []
                 while True:
                     args.append(self.parse_expr())
@@ -86,7 +87,10 @@ class ExprParser:
                 self._get_next_token()
                 return App(fname=idtok.val, args=args)
             else:
-                return Var(idtok.val)
+                if idtok.val.isupper():
+                    return Var(idtok.val)
+                else:
+                    return Const(idtok.val)
 
 
 
@@ -94,4 +98,12 @@ class ExprParser:
 
 
 if __name__ == '__main__':
-    pass
+    ss = (
+        'from(joe, FOO, 5)',
+        'BRO',
+        'apply(BANG, ful(10, kwa, DA), SA)')
+
+    for s in ss:
+        ep = ExprParser(s)
+        expr = ep.parse_expr()
+        print(expr)
