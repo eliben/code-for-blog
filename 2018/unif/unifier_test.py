@@ -25,7 +25,18 @@ class TestParser(unittest.TestCase):
 
 
 class TestOccursCheck(unittest.TestCase):
-    pass
+    def test_basics(self):
+        self.assertTrue(occurs_check(Var('K'), Var('K'), {}))
+        self.assertFalse(occurs_check(Var('K'), Var('T'), {}))
+        self.assertFalse(occurs_check(Var('K'), Const('t'), {}))
+
+    def test_app_args(self):
+        self.assertTrue(occurs_check(Var('O'),
+                        App('joe', (Var('O'), Var('P'))), {}))
+        self.assertTrue(occurs_check(Var('O'),
+                        App('joe', (Var('G'), Var('O'), Var('P'))), {}))
+        self.assertFalse(occurs_check(Var('U'),
+                         App('joe', (Var('G'), Var('O'), Var('P'))), {}))
 
 
 if __name__ == '__main__':
