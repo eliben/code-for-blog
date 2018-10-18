@@ -5,6 +5,9 @@ class Expr:
     pass
 
 
+# In App, function names are always considered to be constants, not variables.
+# This simplifies things and doesn't affect expressivity. We can always model
+# variable functions by envisioning an apply(FUNCNAME, ... args ...).
 class App(Expr):
     def __init__(self, fname, args=()):
        self.fname = fname
@@ -21,6 +24,9 @@ class Var(Expr):
     def __str__(self):
         return '$' + self.name
 
+    def __eq__(self, other):
+        return self.name == other.name
+
 
 class Const(Expr):
     def __init__(self, value):
@@ -28,6 +34,9 @@ class Const(Expr):
 
     def __str__(self):
         return self.value
+
+    def __eq__(self, other):
+        return self.value == other.value
 
 
 class ParseError(Exception): pass
@@ -72,6 +81,8 @@ class ExprParser:
             idtok = self.cur_token
             self._get_next_token()
             if self.cur_token.type == 'LP':
+                if idtok.val.isupper():
+                    self._error("Function names should be constant")
                 self._get_next_token()
                 args = []
                 while True:
@@ -92,6 +103,17 @@ class ExprParser:
                 else:
                     return Const(idtok.val)
 
+
+def occurs_check(v, expr, bindings):
+    assert isinstance(v, Var)
+    if v == expr:
+        return True
+    elif isinstance(x, Var) and x.name in bindings:
+        return occurs_check(v, bindings[x.name], bindings)
+    elif isinstance(x, App):
+        return any(occurs_check(v, arg, bindings) for arg in x.args)
+    else:
+        return False
 
 
 # TODO: Need a bindings map to pass around for unify
