@@ -31,12 +31,37 @@ class TestOccursCheck(unittest.TestCase):
         self.assertFalse(occurs_check(Var('K'), Const('t'), {}))
 
     def test_app_args(self):
-        self.assertTrue(occurs_check(Var('O'),
-                        App('joe', (Var('O'), Var('P'))), {}))
-        self.assertTrue(occurs_check(Var('O'),
-                        App('joe', (Var('G'), Var('O'), Var('P'))), {}))
-        self.assertFalse(occurs_check(Var('U'),
+        self.assertTrue(
+            occurs_check(Var('O'),
+                         App('joe', (Var('O'), Var('P'))), {}))
+        self.assertTrue(
+            occurs_check(Var('O'),
                          App('joe', (Var('G'), Var('O'), Var('P'))), {}))
+        self.assertFalse(
+            occurs_check(Var('U'),
+                         App('joe', (Var('G'), Var('O'), Var('P'))), {}))
+
+    def test_bindings(self):
+        self.assertTrue(
+            occurs_check(Var('O'),
+                         Var('B'),
+                         {'B': Var('O')}))
+        self.assertFalse(
+            occurs_check(Var('O'),
+                         Var('B'),
+                         {'B': Var('OB')}))
+        self.assertTrue(
+            occurs_check(Var('O'),
+                         App('joe', (Var('B'),)),
+                         {'B': Var('O')}))
+        self.assertTrue(
+            occurs_check(Var('O'),
+                         App('joe', (Var('B'),)),
+                         {'B': Var('D'), 'D': Var('O')}))
+        self.assertFalse(
+            occurs_check(Var('O'),
+                         App('joe', (Var('B'),)),
+                         {'B': Var('D'), 'D': Const('O')}))
 
 
 if __name__ == '__main__':

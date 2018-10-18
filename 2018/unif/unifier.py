@@ -105,7 +105,11 @@ class ExprParser:
 
 
 def occurs_check(v, expr, bindings):
-    """Does the variable v occur anywhere inside expr?"""
+    """Does the variable v occur anywhere inside expr?
+
+    Variables in expr are looked up in bindings and the check is applied
+    recursively.
+    """
     assert isinstance(v, Var)
     if v == expr:
         return True
