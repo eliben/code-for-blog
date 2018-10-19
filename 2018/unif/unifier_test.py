@@ -72,7 +72,8 @@ def rebind_sorted(bindings):
     """
     newbindings = {}
     for k, v in bindings.items():
-        if isinstance(v, Var) and k > v.name:
+        # Don't overwrite bindings for v.name if it's already bound.
+        if isinstance(v, Var) and v.name not in bindings and k > v.name:
             newbindings[v.name] = Var(k)
         else:
             newbindings[k] = v
@@ -119,10 +120,15 @@ class TestUnify(unittest.TestCase):
         self.assertUnifyResult('f(X, X)', 'f(Y, Y)', {'X': Var('Y')})
         self.assertUnifyResult('f(Y, Y)', 'f(X, X)', {'X': Var('Y')})
         self.assertUnifyResult('f(Y, X)', 'f(X, Y)', {'X': Var('Y')})
+        self.assertUnifyResult('f(X, X, X)', 'f(Y, Y, Y)', {'X': Var('Y')})
         self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, X)', {'X': Var('Y')})
-        self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, p)', {'X': Const('p')})
         self.assertUnifyResult('f(X, Y, A)', 'f(Y, X, X)',
                 {'A': Var('Y'), 'X': Var('Y')})
+
+        self.assertUnifyResult('f(p, X, Y)', 'f(X, Y, X)',
+                {'X': Const('p'), 'Y': Const('p')})
+        self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, p)',
+                {'X': Const('p'), 'Y': Var('X')})
 
 
 if __name__ == '__main__':
