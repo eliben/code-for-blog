@@ -62,5 +62,24 @@ class TestOccursCheck(unittest.TestCase):
                          {'B': Var('D'), 'D': Const('O')}))
 
 
+class TestUnify(unittest.TestCase):
+    def assertUnifyResult(self, s1, s2, result):
+        """Asserts that the unify result of s1 and s2 is result.
+
+        s1 and s2 are string representatios of expressions; result is the
+        expected binding dict.
+        """
+        bindings = unify(parse_expr(s1), parse_expr(s2), {})
+        if bindings is None:
+            self.assertIsNone(result, msg='Expected result=None since bindings=None')
+        else:
+            self.assertDictEqual(bindings, result)
+
+    def test_basics(self):
+        self.assertUnifyResult('v', 't', None)
+        self.assertUnifyResult('V', 't', {'V': Const('t')})
+        self.assertUnifyResult('t', 'V', {'V': Const('t')})
+
+
 if __name__ == '__main__':
     unittest.main()
