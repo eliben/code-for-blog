@@ -16,6 +16,11 @@ class App(Expr):
     def __str__(self):
         return '{0}({1})'.format(self.fname, ','.join(map(str, self.args)))
 
+    def __eq__(self, other):
+        return (type(self) == type(other) and
+                self.fname == other.fname and
+                all(self.args[i] == other.args[i] for i in range(len(self.args))))
+
     __repr__ = __str__
 
 
@@ -157,7 +162,7 @@ def unify(x, y, bindings):
             return None
         else:
             newbindings = bindings.copy()
-            for i in len(x.args):
+            for i in range(len(x.args)):
                 newbindings = unify(x.args[i], y.args[i], newbindings)
             return newbindings
     else:
@@ -186,6 +191,6 @@ if __name__ == '__main__':
     s = 'f(g(h(X)))'
     print(parse_expr(s))
 
-    s1 = 'x'
-    s2 = 'V'
+    s1 = 'f(v)'
+    s2 = 'Y'
     print(unify(parse_expr(s1), parse_expr(s2), {}))

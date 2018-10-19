@@ -62,7 +62,25 @@ class TestOccursCheck(unittest.TestCase):
                          {'B': Var('D'), 'D': Const('O')}))
 
 
+def rebind_sorted(bindings):
+    """Given bindings, rebinds vars to be lexicographically sorted.
+
+    For example, the bindings {'V': Var('X')} and {'X': Var('V')} are logically
+    equivalent but won't compare as equal. This function takes a bindings and
+    reorders all such bindings (where the value is a var) such that
+    key <= value.name.
+    """
+    newbindings = {}
+    for k, v in bindings.items():
+        if isinstance(v, Var) and k > v.name:
+            newbindings[v.name] = Var(k)
+        else:
+            newbindings[k] = v
+    return newbindings
+
+
 class TestUnify(unittest.TestCase):
+
     def assertUnifyResult(self, s1, s2, result):
         """Asserts that the unify result of s1 and s2 is result.
 
@@ -73,12 +91,38 @@ class TestUnify(unittest.TestCase):
         if bindings is None:
             self.assertIsNone(result, msg='Expected result=None since bindings=None')
         else:
-            self.assertDictEqual(bindings, result)
+            self.assertDictEqual(rebind_sorted(bindings), rebind_sorted(result))
 
-    def test_basics(self):
+    def test_basic_var(self):
         self.assertUnifyResult('v', 't', None)
         self.assertUnifyResult('V', 't', {'V': Const('t')})
         self.assertUnifyResult('t', 'V', {'V': Const('t')})
+        self.assertUnifyResult('T', 'V', {'T': Var('V')})
+
+    def test_basic_app(self):
+        self.assertUnifyResult('f(v)', 'g(v)', None)
+        self.assertUnifyResult('f(v)', 'f(v)', {})
+        self.assertUnifyResult('f(V)', 'f(v)', {'V': Const('v')})
+        self.assertUnifyResult('f(v)', 'f(V)', {'V': Const('v')})
+
+        self.assertUnifyResult('f(v, x)', 'f(V, x)', {'V': Const('v')})
+        self.assertUnifyResult('f(x, v)', 'f(x, V)', {'V': Const('v')})
+
+        self.assertUnifyResult('f(v, x)', 'f(V, y)', None)
+        self.assertUnifyResult('f(y, v)', 'f(x, V)', None)
+        self.assertUnifyResult('f(y, v)', 'y', None)
+        self.assertUnifyResult('f(v)', 'Y',
+                {'Y': App('f', (Const('v'),))})
+        self.assertUnifyResult('f(y, v)', 'Y',
+                {'Y': App('f', (Const('y'), Const('v')))})
+
+        self.assertUnifyResult('f(X, X)', 'f(Y, Y)', {'X': Var('Y')})
+        self.assertUnifyResult('f(Y, Y)', 'f(X, X)', {'X': Var('Y')})
+        self.assertUnifyResult('f(Y, X)', 'f(X, Y)', {'X': Var('Y')})
+        self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, X)', {'X': Var('Y')})
+        self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, p)', {'X': Const('p')})
+        self.assertUnifyResult('f(X, Y, A)', 'f(Y, X, X)',
+                {'A': Var('Y'), 'X': Var('Y')})
 
 
 if __name__ == '__main__':
