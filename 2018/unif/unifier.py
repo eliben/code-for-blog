@@ -42,7 +42,17 @@ class Const(Expr):
 class ParseError(Exception): pass
 
 
+def parse_expr(s):
+    """Parses an expression from string s, returns an Expr."""
+    parser = ExprParser(s)
+    return parser.parse_expr()
+
+
 class ExprParser:
+    """Expression parser.
+
+    Use the top-level parse_expr() instead of instantiating this class directly.
+    """
     def __init__(self, text):
         self.text = text
         self.cur_token = None
@@ -121,12 +131,56 @@ def occurs_check(v, expr, bindings):
         return False
 
 
+def unify(x, y, bindings):
+    """Unifies expressions x and y with initial bindings.
+
+    Returns a bindings (map of name->Expr) that unifies x and y, or None if
+    they can't be unified. Pass bindings={} if no bindings are initially
+    known. Note that {} means valid (but empty) bindings.
+    """
+    if bindings is None:
+        return None
+    elif x == y:
+        return bindings
+    elif isinstance(x, Var):
+        return unify_variable(x, y, bindings)
+    elif isinstance(y, Var):
+        return unify_variable(y, x, bindings)
+    elif isinstance(x, App) and isinstance(y, App):
+        if x.fname != y.fname or len(x.args) != len(y.args):
+            return None
+        else:
+            newbindings = bindings.copy()
+            for i in len(x.args):
+                newbindings = unify(x.args[i], y.args[i], newbindings)
+            return newbindings
+    else:
+        return None
+
+
+def unify_variable(v, x, bindings):
+    """Unifies variable v with expression x, using bindings.
+
+    Returns updated bindings or None on failure.
+    """
+    assert isinstance(v, Var)
+    if v.name in bindings:
+        return unify(bindings[v.name], x, bindings)
+    elif isinstance(x, Var) and x.name in bindings:
+        return unify(v, bindings[x.name], bindings)
+    elif occurs_check(v, x, bindings):
+        return None
+    else:
+        # v is not yet in bindings and can't simplify x. Extend bindings.
+        bindings[v.name] = x
+        return bindings
+
+
 # TODO: Need a bindings map to pass around for unify
 
 
 if __name__ == '__main__':
     s = 'f(g(h(X)))'
-
     ep = ExprParser(s)
     expr = ep.parse_expr()
     print(expr)

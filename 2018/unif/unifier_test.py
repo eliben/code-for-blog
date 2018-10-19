@@ -6,9 +6,7 @@ from unifier import *
 class TestParser(unittest.TestCase):
     def assertParsed(self, s, exprstr):
         """Parses s and checks that the parsed representation == exprstr."""
-        ep = ExprParser(s)
-        expr = ep.parse_expr()
-        self.assertEqual(str(expr), exprstr)
+        self.assertEqual(str(parse_expr(s)), exprstr)
 
     def test_basics(self):
         self.assertParsed('foo', 'foo')
