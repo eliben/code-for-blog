@@ -16,6 +16,8 @@ class App(Expr):
     def __str__(self):
         return '{0}({1})'.format(self.fname, ','.join(map(str, self.args)))
 
+    __repr__ = __str__
+
 
 class Var(Expr):
     def __init__(self, name):
@@ -27,6 +29,8 @@ class Var(Expr):
     def __eq__(self, other):
         return type(self) == type(other) and self.name == other.name
 
+    __repr__ = __str__
+
 
 class Const(Expr):
     def __init__(self, value):
@@ -37,6 +41,8 @@ class Const(Expr):
 
     def __eq__(self, other):
         return type(self) == type(other) and self.value == other.value
+
+    __repr__ = __str__
 
 
 class ParseError(Exception): pass
@@ -176,11 +182,10 @@ def unify_variable(v, x, bindings):
         return bindings
 
 
-# TODO: Need a bindings map to pass around for unify
-
-
 if __name__ == '__main__':
     s = 'f(g(h(X)))'
-    ep = ExprParser(s)
-    expr = ep.parse_expr()
-    print(expr)
+    print(parse_expr(s))
+
+    s1 = 'x'
+    s2 = 'V'
+    print(unify(parse_expr(s1), parse_expr(s2), {}))
