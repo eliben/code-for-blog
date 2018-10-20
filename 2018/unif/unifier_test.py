@@ -124,6 +124,9 @@ class TestUnify(unittest.TestCase):
         self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, X)', {'X': Var('Y')})
         self.assertUnifyResult('f(X, Y, A)', 'f(Y, X, X)',
                 {'A': Var('Y'), 'X': Var('Y')})
+        self.assertUnifyResult('f(g(X, Y, A), g(Y, X, X))', 'f(Z, Z)',
+                {'A': Var('Y'), 'X': Var('Y'),
+                 'Z': App('g', (Var('X'), Var('Y'), Var('A')))})
 
         self.assertUnifyResult('f(p, X, Y)', 'f(X, Y, X)',
                 {'X': Const('p'), 'Y': Const('p')})
