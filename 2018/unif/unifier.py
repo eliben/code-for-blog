@@ -191,6 +191,6 @@ if __name__ == '__main__':
     s = 'f(g(h(X)))'
     print(parse_expr(s))
 
-    s1 = 'f(Y,X,Y)'
-    s2 = 'f(X,Y,p)'
+    s1 = 'f(X,h(X),Y,g(Y))'
+    s2 = 'f(g(Z),W,Z,X)'
     print(unify(parse_expr(s1), parse_expr(s2), {}))
