@@ -1,14 +1,14 @@
 # Python 3.6
 import lexer
 
-class Expr:
+class Term:
     pass
 
 
 # In App, function names are always considered to be constants, not variables.
 # This simplifies things and doesn't affect expressivity. We can always model
 # variable functions by envisioning an apply(FUNCNAME, ... args ...).
-class App(Expr):
+class App(Term):
     def __init__(self, fname, args=()):
        self.fname = fname
        self.args = args
@@ -24,7 +24,7 @@ class App(Expr):
     __repr__ = __str__
 
 
-class Var(Expr):
+class Var(Term):
     def __init__(self, name):
         self.name = name
 
@@ -37,7 +37,7 @@ class Var(Expr):
     __repr__ = __str__
 
 
-class Const(Expr):
+class Const(Term):
     def __init__(self, value):
         self.value = value
 
@@ -53,16 +53,16 @@ class Const(Expr):
 class ParseError(Exception): pass
 
 
-def parse_expr(s):
-    """Parses an expression from string s, returns an Expr."""
-    parser = ExprParser(s)
-    return parser.parse_expr()
+def parse_term(s):
+    """Parses a term from string s, returns a Term."""
+    parser = TermParser(s)
+    return parser.parse_term()
 
 
-class ExprParser:
-    """Expression parser.
+class TermParser:
+    """Term parser.
 
-    Use the top-level parse_expr() instead of instantiating this class directly.
+    Use the top-level parse_term() instead of instantiating this class directly.
     """
     def __init__(self, text):
         self.text = text
@@ -90,12 +90,12 @@ class ExprParser:
     def _error(self, msg):
         raise ParseError(msg)
 
-    def parse_expr(self):
+    def parse_term(self):
         if self.cur_token.type == 'NUMBER':
-            expr = Const(self.cur_token.val)
-            # Consume the current token and return the Const expr.
+            term = Const(self.cur_token.val)
+            # Consume the current token and return the Const term.
             self._get_next_token()
-            return expr
+            return term
         elif self.cur_token.type == 'ID':
             # We have to look at the next token to distinguish between App and
             # Var.
@@ -107,7 +107,7 @@ class ExprParser:
                 self._get_next_token()
                 args = []
                 while True:
-                    args.append(self.parse_expr())
+                    args.append(self.parse_term())
                     if self.cur_token.type == 'RP':
                         break
                     elif self.cur_token.type == 'COMMA':
@@ -125,27 +125,27 @@ class ExprParser:
                     return Const(idtok.val)
 
 
-def occurs_check(v, expr, bindings):
-    """Does the variable v occur anywhere inside expr?
+def occurs_check(v, term, bindings):
+    """Does the variable v occur anywhere inside term?
 
-    Variables in expr are looked up in bindings and the check is applied
+    Variables in term are looked up in bindings and the check is applied
     recursively.
     """
     assert isinstance(v, Var)
-    if v == expr:
+    if v == term:
         return True
-    elif isinstance(expr, Var) and expr.name in bindings:
-        return occurs_check(v, bindings[expr.name], bindings)
-    elif isinstance(expr, App):
-        return any(occurs_check(v, arg, bindings) for arg in expr.args)
+    elif isinstance(term, Var) and term.name in bindings:
+        return occurs_check(v, bindings[term.name], bindings)
+    elif isinstance(term, App):
+        return any(occurs_check(v, arg, bindings) for arg in term.args)
     else:
         return False
 
 
 def unify(x, y, bindings):
-    """Unifies expressions x and y with initial bindings.
+    """Unifies term x and y with initial bindings.
 
-    Returns a bindings (map of name->Expr) that unifies x and y, or None if
+    Returns a bindings (map of name->term) that unifies x and y, or None if
     they can't be unified. Pass bindings={} if no bindings are initially
     known. Note that {} means valid (but empty) bindings.
     """
@@ -170,9 +170,9 @@ def unify(x, y, bindings):
 
 
 def apply_unifier(x, bindings):
-    """Applies the unifier bindings to expression x.
+    """Applies the unifier bindings to term x.
     
-    Returns an expressions where all occurrences of variables bound in bindings
+    Returns a term where all occurrences of variables bound in bindings
     were replaced (recursively); on failure returns None.
     """
     if bindings is None:
@@ -194,7 +194,7 @@ def apply_unifier(x, bindings):
 
 
 def unify_variable(v, x, bindings):
-    """Unifies variable v with expression x, using bindings.
+    """Unifies variable v with term x, using bindings.
 
     Returns updated bindings or None on failure.
     """
@@ -214,8 +214,8 @@ def unify_variable(v, x, bindings):
 if __name__ == '__main__':
     s1 = 'f(X,h(X),Y,g(Y))'
     s2 = 'f(g(Z),W,Z,X)'
-    bindings = unify(parse_expr(s1), parse_expr(s2), {})
+    bindings = unify(parse_term(s1), parse_term(s2), {})
     print(bindings)
 
-    print(apply_unifier(parse_expr(s1), bindings))
-    print(apply_unifier(parse_expr(s2), bindings))
+    print(apply_unifier(parse_term(s1), bindings))
+    print(apply_unifier(parse_term(s2), bindings))
