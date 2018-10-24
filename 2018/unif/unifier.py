@@ -181,8 +181,11 @@ def apply_unifier(x, bindings):
         return x
     elif isinstance(x, Const):
         return x
-    elif isinstance(x, Var) and x.name in bindings:
-        return apply_unifier(bindings[x.name], bindings)
+    elif isinstance(x, Var):
+        if x.name in bindings:
+            return apply_unifier(bindings[x.name], bindings)
+        else:
+            return x
     elif isinstance(x, App):
         newargs = [apply_unifier(arg, bindings) for arg in x.args]
         return App(x.fname, newargs)
@@ -210,7 +213,7 @@ def unify_variable(v, x, bindings):
 
 if __name__ == '__main__':
     s1 = 'f(X,h(X),Y,g(Y))'
-    s2 = 'f(g(p),W,p,X)'
+    s2 = 'f(g(Z),W,Z,X)'
     bindings = unify(parse_expr(s1), parse_expr(s2), {})
     print(bindings)
 
