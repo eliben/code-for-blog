@@ -4,9 +4,9 @@ from unifier import *
 
 
 class TestParser(unittest.TestCase):
-    def assertParsed(self, s, exprstr):
-        """Parses s and checks that the parsed representation == exprstr."""
-        self.assertEqual(str(parse_expr(s)), exprstr)
+    def assertParsed(self, s, termstr):
+        """Parses s and checks that the parsed representation == termstr."""
+        self.assertEqual(str(parse_term(s)), termstr)
 
     def test_basics(self):
         self.assertParsed('foo', 'foo')
@@ -85,10 +85,10 @@ class TestUnify(unittest.TestCase):
     def assertUnifyResult(self, s1, s2, result):
         """Asserts that the unify result of s1 and s2 is result.
 
-        s1 and s2 are string representatios of expressions; result is the
+        s1 and s2 are string representatios of terms; result is the
         expected binding dict.
         """
-        bindings = unify(parse_expr(s1), parse_expr(s2), {})
+        bindings = unify(parse_term(s1), parse_term(s2), {})
         if bindings is None:
             self.assertIsNone(result, msg='Expected result=None since bindings=None')
         else:
@@ -145,17 +145,17 @@ class TestUnify(unittest.TestCase):
 class TestApplyUnifier(unittest.TestCase):
 
     def assertUnifier(self, s1, s2, result):
-        """Asserts that the unifier expr of s1 and s2 is result.
+        """Asserts that the unifier term of s1 and s2 is result.
 
-        All arguments are string representations of expressions.
+        All arguments are string representations of terms.
         """
-        bindings = unify(parse_expr(s1), parse_expr(s2), {})
+        bindings = unify(parse_term(s1), parse_term(s2), {})
         if bindings is None:
             self.fail('expected {} and {} to unify'.format(s1, s2))
-        unified_s1 = apply_unifier(parse_expr(s1), bindings)
-        unified_s2 = apply_unifier(parse_expr(s2), bindings)
+        unified_s1 = apply_unifier(parse_term(s1), bindings)
+        unified_s2 = apply_unifier(parse_term(s2), bindings)
         self.assertEqual(unified_s1, unified_s2)
-        self.assertEqual(unified_s1, parse_expr(result))
+        self.assertEqual(unified_s1, parse_term(result))
 
     def test_unifier(self):
         self.assertUnifier('f(X)', 'f(t)', 'f(t)')
