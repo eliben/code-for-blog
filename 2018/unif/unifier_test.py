@@ -10,16 +10,16 @@ class TestParser(unittest.TestCase):
 
     def test_basics(self):
         self.assertParsed('foo', 'foo')
-        self.assertParsed('FOO', '$FOO')
+        self.assertParsed('FOO', 'FOO')
         self.assertParsed('4', '4')
         self.assertParsed('foo(4)', 'foo(4)')
         self.assertParsed('foo(4, 10)', 'foo(4,10)')
 
     def test_nestings(self):
-        self.assertParsed('from(joe, FOO, 4)', 'from(joe,$FOO,4)')
-        self.assertParsed('apply(BANG, full(10), 20)', 'apply($BANG,full(10),20)')
-        self.assertParsed('f(g(h(X)))', 'f(g(h($X)))')
-        self.assertParsed('f(g(h(X)),p(VOVO))', 'f(g(h($X)),p($VOVO))')
+        self.assertParsed('from(joe, FOO, 4)', 'from(joe,FOO,4)')
+        self.assertParsed('apply(BANG, full(10), 20)', 'apply(BANG,full(10),20)')
+        self.assertParsed('f(g(h(X)))', 'f(g(h(X)))')
+        self.assertParsed('f(g(h(X)),p(VOVO))', 'f(g(h(X)),p(VOVO))')
 
 
 class TestOccursCheck(unittest.TestCase):
@@ -140,6 +140,22 @@ class TestUnify(unittest.TestCase):
                 {'X': App('g', (Const('a'), Const('b'), Var('Y'))),
                  'Y': Const('c'),
                  'Z': Const('b')})
+
+
+class TestApplyUnifier(unittest.TestCase):
+
+    def assertUnifier(self, s1, s2, result):
+        """Asserts that the unifier expr of s1 and s2 is result.
+
+        All arguments are string representations of expressions.
+        """
+        bindings = unify(parse_expr(s1), parse_expr(s2), {})
+        if bindings is None:
+            self.fail('expected {} and {} to unify'.format(s1, s2))
+        unified_s1 = apply_unifier(s1, bindings)
+        unified_s2 = apply_unifier(s2, bindings)
+        self.assertEqual(unified_s1, unified_s2)
+        self.assertEqual(unified_s1, result)
 
 
 if __name__ == '__main__':
