@@ -133,8 +133,13 @@ class TestUnify(unittest.TestCase):
         self.assertUnifyResult('f(Y, X, Y)', 'f(X, Y, p)',
                 {'X': Const('p'), 'Y': Var('X')})
 
-        self.assertUnifyResult('f(X,h(X),Y,g(Y))', 'f(g(Z),W,Z,X)',
+        self.assertUnifyResult('f(X, h(X), Y, g(Y))', 'f(g(Z), W, Z, X)',
                 {'X': App('g', (Var('Z'),)), 'W': App('h', (Var('X'),)), 'Y': Var('Z')})
+
+        self.assertUnifyResult('f(X, X)', 'f(g(a, b, Y), g(a, Z, c))',
+                {'X': App('g', (Const('a'), Const('b'), Var('Y'))),
+                 'Y': Const('c'),
+                 'Z': Const('b')})
 
 
 if __name__ == '__main__':
