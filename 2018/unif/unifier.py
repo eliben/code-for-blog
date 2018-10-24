@@ -29,7 +29,7 @@ class Var(Expr):
         self.name = name
 
     def __str__(self):
-        return '$' + self.name
+        return self.name
 
     def __eq__(self, other):
         return type(self) == type(other) and self.name == other.name
@@ -169,6 +169,27 @@ def unify(x, y, bindings):
         return None
 
 
+def apply_unifier(x, bindings):
+    """Applies the unifier bindings to expression x.
+    
+    Returns an expressions where all occurrences of variables bound in bindings
+    were replaced (recursively); on failure returns None.
+    """
+    if bindings is None:
+        return None
+    elif len(bindings) == 0:
+        return x
+    elif isinstance(x, Const):
+        return x
+    elif isinstance(x, Var) and x.name in bindings:
+        return apply_unifier(bindings[x.name], bindings)
+    elif isinstance(x, App):
+        newargs = [apply_unifier(arg, bindings) for arg in x.args]
+        return App(x.fname, newargs)
+    else:
+        return None
+
+
 def unify_variable(v, x, bindings):
     """Unifies variable v with expression x, using bindings.
 
@@ -188,9 +209,10 @@ def unify_variable(v, x, bindings):
 
 
 if __name__ == '__main__':
-    s = 'f(g(h(X)))'
-    print(parse_expr(s))
-
     s1 = 'f(X,h(X),Y,g(Y))'
-    s2 = 'f(g(Z),W,Z,X)'
-    print(unify(parse_expr(s1), parse_expr(s2), {}))
+    s2 = 'f(g(p),W,p,X)'
+    bindings = unify(parse_expr(s1), parse_expr(s2), {})
+    print(bindings)
+
+    print(apply_unifier(parse_expr(s1), bindings))
+    print(apply_unifier(parse_expr(s2), bindings))
