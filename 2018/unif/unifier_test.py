@@ -152,10 +152,18 @@ class TestApplyUnifier(unittest.TestCase):
         bindings = unify(parse_expr(s1), parse_expr(s2), {})
         if bindings is None:
             self.fail('expected {} and {} to unify'.format(s1, s2))
-        unified_s1 = apply_unifier(s1, bindings)
-        unified_s2 = apply_unifier(s2, bindings)
+        unified_s1 = apply_unifier(parse_expr(s1), bindings)
+        unified_s2 = apply_unifier(parse_expr(s2), bindings)
         self.assertEqual(unified_s1, unified_s2)
-        self.assertEqual(unified_s1, result)
+        self.assertEqual(unified_s1, parse_expr(result))
+
+    def test_unifier(self):
+        self.assertUnifier('f(X)', 'f(t)', 'f(t)')
+        self.assertUnifier('f(t)', 'f(X)', 'f(t)')
+        self.assertUnifier('f(X, h(X), Y, g(Y))', 'f(g(a), W, a, X)',
+                           'f(g(a),h(g(a)),a,g(a))')
+        self.assertUnifier('f(X, h(X), Y, g(Y))', 'f(g(Z), W, Z, X)',
+                           'f(g(Z),h(g(Z)),Z,g(Z))')
 
 
 if __name__ == '__main__':
