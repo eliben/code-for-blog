@@ -39,7 +39,7 @@ class TestOccursCheck(unittest.TestCase):
             occurs_check(Var('U'),
                          App('joe', (Var('G'), Var('O'), Var('P'))), {}))
 
-    def test_bindings(self):
+    def test_subst(self):
         self.assertTrue(
             occurs_check(Var('O'),
                          Var('B'),
@@ -62,22 +62,22 @@ class TestOccursCheck(unittest.TestCase):
                          {'B': Var('D'), 'D': Const('O')}))
 
 
-def rebind_sorted(bindings):
-    """Given bindings, rebinds vars to be lexicographically sorted.
+def rebind_sorted(subst):
+    """Given subst, rebinds vars to be lexicographically sorted.
 
-    For example, the bindings {'V': Var('X')} and {'X': Var('V')} are logically
-    equivalent but won't compare as equal. This function takes a bindings and
-    reorders all such bindings (where the value is a var) such that
+    For example, the subst {'V': Var('X')} and {'X': Var('V')} are logically
+    equivalent but won't compare as equal. This function takes a subst and
+    reorders all such subst (where the value is a var) such that
     key <= value.name.
     """
-    newbindings = {}
-    for k, v in bindings.items():
-        # Don't overwrite bindings for v.name if it's already bound.
-        if isinstance(v, Var) and v.name not in bindings and k > v.name:
-            newbindings[v.name] = Var(k)
+    newsubst = {}
+    for k, v in subst.items():
+        # Don't overwrite subst for v.name if it's already bound.
+        if isinstance(v, Var) and v.name not in subst and k > v.name:
+            newsubst[v.name] = Var(k)
         else:
-            newbindings[k] = v
-    return newbindings
+            newsubst[k] = v
+    return newsubst
 
 
 class TestUnify(unittest.TestCase):
@@ -86,13 +86,13 @@ class TestUnify(unittest.TestCase):
         """Asserts that the unify result of s1 and s2 is result.
 
         s1 and s2 are string representatios of terms; result is the
-        expected binding dict.
+        expected subst dict.
         """
-        bindings = unify(parse_term(s1), parse_term(s2), {})
-        if bindings is None:
-            self.assertIsNone(result, msg='Expected result=None since bindings=None')
+        subst = unify(parse_term(s1), parse_term(s2), {})
+        if subst is None:
+            self.assertIsNone(result, msg='Expected result=None since subst=None')
         else:
-            self.assertDictEqual(rebind_sorted(bindings), rebind_sorted(result))
+            self.assertDictEqual(rebind_sorted(subst), rebind_sorted(result))
 
     def test_basic_var(self):
         self.assertUnifyResult('v', 't', None)
@@ -149,11 +149,11 @@ class TestApplyUnifier(unittest.TestCase):
 
         All arguments are string representations of terms.
         """
-        bindings = unify(parse_term(s1), parse_term(s2), {})
-        if bindings is None:
+        subst = unify(parse_term(s1), parse_term(s2), {})
+        if subst is None:
             self.fail('expected {} and {} to unify'.format(s1, s2))
-        unified_s1 = apply_unifier(parse_term(s1), bindings)
-        unified_s2 = apply_unifier(parse_term(s2), bindings)
+        unified_s1 = apply_unifier(parse_term(s1), subst)
+        unified_s2 = apply_unifier(parse_term(s2), subst)
         self.assertEqual(unified_s1, unified_s2)
         self.assertEqual(unified_s1, parse_term(result))
 
