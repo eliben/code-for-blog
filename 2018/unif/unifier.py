@@ -125,97 +125,97 @@ class TermParser:
                     return Const(idtok.val)
 
 
-def occurs_check(v, term, bindings):
+def occurs_check(v, term, subst):
     """Does the variable v occur anywhere inside term?
 
-    Variables in term are looked up in bindings and the check is applied
+    Variables in term are looked up in subst and the check is applied
     recursively.
     """
     assert isinstance(v, Var)
     if v == term:
         return True
-    elif isinstance(term, Var) and term.name in bindings:
-        return occurs_check(v, bindings[term.name], bindings)
+    elif isinstance(term, Var) and term.name in subst:
+        return occurs_check(v, subst[term.name], subst)
     elif isinstance(term, App):
-        return any(occurs_check(v, arg, bindings) for arg in term.args)
+        return any(occurs_check(v, arg, subst) for arg in term.args)
     else:
         return False
 
 
-def unify(x, y, bindings):
-    """Unifies term x and y with initial bindings.
+def unify(x, y, subst):
+    """Unifies term x and y with initial subst.
 
-    Returns a bindings (map of name->term) that unifies x and y, or None if
-    they can't be unified. Pass bindings={} if no bindings are initially
-    known. Note that {} means valid (but empty) bindings.
+    Returns a subst (map of name->term) that unifies x and y, or None if
+    they can't be unified. Pass subst={} if no subst are initially
+    known. Note that {} means valid (but empty) subst.
     """
-    if bindings is None:
+    if subst is None:
         return None
     elif x == y:
-        return bindings
+        return subst
     elif isinstance(x, Var):
-        return unify_variable(x, y, bindings)
+        return unify_variable(x, y, subst)
     elif isinstance(y, Var):
-        return unify_variable(y, x, bindings)
+        return unify_variable(y, x, subst)
     elif isinstance(x, App) and isinstance(y, App):
         if x.fname != y.fname or len(x.args) != len(y.args):
             return None
         else:
-            newbindings = bindings.copy()
+            newsubst = subst.copy()
             for i in range(len(x.args)):
-                newbindings = unify(x.args[i], y.args[i], newbindings)
-            return newbindings
+                newsubst = unify(x.args[i], y.args[i], newsubst)
+            return newsubst
     else:
         return None
 
 
-def apply_unifier(x, bindings):
-    """Applies the unifier bindings to term x.
+def apply_unifier(x, subst):
+    """Applies the unifier subst to term x.
     
-    Returns a term where all occurrences of variables bound in bindings
+    Returns a term where all occurrences of variables bound in subst
     were replaced (recursively); on failure returns None.
     """
-    if bindings is None:
+    if subst is None:
         return None
-    elif len(bindings) == 0:
+    elif len(subst) == 0:
         return x
     elif isinstance(x, Const):
         return x
     elif isinstance(x, Var):
-        if x.name in bindings:
-            return apply_unifier(bindings[x.name], bindings)
+        if x.name in subst:
+            return apply_unifier(subst[x.name], subst)
         else:
             return x
     elif isinstance(x, App):
-        newargs = [apply_unifier(arg, bindings) for arg in x.args]
+        newargs = [apply_unifier(arg, subst) for arg in x.args]
         return App(x.fname, newargs)
     else:
         return None
 
 
-def unify_variable(v, x, bindings):
-    """Unifies variable v with term x, using bindings.
+def unify_variable(v, x, subst):
+    """Unifies variable v with term x, using subst.
 
-    Returns updated bindings or None on failure.
+    Returns updated subst or None on failure.
     """
     assert isinstance(v, Var)
-    if v.name in bindings:
-        return unify(bindings[v.name], x, bindings)
-    elif isinstance(x, Var) and x.name in bindings:
-        return unify(v, bindings[x.name], bindings)
-    elif occurs_check(v, x, bindings):
+    if v.name in subst:
+        return unify(subst[v.name], x, subst)
+    elif isinstance(x, Var) and x.name in subst:
+        return unify(v, subst[x.name], subst)
+    elif occurs_check(v, x, subst):
         return None
     else:
-        # v is not yet in bindings and can't simplify x. Extend bindings.
-        bindings[v.name] = x
-        return bindings
+        # v is not yet in subst and can't simplify x. Extend subst.
+        subst[v.name] = x
+        return subst
 
 
 if __name__ == '__main__':
     s1 = 'f(X,h(X),Y,g(Y))'
     s2 = 'f(g(Z),W,Z,X)'
-    bindings = unify(parse_term(s1), parse_term(s2), {})
-    print(bindings)
+    subst = unify(parse_term(s1), parse_term(s2), {})
+    print(subst)
 
-    print(apply_unifier(parse_term(s1), bindings))
-    print(apply_unifier(parse_term(s2), bindings))
+    print(apply_unifier(parse_term(s1), subst))
+    print(apply_unifier(parse_term(s2), subst))
