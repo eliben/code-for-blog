@@ -161,10 +161,9 @@ def unify(x, y, subst):
         if x.fname != y.fname or len(x.args) != len(y.args):
             return None
         else:
-            newsubst = subst.copy()
             for i in range(len(x.args)):
-                newsubst = unify(x.args[i], y.args[i], newsubst)
-            return newsubst
+                subst = unify(x.args[i], y.args[i], subst)
+            return subst
     else:
         return None
 
@@ -207,8 +206,7 @@ def unify_variable(v, x, subst):
         return None
     else:
         # v is not yet in subst and can't simplify x. Extend subst.
-        subst[v.name] = x
-        return subst
+        return {**subst, v.name: x}
 
 
 if __name__ == '__main__':
