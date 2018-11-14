@@ -1,6 +1,9 @@
 # Run this file as: python3 main.py
 #
 # It will print out its progress of type inference for a code snippet.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import ast
 import parser
 import typing

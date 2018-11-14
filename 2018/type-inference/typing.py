@@ -1,3 +1,7 @@
+# Implementation of type inference.
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import itertools
 
 import ast
@@ -30,7 +34,7 @@ class BoolType(Type):
 
 class FuncType(Type):
     """Function (n-ary) type.
-    
+
     Encapsulates a sequence of argument types and a single return type.
     """
     def __init__(self, argtypes, rettype):

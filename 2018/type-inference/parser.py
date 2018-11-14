@@ -1,5 +1,7 @@
 # EBNF specification for micro-ML. { x } means zero or more repetitions of x.
 #
+# The top-level is decl.
+#
 # decl:                   ID { ID } '=' expr
 #
 # expr:                   INT
@@ -16,6 +18,9 @@
 #
 # ID: identifier
 # INT: an integer
+#
+# Eli Bendersky [http://eli.thegreenplace.net]
+# This code is in the public domain.
 import ast
 import lexer
 
@@ -26,7 +31,7 @@ class ParseError(Exception):
 
 class Parser:
     """Parser for micro-ML.
-    
+
     The only public method here is parse_decl that parses a 'decl' from a
     string. Usage:
 
