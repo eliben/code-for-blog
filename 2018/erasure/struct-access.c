@@ -5,6 +5,9 @@
 // Then, disassemble:
 //
 // $ objdump -d struct-access.o
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 typedef struct Frob_t {
   int x;
   int y;
