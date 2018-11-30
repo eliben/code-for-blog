@@ -1,4 +1,7 @@
 // $ g++ --rtti --std=c++11 -O3 dyncast.cpp -o dyncast
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <stdio.h>
 
 struct Base {
