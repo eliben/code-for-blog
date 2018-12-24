@@ -1,3 +1,7 @@
+// Basic demonstration of object and field address in value & pointer receivers.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"
