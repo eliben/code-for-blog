@@ -1,3 +1,11 @@
+// Base example where a single goroutine increments map contents using a value
+// receiver.
+//
+// This code works but isn't good style - a pointer receiver should be used in
+// the inc() method instead.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"
