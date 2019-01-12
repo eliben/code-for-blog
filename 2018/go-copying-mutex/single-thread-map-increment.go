@@ -23,7 +23,7 @@ func main() {
 
 	doIncrement := func(name string, n int) {
 		for i := 0; i < n; i++ {
-			c.inc("a")
+			c.inc(name)
 		}
 	}
 
