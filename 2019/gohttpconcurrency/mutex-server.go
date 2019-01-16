@@ -1,5 +1,8 @@
 // This version of the server protects all shared data with a mutex.
 // Note: making the receivers non-pointers will not work as expected.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

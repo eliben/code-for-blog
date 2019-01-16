@@ -1,4 +1,8 @@
-// This is a basic server that has race conditions...
+// This is a basic server that has race conditions. The code is flawed - its
+// only use is to showcase the bugs.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -9,6 +13,8 @@ import (
 	"strconv"
 )
 
+// CounterStore is the datastore for this application; it contains a collection
+// of counters, keyed by name. Each counter has an integer value.
 type CounterStore struct {
 	counters map[string]int
 }
