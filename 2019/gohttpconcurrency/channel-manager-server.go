@@ -1,3 +1,8 @@
+// This version of the server protects all shared data within a manager
+// goroutine that accepts commands using a channel.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -23,6 +28,9 @@ type Command struct {
 	replyChan chan int
 }
 
+// startCounterManager starts a goroutine that serves as a manager for our
+// counters datastore. Returns a channel that's used to send commands to the
+// manager.
 func startCounterManager(initvals map[string]int) chan<- Command {
 	counters := make(map[string]int)
 	for k, v := range initvals {
@@ -58,6 +66,8 @@ func startCounterManager(initvals map[string]int) chan<- Command {
 	return cmds
 }
 
+// Server is the shared data structure for HTTP handlers. It wraps a channel of
+// commands that are used to interact with a manager running concurrently.
 type Server struct {
 	cmds chan<- Command
 }
