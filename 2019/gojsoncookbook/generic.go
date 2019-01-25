@@ -1,0 +1,30 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+)
+
+func main() {
+	var ii interface{}
+	ii = true
+	boolS, _ := json.Marshal(ii)
+	fmt.Println(string(boolS))
+
+	var ib interface{}
+	if err := json.Unmarshal(boolS, &ib); err != nil {
+		panic(err)
+	}
+	b := ib.(bool)
+	fmt.Println("unmarshaled bool:", b)
+
+	switch v := ib.(type) {
+	case bool:
+		fmt.Println("it's a bool:", v)
+	case int:
+		fmt.Println("it's an int:", v)
+	// other possible types enumerated...
+	default:
+		panic("can't figure out the type")
+	}
+}
