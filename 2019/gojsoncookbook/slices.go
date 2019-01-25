@@ -14,4 +14,11 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("unmarshaled []string:", s)
+
+	variedEncodedSlice := []byte(`["broccoli", 25]`)
+	var s2 []string
+	if err := json.Unmarshal(variedEncodedSlice, &s2); err != nil {
+		panic(err)
+	}
+	fmt.Println("unmarshaled []string:", s2)
 }
