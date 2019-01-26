@@ -14,10 +14,12 @@ func findNested(m map[string]interface{}, s string) (bool, interface{}) {
 	}
 	// Not found on this level, so try to find it nested
 	for _, v := range m {
-		nm := v.(map[string]interface{})
-		found, val := findNested(nm, s)
-		if found {
-			return found, val
+		nm, ok := v.(map[string]interface{})
+		if ok {
+			found, val := findNested(nm, s)
+			if found {
+				return found, val
+			}
 		}
 	}
 	// Not found recursively
@@ -37,4 +39,28 @@ func main() {
 	m := f.(map[string]interface{})
 	found, v := findNested(m, "key3")
 	fmt.Println(found, v)
+
+	bb := []byte(`
+		{
+			"foo": true,
+			"bar": false,
+			"baz": {
+				"next": true,
+				"prev": {
+					"fizz": true,
+					"buzz": false
+				},
+				"top": false
+			}
+		}`)
+
+	var ii interface{}
+	if err := json.Unmarshal(bb, &ii); err != nil {
+		panic(err)
+	}
+	mi := ii.(map[string]interface{})
+	ok, fizzVal := findNested(mi, "fizz")
+	if ok {
+		fmt.Println("found fizz! value is", fizzVal)
+	}
 }
