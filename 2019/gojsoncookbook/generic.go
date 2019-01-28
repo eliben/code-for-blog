@@ -21,8 +21,8 @@ func main() {
 	switch v := ib.(type) {
 	case bool:
 		fmt.Println("it's a bool:", v)
-	case int:
-		fmt.Println("it's an int:", v)
+	case float64:
+		fmt.Println("it's a float:", v)
 	// other possible types enumerated...
 	default:
 		panic("can't figure out the type")
