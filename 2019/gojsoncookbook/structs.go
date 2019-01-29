@@ -8,16 +8,26 @@ import (
 type Food struct {
 	Id             int
 	Name           string
-	FatPerGram     float64
-	ProteinPerGram float64
-	CarbPerGram    float64
+	FatPerServ     float64
+	ProteinPerServ float64
+	CarbPerServ    float64
 }
 
-// TODO: show version with nested fields...
+type NutrientCount struct {
+	FatPerServ     float64
+	ProteinPerServ float64
+	CarbPerServ    float64
+}
+
+type FoodNested struct {
+	Id     int
+	Name   string
+	Ncount NutrientCount
+}
 
 func main() {
 	f := Food{200403, "Broccoli", 0.3, 2.5, 3.5}
-	fS, _ := json.Marshal(f)
+	fS, _ := json.MarshalIndent(f, "", "  ")
 	fmt.Println(string(fS))
 
 	var fD Food
@@ -25,4 +35,14 @@ func main() {
 		panic(err)
 	}
 	fmt.Println("unmarshaled Food:", fD)
+
+	fn := FoodNested{200489, "Banana", NutrientCount{0.4, 1.3, 23.9}}
+	fnS, _ := json.MarshalIndent(fn, "", "  ")
+	fmt.Println(string(fnS))
+
+	var fnD FoodNested
+	if err := json.Unmarshal(fnS, &fnD); err != nil {
+		panic(err)
+	}
+	fmt.Println("unmarshaled FoodNested:", fnD)
 }
