@@ -32,10 +32,10 @@ func main() {
 	fmt.Println(npD.Id, *npD.Name)
 
 	bb := []byte(`
-{
-	"Fresh": true,
-	"Vals": [1.2, 3.24, 18.99]
-}`)
+	{
+		"Fresh": true,
+		"Vals": [1.2, 3.24, 18.99]
+	}`)
 	var bvD BoolAndVals
 	if err := json.Unmarshal(bb, &bvD); err != nil {
 		panic(err)

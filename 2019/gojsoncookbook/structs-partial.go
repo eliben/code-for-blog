@@ -15,12 +15,12 @@ type Food struct {
 
 func main() {
 	bb := []byte(`
-{
-  "Name": "Broccoli",
-  "FatPerServ": 0.3,
-  "ProteinPerServ": 2.5,
-  "CarbPerServ": 3.5
-}`)
+	{
+		"Name": "Broccoli",
+		"FatPerServ": 0.3,
+		"ProteinPerServ": 2.5,
+		"CarbPerServ": 3.5
+	}`)
 	var fD Food
 	if err := json.Unmarshal(bb, &fD); err != nil {
 		panic(err)
