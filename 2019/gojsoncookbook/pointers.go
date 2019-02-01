@@ -10,6 +10,7 @@ type NamePtr struct {
 	Name *string
 }
 
+// This demonstrates a slice contained in a struct, initially unallocated.
 type BoolAndVals struct {
 	Fresh bool
 	Vals  []float64
