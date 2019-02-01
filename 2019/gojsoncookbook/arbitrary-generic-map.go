@@ -41,18 +41,18 @@ func main() {
 	fmt.Println(found, v)
 
 	bb := []byte(`
-		{
-			"foo": true,
-			"bar": false,
-			"baz": {
-				"next": true,
-				"prev": {
-					"fizz": true,
-					"buzz": false
-				},
-				"top": false
-			}
-		}`)
+	{
+		"foo": true,
+		"bar": false,
+		"baz": {
+			"next": true,
+			"prev": {
+				"fizz": true,
+				"buzz": false
+			},
+			"top": false
+		}
+	}`)
 
 	var ii interface{}
 	if err := json.Unmarshal(bb, &ii); err != nil {

@@ -36,18 +36,18 @@ func main() {
 	}
 	`)
 
-	var req Request
-	if err := json.Unmarshal(bb, &req); err != nil {
+	var req1 Request
+	if err := json.Unmarshal(bb, &req1); err != nil {
 		panic(err)
 	}
-	req.Show()
+	req1.Show()
 
-	var req2 Request
 	bb = []byte(`
 	{
 		"Bar": {"Id": 128992, "Ref": 801472}
 	}
 	`)
+	var req2 Request
 	if err := json.Unmarshal(bb, &req2); err != nil {
 		panic(err)
 	}
