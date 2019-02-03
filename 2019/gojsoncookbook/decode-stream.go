@@ -12,8 +12,7 @@ func main() {
 		{"almonds": false},
 		{"cashews": true},
 		{"walnuts": false}
-	]
-`
+	]`
 	dec := json.NewDecoder(strings.NewReader(s))
 
 	t, err := dec.Token()
