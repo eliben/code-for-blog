@@ -1,3 +1,7 @@
+// Fieldtags in structs to map to JSON object key names.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

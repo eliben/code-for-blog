@@ -1,3 +1,7 @@
+// Encode into a stream, using io.Writer and json.Encoder.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

@@ -1,3 +1,7 @@
+// Decoding arbitrary nested maps from JSON using generic interface{}s.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
