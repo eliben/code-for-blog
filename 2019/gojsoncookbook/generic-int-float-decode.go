@@ -1,3 +1,7 @@
+// Generic decoding demonstrating int/float and UseNumber.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

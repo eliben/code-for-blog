@@ -1,3 +1,7 @@
+// Decode from a stream, using io.Reader and json.Decoder.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
