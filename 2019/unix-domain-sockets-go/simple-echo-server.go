@@ -1,4 +1,4 @@
-// Simple server listening on a UNIX socket and echoing back each client.
+// Simple server listening on a Unix socket and echoing back each client.
 //
 // With netcat, connect as follows:
 //
