@@ -1,4 +1,4 @@
-// Simple client that connects to a server via a UNIX socket and sends
+// Simple client that connects to a server via a Unix socket and sends
 // a message.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
