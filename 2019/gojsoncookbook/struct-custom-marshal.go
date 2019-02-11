@@ -25,8 +25,6 @@ func (a Account) MarshalJSON() ([]byte, error) {
 
 func main() {
 	joe := Account{Id: 123, Name: "Joe"}
-	fmt.Println(joe)
-
 	s, _ := json.Marshal(joe)
 	fmt.Println(string(s))
 }
