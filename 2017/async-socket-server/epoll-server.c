@@ -56,7 +56,7 @@ const fd_status_t fd_status_NORW = {.want_read = false, .want_write = false};
 
 fd_status_t on_peer_connected(int sockfd, const struct sockaddr_in* peer_addr,
                               socklen_t peer_addr_len) {
-  assert(sockfd < MAXFDs);
+  assert(sockfd < MAXFDS);
   report_peer_connected(peer_addr, peer_addr_len);
 
   // Initialize state to send back a '*' to the peer immediately.
@@ -71,7 +71,7 @@ fd_status_t on_peer_connected(int sockfd, const struct sockaddr_in* peer_addr,
 }
 
 fd_status_t on_peer_ready_recv(int sockfd) {
-  assert(sockfd < MAXFDs);
+  assert(sockfd < MAXFDS);
   peer_state_t* peerstate = &global_state[sockfd];
 
   if (peerstate->state == INITIAL_ACK ||
@@ -124,7 +124,7 @@ fd_status_t on_peer_ready_recv(int sockfd) {
 }
 
 fd_status_t on_peer_ready_send(int sockfd) {
-  assert(sockfd < MAXFDs);
+  assert(sockfd < MAXFDS);
   peer_state_t* peerstate = &global_state[sockfd];
 
   if (peerstate->sendptr >= peerstate->sendbuf_end) {
@@ -132,7 +132,7 @@ fd_status_t on_peer_ready_send(int sockfd) {
     return fd_status_RW;
   }
   int sendlen = peerstate->sendbuf_end - peerstate->sendptr;
-  int nsent = send(sockfd, peerstate->sendbuf, sendlen, 0);
+  int nsent = send(sockfd, &peerstate->sendbuf[peerstate->sendptr], sendlen, 0);
   if (nsent == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return fd_status_W;

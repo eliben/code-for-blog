@@ -139,7 +139,7 @@ fd_status_t on_peer_ready_send(int sockfd) {
     return fd_status_RW;
   }
   int sendlen = peerstate->sendbuf_end - peerstate->sendptr;
-  int nsent = send(sockfd, peerstate->sendbuf, sendlen, 0);
+  int nsent = send(sockfd, &peerstate->sendbuf[peerstate->sendptr], sendlen, 0);
   if (nsent == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return fd_status_W;
