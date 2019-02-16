@@ -46,7 +46,7 @@ void run_target(const char* programname)
     }
 
     /* Replace this process's image with the given program */
-    execl(programname, programname, 0);
+    execl(programname, programname, NULL);
 }
 
 
@@ -63,7 +63,7 @@ void dump_process_memory(pid_t pid, uint64_t from_addr, uint64_t to_addr)
     procmsg("Dump of %d's memory [%p : %p]\n", pid, from_addr, to_addr);
     for (uint64_t addr = from_addr; addr <= to_addr; ++addr) {
         long word = ptrace(PTRACE_PEEKTEXT, pid, (void*) addr, 0);
-        printf("  %p:  %02x\n", addr, word & 0xFF);
+        printf("  %p:  %02lx\n", (void*) addr, word & 0xFF);
     }
 }
 
