@@ -83,7 +83,7 @@ static void enable_breakpoint(pid_t pid, debug_breakpoint* bp)
 {
     assert(bp);
     bp->orig_data = ptrace(PTRACE_PEEKTEXT, pid, bp->addr, 0);
-    ptrace(PTRACE_POKETEXT, pid, bp->addr, (bp->orig_data & 0xFFFFFFFFFFFFFF00) | 0xCC);
+    ptrace(PTRACE_POKETEXT, pid, bp->addr, (bp->orig_data & ~0xFF) | 0xCC);
 }
 
 
