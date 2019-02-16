@@ -25,7 +25,7 @@ long get_child_eip(pid_t pid);
 /* Display memory contents in the inclusive range [from_addr:to_addr] from the
 ** given process's address space.
 */
-void dump_process_memory(pid_t pid, unsigned from_addr, unsigned to_addr);
+void dump_process_memory(pid_t pid, long from_addr, long to_addr);
 
 
 struct debug_breakpoint_t;

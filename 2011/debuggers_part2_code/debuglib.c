@@ -57,12 +57,12 @@ long get_child_eip(pid_t pid)
 }
 
 
-void dump_process_memory(pid_t pid, unsigned from_addr, unsigned to_addr)
+void dump_process_memory(pid_t pid, long from_addr, long to_addr)
 {
-    procmsg("Dump of %d's memory [0x%08X : 0x%08X]\n", pid, from_addr, to_addr);
-    for (unsigned addr = from_addr; addr <= to_addr; ++addr) {
-        unsigned word = ptrace(PTRACE_PEEKTEXT, pid, addr, 0);
-        printf("  0x%08X:  %02x\n", addr, word & 0xFF);
+    procmsg("Dump of %d's memory [%p : %p]\n", pid, from_addr, to_addr);
+    for (long addr = from_addr; addr <= to_addr; ++addr) {
+        long word = ptrace(PTRACE_PEEKTEXT, pid, addr, 0);
+        printf("  %p:  %02x\n", addr, word & 0xFF);
     }
 }
 
@@ -72,7 +72,7 @@ void dump_process_memory(pid_t pid, unsigned from_addr, unsigned to_addr)
 */
 struct debug_breakpoint_t {
     void* addr;
-    unsigned orig_data;
+    long orig_data;
 };
 
 
@@ -83,7 +83,7 @@ static void enable_breakpoint(pid_t pid, debug_breakpoint* bp)
 {
     assert(bp);
     bp->orig_data = ptrace(PTRACE_PEEKTEXT, pid, bp->addr, 0);
-    ptrace(PTRACE_POKETEXT, pid, bp->addr, (bp->orig_data & 0xFFFFFF00) | 0xCC);
+    ptrace(PTRACE_POKETEXT, pid, bp->addr, (bp->orig_data & 0xFFFFFFFFFFFFFF00) | 0xCC);
 }
 
 
@@ -93,9 +93,9 @@ static void enable_breakpoint(pid_t pid, debug_breakpoint* bp)
 static void disable_breakpoint(pid_t pid, debug_breakpoint* bp)
 {
     assert(bp);
-    unsigned data = ptrace(PTRACE_PEEKTEXT, pid, bp->addr, 0);
+    long data = ptrace(PTRACE_PEEKTEXT, pid, bp->addr, 0);
     assert((data & 0xFF) == 0xCC);
-    ptrace(PTRACE_POKETEXT, pid, bp->addr, (data & 0xFFFFFF00) | (bp->orig_data & 0xFF));
+    ptrace(PTRACE_POKETEXT, pid, bp->addr, (data & 0xFFFFFFFFFFFFFF00) | (bp->orig_data & 0xFF));
 }
 
 
