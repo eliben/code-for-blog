@@ -34,7 +34,7 @@ void run_debugger(pid_t child_pid)
 
     /* Obtain and show child's instruction pointer */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    procmsg("Child started. EIP = 0x%08x\n", regs.eip);
+    procmsg("Child started. EIP = 0x%08x\n", regs.rip);
 
     /* Look at the word at the address we're interested in */
     unsigned addr = 0x8048096;
@@ -65,7 +65,7 @@ void run_debugger(pid_t child_pid)
 
     /* See where the child is now */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    procmsg("Child stopped at EIP = 0x%08x\n", regs.eip);
+    procmsg("Child stopped at EIP = 0x%08x\n", regs.rip);
 
     /* Remove the breakpoint by restoring the previous data
     ** at the target address, and unwind the EIP back by 1 to 
@@ -73,7 +73,7 @@ void run_debugger(pid_t child_pid)
     ** there.
     */
     ptrace(PTRACE_POKETEXT, child_pid, (void*)addr, (void*)data);
-    regs.eip -= 1;
+    regs.rip -= 1;
     ptrace(PTRACE_SETREGS, child_pid, 0, &regs);
 
     /* The child can continue running now */
