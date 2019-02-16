@@ -53,7 +53,7 @@ long get_child_eip(pid_t pid)
 {
     struct user_regs_struct regs;
     ptrace(PTRACE_GETREGS, pid, 0, &regs);
-    return regs.eip;
+    return regs.rip;
 }
 
 
@@ -121,13 +121,13 @@ int resume_from_breakpoint(pid_t pid, debug_breakpoint* bp)
 
     ptrace(PTRACE_GETREGS, pid, 0, &regs);
     /* Make sure we indeed are stopped at bp */
-    assert(regs.eip == (long) bp->addr + 1);
+    assert(regs.rip == (long) bp->addr + 1);
 
     /* Now disable the breakpoint, rewind EIP back to the original instruction
     ** and single-step the process. This executes the original instruction that
     ** was replaced by the breakpoint.
     */
-    regs.eip = (long) bp->addr;
+    regs.rip = (long) bp->addr;
     ptrace(PTRACE_SETREGS, pid, 0, &regs);
     disable_breakpoint(pid, bp);
     if (ptrace(PTRACE_SINGLESTEP, pid, 0, 0) < 0) {
