@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <signal.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
@@ -57,11 +58,11 @@ long get_child_eip(pid_t pid)
 }
 
 
-void dump_process_memory(pid_t pid, long from_addr, long to_addr)
+void dump_process_memory(pid_t pid, uint64_t from_addr, uint64_t to_addr)
 {
     procmsg("Dump of %d's memory [%p : %p]\n", pid, from_addr, to_addr);
-    for (long addr = from_addr; addr <= to_addr; ++addr) {
-        long word = ptrace(PTRACE_PEEKTEXT, pid, addr, 0);
+    for (uint64_t addr = from_addr; addr <= to_addr; ++addr) {
+        long word = ptrace(PTRACE_PEEKTEXT, pid, (void*) addr, 0);
         printf("  %p:  %02x\n", addr, word & 0xFF);
     }
 }
@@ -95,7 +96,7 @@ static void disable_breakpoint(pid_t pid, debug_breakpoint* bp)
     assert(bp);
     long data = ptrace(PTRACE_PEEKTEXT, pid, bp->addr, 0);
     assert((data & 0xFF) == 0xCC);
-    ptrace(PTRACE_POKETEXT, pid, bp->addr, (data & 0xFFFFFFFFFFFFFF00) | (bp->orig_data & 0xFF));
+    ptrace(PTRACE_POKETEXT, pid, bp->addr, (data & ~0xFF) | (bp->orig_data & 0xFF));
 }
 
 
