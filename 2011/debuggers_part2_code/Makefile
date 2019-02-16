@@ -10,7 +10,7 @@ LDFLAGS = -L. -ldebug
 EXECUTABLES = \
 	bp_manual \
 	bp_use_lib \
-	traced
+	traced_c_loop
 
 .PHONY: all clean
 
@@ -26,7 +26,7 @@ bp_manual: bp_manual.c libdebug.a
 bp_use_lib: bp_use_lib.c libdebug.a
 	$(CC) $(CCFLAGS) $< -o $@ $(LDFLAGS)
 
-traced: traced.c
+traced_c_loop: traced_c_loop.c
 	$(CC) $(CCFLAGS) $^ -o $@
 
 clean:
