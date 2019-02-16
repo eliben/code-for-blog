@@ -23,7 +23,7 @@
 extern char* strsignal(int);
 
 
-void run_debugger(pid_t child_pid, unsigned addr)
+void run_debugger(pid_t child_pid, long addr)
 {
     int wait_status;
     struct user_regs_struct regs;
@@ -34,19 +34,19 @@ void run_debugger(pid_t child_pid, unsigned addr)
 
     /* Obtain and show child's instruction pointer */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    procmsg("Child started. EIP = 0x%08x\n", regs.rip);
+    procmsg("Child started. EIP = %p\n", regs.rip);
 
     /* Look at the word at the address we're interested in */
-    unsigned data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
-    procmsg("Original data at 0x%08x: 0x%08x\n", addr, data);
+    long data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
+    procmsg("Original data at %p: %p\n", addr, data);
 
     /* Write the trap instruction 'int 3' into the address */
-    unsigned data_with_trap = (data & 0xFFFFFF00) | 0xCC;
+    long data_with_trap = (data & 0xFFFFFFFFFFFFFF00) | 0xCC;
     ptrace(PTRACE_POKETEXT, child_pid, (void*)addr, (void*)data_with_trap);
 
     /* See what's there again... */
-    unsigned readback_data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
-    procmsg("After trap, data at 0x%08x: 0x%08x\n", addr, readback_data);
+    long readback_data = ptrace(PTRACE_PEEKTEXT, child_pid, (void*)addr, 0);
+    procmsg("After trap, data at %p: %p\n", addr, readback_data);
 
     /* Let the child run to the breakpoint and wait for it to
     ** reach it 
@@ -64,7 +64,7 @@ void run_debugger(pid_t child_pid, unsigned addr)
 
     /* See where the child is now */
     ptrace(PTRACE_GETREGS, child_pid, 0, &regs);
-    procmsg("Child stopped at EIP = 0x%08x\n", regs.rip);
+    procmsg("Child stopped at EIP = %p\n", regs.rip);
 
     /* Remove the breakpoint by restoring the previous data
     ** at the target address, and unwind the EIP back by 1 to 
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     if (child_pid == 0)
         run_target(argv[1]);
     else if (child_pid > 0) {
-        unsigned addr = (unsigned) strtol(argv[2], NULL, 16);
+        long addr = strtol(argv[2], NULL, 16);
         run_debugger(child_pid, addr);
     }
     else {
