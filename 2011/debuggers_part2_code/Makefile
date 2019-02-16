@@ -3,7 +3,7 @@
 # Eli Bendersky [http://eli.thegreenplace.net]
 # This code is in the public domain.
 CC = gcc
-CCFLAGS = -std=gnu99 -Wall -O0
+CCFLAGS = -std=gnu99 -Wall -O0 -no-pie
 
 LDFLAGS = -L. -ldebug
 
