@@ -20,7 +20,7 @@
 #include "debuglib.h"
 
 
-void run_debugger(pid_t child_pid)
+void run_debugger(pid_t child_pid, long addr)
 {
     procmsg("debugger started\n");
 
@@ -29,7 +29,7 @@ void run_debugger(pid_t child_pid)
     procmsg("child now at EIP = 0x%08x\n", get_child_eip(child_pid));
 
     /* Create breakpoint and run to it*/
-    debug_breakpoint* bp = create_breakpoint(child_pid, (void*)0x080483e4);
+    debug_breakpoint* bp = create_breakpoint(child_pid, (void*) addr);
     procmsg("breakpoint created\n");
     ptrace(PTRACE_CONT, child_pid, 0, 0);
     wait(0);
@@ -65,16 +65,18 @@ int main(int argc, char** argv)
 {
     pid_t child_pid;
 
-    if (argc < 2) {
-        fprintf(stderr, "Expected a program name as argument\n");
+    if (argc < 3) {
+        fprintf(stderr, "Expected <program name> <breakpoint address as hex string> as argument\n");
         return -1;
     }
 
     child_pid = fork();
     if (child_pid == 0)
         run_target(argv[1]);
-    else if (child_pid > 0)
-        run_debugger(child_pid);
+    else if (child_pid > 0) {
+        long addr = strtol(argv[2], NULL, 16);
+        run_debugger(child_pid, addr);
+    }
     else {
         perror("fork");
         return -1;
