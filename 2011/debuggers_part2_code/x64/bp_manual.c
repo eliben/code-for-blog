@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <signal.h>
 #include <syscall.h>
@@ -23,7 +24,7 @@
 extern char* strsignal(int);
 
 
-void run_debugger(pid_t child_pid, long addr)
+void run_debugger(pid_t child_pid, uint64_t addr)
 {
     int wait_status;
     struct user_regs_struct regs;
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
     if (child_pid == 0)
         run_target(argv[1]);
     else if (child_pid > 0) {
-        long addr = strtol(argv[2], NULL, 16);
+        uint64_t addr = (uint64_t) strtol(argv[2], NULL, 16);
         run_debugger(child_pid, addr);
     }
     else {
