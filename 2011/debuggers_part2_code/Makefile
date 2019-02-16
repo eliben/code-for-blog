@@ -14,7 +14,7 @@ EXECUTABLES = \
 
 ADDR = `objdump -d traced_c_loop | grep do_stuff | head -n 1 | awk '{print $1;}'`
 
-.PHONY: all clean
+.PHONY: all clean test_bp_manual test_bp_use_lib
 
 all: $(EXECUTABLES)
 
