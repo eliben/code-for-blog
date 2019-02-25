@@ -1,3 +1,8 @@
+// Simple payload server for Github hooks. Payload is the http handler.
+// For instructions on deploying as a Google Cloud Function, see README.rst
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package payloadserver
 
 import (
@@ -42,6 +47,7 @@ func validateSignature(body []byte, r *http.Request) bool {
 	return checkMAC(body, decoded, []byte(os.Getenv("HOOK_SECRET_KEY")))
 }
 
+// Payload is the entry point HTTP handler.
 func Payload(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

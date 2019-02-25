@@ -1,3 +1,9 @@
+// Basic smoke test for the payloadserver HTTP endpoint (Payload). The secret
+// key is not set so the response will be "Signature validation failed", but
+// it should be a valid HTTP response.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package payloadserver
 
 import (
