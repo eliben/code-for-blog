@@ -17,6 +17,10 @@ func main() {
 	var f Foo
 	m = f
 
-	var b Bar
-	m = b
+	//var b Bar
+	//m = b
+
+	var i int
+	var mm Munger = i
+	//m = i
 }
