@@ -12,6 +12,8 @@ type Bar int
 func (f Foo) Munge(int) {
 }
 
+var _ Munger = (*Bar)(nil)
+
 func main() {
 	var m Munger
 	var f Foo
