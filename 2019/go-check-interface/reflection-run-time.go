@@ -1,4 +1,7 @@
-// Run-time check using reflect.
+// Check whether a type implements an interface at run-time, using reflect.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

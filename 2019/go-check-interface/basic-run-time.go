@@ -1,4 +1,8 @@
-// Basic example of run-time check with an interface{} conversion.
+// Check whether a type implements an interface at run-time, using a conversion
+// to interface{} and a type assertion.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"
