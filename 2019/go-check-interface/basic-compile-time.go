@@ -1,5 +1,8 @@
 // Basic example that demonstrates a type that doesn't implement an interface
 // being flagged for a compile error when assigned to the interface.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 type Munger interface {
