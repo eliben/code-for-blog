@@ -28,11 +28,11 @@ select * from t1 cross join t2;
 select * from t1 inner join t2 on t1.id = t2.id;
 select * from t1 join t2 on t1.id = t2.id;
 
--- Same, with "using"
+-- Same, with "where"
+select * from t1, t2 where t1.id = t2.id;
+
+-- Same, with "using" -- common column not duplicated
 select * from t1 inner join t2 using (id);
 
--- Same, with natural join
+-- Same, with natural join -- common column not duplicated
 select * from t1 natural inner join t2;
-
--- Same, with "where" -- note that different columns are returned
-select * from t1, t2 where t1.id = t2.id;
