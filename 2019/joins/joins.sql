@@ -54,3 +54,15 @@ select * from t1 right outer join t2 using (id);
 
 -- Full outer join
 select * from t1 full outer join t2 using (id);
+
+-- Emulating full outer join with union/left/right: this one will remove
+-- duplicates
+select * from t1 left join t2 using (id)
+    union
+    select * from t1 right join t2 using (id);
+
+-- ... and this one won't remove duplicates
+select * from t1 left join t2 using (id)
+    union all
+    select * from t1 right join t2 using (id)
+        where t1.id is null;
