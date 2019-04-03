@@ -19,6 +19,7 @@ insert into t1 values(4, 'Brayden');
 
 insert into t2 values('x', 2);
 insert into t2 values('z', 3);
+insert into t2 values('a', 7);
 
 -- Cross join, both syntaxes
 select * from t1, t2;
@@ -36,3 +37,12 @@ select * from t1 inner join t2 using (id);
 
 -- Same, with natural join -- common column not duplicated
 select * from t1 natural inner join t2;
+
+-- Left outer join
+select * from t1 left outer join t2 using (id);
+
+-- Right outer join
+select * from t1 right outer join t2 using (id);
+
+-- Full outer join
+select * from t1 full outer join t2 using (id);
