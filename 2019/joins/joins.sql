@@ -44,10 +44,9 @@ select * from t1 left outer join t2 using (id);
 -- Equivalent using union and inner join
 select id, name, code
     from t1 inner join t2 using (id)
-    union
-    select id, name, null
-        from t1
-        where id not in (select id from t2);
+  union
+select id, name, null
+    from t1 where id not in (select id from t2);
 
 -- Right outer join
 select * from t1 right outer join t2 using (id);
