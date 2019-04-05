@@ -20,6 +20,12 @@ insert into t1 values(4, 'Brayden', 2);
 insert into t2 values('x', 2, 8);
 insert into t2 values('z', 3, 6);
 
+select * from t1;
+select * from t2;
+
 select * from t1 inner join t2 on t1.id = t2.id and t1.ranking = t2.ranking;
 select * from t1 inner join t2 using (id, ranking);
 select * from t1 natural inner join t2;
+
+
+select * from t1 left outer join t2 using (id, ranking);
