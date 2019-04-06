@@ -44,8 +44,3 @@ select name, orderdate, description
     inner join orders using (customerid))
     inner join items using (itemid)
     where items.description = 'Cheese';
-
-select name, orderdate, description
-    from (customers
-    inner join orders using (customerid))
-    inner join items using (itemid);
