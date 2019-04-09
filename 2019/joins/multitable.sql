@@ -1,3 +1,9 @@
+-- Companion SQL for the blog post about SQL joins.
+-- Joining multiple tables.
+--
+-- Eli Bendersky [http://eli.thegreenplace.net]
+-- This code is in the public domain.
+
 -- Have to drop with 'cascade' now because of foreign key constraints.
 drop table if exists customers cascade;
 drop table if exists items cascade;

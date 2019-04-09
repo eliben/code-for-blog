@@ -1,4 +1,8 @@
+-- Companion SQL for the blog post about SQL joins.
 -- Example like joins.sql but joining on multiple columns.
+--
+-- Eli Bendersky [http://eli.thegreenplace.net]
+-- This code is in the public domain.
 drop table if exists t1;
 drop table if exists t2;
 

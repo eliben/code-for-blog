@@ -1,4 +1,13 @@
--- Note: use with Postgres (tested with version 9.5)
+-- Companion SQL for the blog post about SQL joins.
+--
+-- Pipe this file into an existing Postgres DB to see effects. Something like:
+--  $ psql -a testdb < joins.sql
+--
+-- It creates its own tables, so the DB can be empty. Tables t1 and t2 will
+-- be dropped if they already exist.
+--
+-- Eli Bendersky [http://eli.thegreenplace.net]
+-- This code is in the public domain.
 
 -- Re-creates two tables, regardless if they were in the DB already.
 drop table if exists t1;
