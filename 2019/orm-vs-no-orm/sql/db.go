@@ -1,3 +1,8 @@
+// Interacting with a database using pure database/sql. Functions encapsulating
+// DB interface.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

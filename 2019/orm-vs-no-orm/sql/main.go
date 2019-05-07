@@ -1,4 +1,4 @@
-// Interacting with a database using pure database/sql.
+// Interacting with a database using pure database/sql. Main program.
 //
 // Eli Bendersky [http://eli.thegreenplace.net]
 // This code is in the public domain.
