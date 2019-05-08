@@ -188,7 +188,7 @@ func (l *WritePreferRWLock) RUnlock() {
 	l.c.L.Lock()
 	l.readerCount--
 	if l.readerCount == 0 {
-		l.c.Signal()
+		l.c.Broadcast()
 	}
 	l.c.L.Unlock()
 }
