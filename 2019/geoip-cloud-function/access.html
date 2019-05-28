@@ -15,12 +15,12 @@
         var data = JSON.parse(request.responseText);
         document.writeln(data.Country, " ", data.Region, " ", data.City)
       } else {
-        document.writeln("ERROR")
+        document.writeln("ERROR", request.statusText)
       }
     };
 
     request.onerror = function() {
-      document.writeln("ERROR")
+      document.writeln("ERROR", request.statusText)
     };
 
     request.send();
