@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Access GeoIP from JS</title>
+</head>
+<body>
+  <script>
+    var url = 'https://us-central1-eliben-test-01.cloudfunctions.net/geoip'
+    var request = new XMLHttpRequest();
+    request.open('GET', url, true);
+
+    request.onload = function() {
+      if (request.status >= 200 && request.status < 400) {
+        // Success!
+        var data = JSON.parse(request.responseText);
+        document.writeln(data.Country, " ", data.Region, " ", data.City)
+      } else {
+        document.writeln("ERROR")
+      }
+    };
+
+    request.onerror = function() {
+      document.writeln("ERROR")
+    };
+
+    request.send();
+  </script>
+</body>
+</html>
