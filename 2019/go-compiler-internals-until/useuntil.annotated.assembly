@@ -1,0 +1,54 @@
+"".main STEXT size=138 args=0x0 locals=0x50
+	0x0000 00000 (useuntil.go:5)	TEXT	"".main(SB), ABIInternal, $80-0
+	0x0000 00000 (useuntil.go:5)	MOVQ	(TLS), CX
+	0x0009 00009 (useuntil.go:5)	CMPQ	SP, 16(CX)
+	0x000d 00013 (useuntil.go:5)	JLS	128
+	0x000f 00015 (useuntil.go:5)	SUBQ	$80, SP
+	0x0013 00019 (useuntil.go:5)	MOVQ	BP, 72(SP)
+	0x0018 00024 (useuntil.go:5)	LEAQ	72(SP), BP
+
+  # AX holds the loop counter, which initially has 4 in it
+
+	0x001d 00029 (useuntil.go:5)	MOVL	$4, AX
+
+  # Jump to loop epilogue
+
+	0x0022 00034 (useuntil.go:7)	JMP	113
+
+  # AX (the loop counter) is stored into i; This is needed because registers
+  # are a global resource and fmt.Println may use AX for its own needs.
+
+	0x0024 00036 (useuntil.go:7)	MOVQ	AX, "".i+48(SP)
+
+  # This is the call to fmt.Println
+
+	0x0029 00041 (useuntil.go:9)	XORPS	X0, X0
+	0x002c 00044 (useuntil.go:9)	MOVUPS	X0, ""..autotmp_1+56(SP)
+	0x0031 00049 (useuntil.go:9)	LEAQ	type.string(SB), AX
+	0x0038 00056 (useuntil.go:9)	MOVQ	AX, ""..autotmp_1+56(SP)
+	0x003d 00061 (useuntil.go:9)	LEAQ	""..stmp_0(SB), CX
+	0x0044 00068 (useuntil.go:9)	MOVQ	CX, ""..autotmp_1+64(SP)
+	0x0049 00073 (useuntil.go:9)	LEAQ	""..autotmp_1+56(SP), DX
+	0x004e 00078 (useuntil.go:9)	MOVQ	DX, (SP)
+	0x0052 00082 (useuntil.go:9)	MOVQ	$1, 8(SP)
+	0x005b 00091 (useuntil.go:9)	MOVQ	$1, 16(SP)
+	0x0064 00100 (useuntil.go:9)	CALL	fmt.Println(SB)
+
+  # Move i back to AX and decrement it.
+
+	0x0069 00105 (useuntil.go:8)	MOVQ	"".i+48(SP), AX
+	0x006e 00110 (useuntil.go:8)	DECQ	AX
+
+	# In the loop epilogue, we test AX. If it's != 0, we jump back to the loop
+  # body.
+
+	0x0071 00113 (useuntil.go:7)	TESTQ	AX, AX
+	0x0074 00116 (useuntil.go:7)	JNE	36
+	0x0076 00118 (<unknown line number>)	MOVQ	72(SP), BP
+	0x007b 00123 (<unknown line number>)	ADDQ	$80, SP
+	0x007f 00127 (<unknown line number>)	RET
+	0x0080 00128 (<unknown line number>)	NOP
+	0x0080 00128 (useuntil.go:5)	PCDATA	$1, $-1
+	0x0080 00128 (useuntil.go:5)	PCDATA	$0, $-1
+	0x0080 00128 (useuntil.go:5)	CALL	runtime.morestack_noctxt(SB)
+	0x0085 00133 (useuntil.go:5)	JMP	0
