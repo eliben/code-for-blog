@@ -1,4 +1,8 @@
+// Some tests for 'until.
 // "go test" doesn't work with 'until' because we haven't fixed the tooling.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "log"
