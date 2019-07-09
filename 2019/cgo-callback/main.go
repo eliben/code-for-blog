@@ -39,8 +39,6 @@ func GoTraverse(cbs *GoCallbacks) {
 
 	p := cpointer.Save(cbs)
 	C.traverse(p, cCallbacks)
-
-	fmt.Println("after traverse")
 	cpointer.Unref(p)
 }
 
@@ -61,6 +59,13 @@ func main() {
 		startCb: func(i int) { fmt.Println("from go start", i) },
 		endCb:   func(a, b int) { fmt.Println("from go end", a, b) },
 	}
+	GoTraverse(cb)
 
+	// Another traverse, with state
+	var state int
+	cb = &GoCallbacks{
+		startCb: func(i int) { state = i },
+		endCb:   func(a, b int) { fmt.Println("end; state =", state) },
+	}
 	GoTraverse(cb)
 }
