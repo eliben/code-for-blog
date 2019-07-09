@@ -6,10 +6,15 @@ package main
 #cgo CFLAGS: -I .
 #cgo LDFLAGS: -L . -lclibrary
 
-// Forward declarations of functions defined in another file.
-// See https://golang.org/cmd/cgo/#hdr-C_references_to_Go
-extern void startCgo(void* data, int i);
-extern void endCgo(void* data, int a, int b);
+// Since main.go has //export directives we can't place function definitions in
+// it - we'll get multiple definition errors from the linker (see
+// https://golang.org/cmd/cgo/#hdr-C_references_to_Go for more on this
+// limitation). We can't mark them 'static inline' either because we're taking
+// their address to pass to clibrary; thus, they are moved to a separate Go
+// file.
+
+extern void startCgo(void*, int);
+extern void endCgo(void*, int, int);
 */
 import "C"
 import (
@@ -38,19 +43,19 @@ func GoTraverse(cbs *GoCallbacks) {
 	}
 
 	p := cpointer.Save(cbs)
-	C.traverse(p, cCallbacks)
+	C.traverse(nil, cCallbacks, p)
 	cpointer.Unref(p)
 }
 
 //export goStart
-func goStart(data unsafe.Pointer, i C.int) {
-	gcb := cpointer.Restore(data).(*GoCallbacks)
+func goStart(user_data unsafe.Pointer, i C.int) {
+	gcb := cpointer.Restore(user_data).(*GoCallbacks)
 	gcb.startCb(int(i))
 }
 
 //export goEnd
-func goEnd(data unsafe.Pointer, a C.int, b C.int) {
-	gcb := cpointer.Restore(data).(*GoCallbacks)
+func goEnd(user_data unsafe.Pointer, a C.int, b C.int) {
+	gcb := cpointer.Restore(user_data).(*GoCallbacks)
 	gcb.endCb(int(a), int(b))
 }
 
