@@ -10,7 +10,7 @@ func TestTraverseBasic(t *testing.T) {
 		startCb: func(i int) { start = i },
 		endCb:   func(a, b int) { end = a + b },
 	}
-	GoTraverse(cb)
+	GoTraverse("joe", cb)
 
 	if start != 100 {
 		t.Errorf("start got %v, want %v", start, 100)
