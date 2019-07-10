@@ -2,20 +2,27 @@ package main
 
 import "testing"
 
+type testVisitor struct {
+	start int
+	end   int
+}
+
+func (v *testVisitor) Start(i int) {
+	v.start = i
+}
+
+func (v *testVisitor) End(a, b int) {
+	v.end = a + b
+}
+
 func TestTraverseBasic(t *testing.T) {
-	var start int
-	var end int
+	var v testVisitor
+	GoTraverse("joe", &v)
 
-	cb := &GoCallbacks{
-		startCb: func(i int) { start = i },
-		endCb:   func(a, b int) { end = a + b },
+	if v.start != 100 {
+		t.Errorf("start got %v, want %v", v.start, 100)
 	}
-	GoTraverse("joe", cb)
-
-	if start != 100 {
-		t.Errorf("start got %v, want %v", start, 100)
-	}
-	if end != 5 {
-		t.Errorf("end got %v, want %v", end, 5)
+	if v.end != 5 {
+		t.Errorf("end got %v, want %v", v.end, 5)
 	}
 }

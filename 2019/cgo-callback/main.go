@@ -23,7 +23,7 @@ import (
 	"unsafe"
 )
 
-import cpointer "github.com/mattn/go-pointer"
+import gopointer "github.com/mattn/go-pointer"
 
 type Visitor interface {
 	Start(int)
@@ -42,21 +42,21 @@ func GoTraverse(filename string, v Visitor) {
 	defer C.free(unsafe.Pointer(cfilename))
 
 	// Create an opaque C pointer for the visitor to pass ot traverse.
-	p := cpointer.Save(v)
-	defer cpointer.Unref(p)
+	p := gopointer.Save(v)
+	defer gopointer.Unref(p)
 
 	C.traverse(cfilename, cCallbacks, p)
 }
 
 //export goStart
 func goStart(user_data unsafe.Pointer, i C.int) {
-	v := cpointer.Restore(user_data).(Visitor)
+	v := gopointer.Restore(user_data).(Visitor)
 	v.Start(int(i))
 }
 
 //export goEnd
 func goEnd(user_data unsafe.Pointer, a C.int, b C.int) {
-	v := cpointer.Restore(user_data).(Visitor)
+	v := gopointer.Restore(user_data).(Visitor)
 	v.End(int(a), int(b))
 }
 
