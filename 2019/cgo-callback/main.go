@@ -1,6 +1,7 @@
 package main
 
 /*
+#include <stdlib.h>
 #include "clibrary.h"
 
 #cgo CFLAGS: -I .
@@ -32,7 +33,7 @@ type GoCallbacks struct {
 	endCb   GoEndCallback
 }
 
-func GoTraverse(cbs *GoCallbacks) {
+func GoTraverse(filename string, cbs *GoCallbacks) {
 	cCallbacks := C.Callbacks{}
 
 	if cbs.startCb != nil {
@@ -42,9 +43,16 @@ func GoTraverse(cbs *GoCallbacks) {
 		cCallbacks.end = C.EndCallbackFn(C.endCgo)
 	}
 
+	// Allocate a C string to hold the contents of filename, and free it up when
+	// we're done.
+	var cfilename *C.char = C.CString(filename)
+	defer C.free(unsafe.Pointer(cfilename))
+
+	// Create an opaque C pointer for cbs to pass ot traverse.
 	p := cpointer.Save(cbs)
-	C.traverse(nil, cCallbacks, p)
-	cpointer.Unref(p)
+	defer cpointer.Unref(p)
+
+	C.traverse(cfilename, cCallbacks, p)
 }
 
 //export goStart
@@ -64,7 +72,7 @@ func main() {
 		startCb: func(i int) { fmt.Println("from go start", i) },
 		endCb:   func(a, b int) { fmt.Println("from go end", a, b) },
 	}
-	GoTraverse(cb)
+	GoTraverse("joe", cb)
 
 	// Another traverse, with state
 	var state int
@@ -72,5 +80,5 @@ func main() {
 		startCb: func(i int) { state = i },
 		endCb:   func(a, b int) { fmt.Println("end; state =", state) },
 	}
-	GoTraverse(cb)
+	GoTraverse("joe", cb)
 }

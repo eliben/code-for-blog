@@ -9,6 +9,9 @@ typedef struct {
   EndCallbackFn end;
 } Callbacks;
 
+// Processes the file and invokes callbacks from cbs on events found in the
+// file, each with its own relevant data. user_data is passed through to the
+// callbacks.
 void traverse(char* filename, Callbacks cbs, void* user_data);
 
 #endif
