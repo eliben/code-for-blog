@@ -25,24 +25,31 @@ import (
 
 import cpointer "github.com/mattn/go-pointer"
 
-type Visitor interface {
-	Start(int)
-	End(int, int)
+type GoStartCallback func(int)
+type GoEndCallback func(int, int)
+
+type GoCallbacks struct {
+	startCb GoStartCallback
+	endCb   GoEndCallback
 }
 
-func GoTraverse(filename string, v Visitor) {
+func GoTraverse(filename string, cbs *GoCallbacks) {
 	cCallbacks := C.Callbacks{}
 
-	cCallbacks.start = C.StartCallbackFn(C.startCgo)
-	cCallbacks.end = C.EndCallbackFn(C.endCgo)
+	if cbs.startCb != nil {
+		cCallbacks.start = C.StartCallbackFn(C.startCgo)
+	}
+	if cbs.endCb != nil {
+		cCallbacks.end = C.EndCallbackFn(C.endCgo)
+	}
 
 	// Allocate a C string to hold the contents of filename, and free it up when
 	// we're done.
 	var cfilename *C.char = C.CString(filename)
 	defer C.free(unsafe.Pointer(cfilename))
 
-	// Create an opaque C pointer for the visitor to pass ot traverse.
-	p := cpointer.Save(v)
+	// Create an opaque C pointer for cbs to pass ot traverse.
+	p := cpointer.Save(cbs)
 	defer cpointer.Unref(p)
 
 	C.traverse(cfilename, cCallbacks, p)
@@ -50,30 +57,28 @@ func GoTraverse(filename string, v Visitor) {
 
 //export goStart
 func goStart(user_data unsafe.Pointer, i C.int) {
-	v := cpointer.Restore(user_data).(Visitor)
-	v.Start(int(i))
+	gcb := cpointer.Restore(user_data).(*GoCallbacks)
+	gcb.startCb(int(i))
 }
 
 //export goEnd
 func goEnd(user_data unsafe.Pointer, a C.int, b C.int) {
-	v := cpointer.Restore(user_data).(Visitor)
-	v.End(int(a), int(b))
-}
-
-type MyVisitor struct {
-	startState int
-}
-
-func (mv *MyVisitor) Start(i int) {
-	mv.startState = i
-	fmt.Println("End:", i)
-}
-
-func (mv *MyVisitor) End(a, b int) {
-	fmt.Printf("Start: %v %v [state = %v]\n", a, b, mv.startState)
+	gcb := cpointer.Restore(user_data).(*GoCallbacks)
+	gcb.endCb(int(a), int(b))
 }
 
 func main() {
-	mv := &MyVisitor{startState: 0}
-	GoTraverse("joe", mv)
+	cb := &GoCallbacks{
+		startCb: func(i int) { fmt.Println("from go start", i) },
+		endCb:   func(a, b int) { fmt.Println("from go end", a, b) },
+	}
+	GoTraverse("joe", cb)
+
+	// Another traverse, with state
+	var state int
+	cb = &GoCallbacks{
+		startCb: func(i int) { state = i },
+		endCb:   func(a, b int) { fmt.Println("end; state =", state) },
+	}
+	GoTraverse("joe", cb)
 }
