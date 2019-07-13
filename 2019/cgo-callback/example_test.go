@@ -1,6 +1,12 @@
+// Run these tests with -race
 package main
 
-import "testing"
+import (
+	"math/rand"
+	"sync"
+	"testing"
+	"time"
+)
 
 type testVisitor struct {
 	start int
@@ -25,4 +31,42 @@ func TestTraverseBasic(t *testing.T) {
 	if v.end != 5 {
 		t.Errorf("end got %v, want %v", v.end, 5)
 	}
+}
+
+type testVisitorDelay struct {
+	start int
+	end   int
+}
+
+func (v *testVisitorDelay) Start(i int) {
+	time.Sleep(time.Duration(1+rand.Intn(5)) * time.Millisecond)
+	v.start = i
+}
+
+func (v *testVisitorDelay) End(a, b int) {
+	time.Sleep(time.Duration(1+rand.Intn(5)) * time.Millisecond)
+	v.end = a + b
+}
+
+func TestConcurrent(t *testing.T) {
+	var wg sync.WaitGroup
+
+	worker := func(i int) {
+		var v testVisitorDelay
+		GoTraverse("foo", &v)
+		if v.start != 100 {
+			t.Errorf("start got %v, want %v", v.start, 100)
+		}
+		if v.end != 5 {
+			t.Errorf("end got %v, want %v", v.end, 5)
+		}
+		wg.Done()
+	}
+
+	for i := 0; i < 200; i++ {
+		wg.Add(1)
+		go worker(i)
+	}
+
+	wg.Wait()
 }
