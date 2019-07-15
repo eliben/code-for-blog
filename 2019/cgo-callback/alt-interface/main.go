@@ -1,3 +1,8 @@
+// Alternative main sample. Same as ../main.go, but uses a struct of func
+// values instead of an interface on the Go side.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 /*
@@ -23,7 +28,7 @@ import (
 	"unsafe"
 )
 
-import cpointer "github.com/mattn/go-pointer"
+import gopointer "github.com/mattn/go-pointer"
 
 type GoStartCallback func(int)
 type GoEndCallback func(int, int)
@@ -49,21 +54,21 @@ func GoTraverse(filename string, cbs *GoCallbacks) {
 	defer C.free(unsafe.Pointer(cfilename))
 
 	// Create an opaque C pointer for cbs to pass ot traverse.
-	p := cpointer.Save(cbs)
-	defer cpointer.Unref(p)
+	p := gopointer.Save(cbs)
+	defer gopointer.Unref(p)
 
 	C.traverse(cfilename, cCallbacks, p)
 }
 
 //export goStart
 func goStart(user_data unsafe.Pointer, i C.int) {
-	gcb := cpointer.Restore(user_data).(*GoCallbacks)
+	gcb := gopointer.Restore(user_data).(*GoCallbacks)
 	gcb.startCb(int(i))
 }
 
 //export goEnd
 func goEnd(user_data unsafe.Pointer, a C.int, b C.int) {
-	gcb := cpointer.Restore(user_data).(*GoCallbacks)
+	gcb := gopointer.Restore(user_data).(*GoCallbacks)
 	gcb.endCb(int(a), int(b))
 }
 
