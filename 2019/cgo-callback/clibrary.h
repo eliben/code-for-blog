@@ -1,3 +1,7 @@
+// Interface.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #ifndef CLIBRARY_H
 #define CLIBRARY_H
 

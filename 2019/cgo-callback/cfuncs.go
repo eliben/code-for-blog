@@ -1,3 +1,7 @@
+// Wrappers for Go callback functions to be passed into C.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 /*
