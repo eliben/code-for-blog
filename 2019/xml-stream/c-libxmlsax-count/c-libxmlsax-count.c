@@ -69,7 +69,9 @@ int main(int argc, char** argv) {
   CountState count_state;
 
   if (xmlSAXUserParseFile(&handler, &count_state, argv[1]) != 0) {
-    printf("Error parsing %s\n", argv[1]);
+		xmlError* err = xmlGetLastError();
+    printf("Error parsing %s: line %d, error: %s\n",
+				argv[1], err->line, err->message);
     return 1;
   }
 
