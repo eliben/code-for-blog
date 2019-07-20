@@ -1,3 +1,7 @@
+// An example using gosax, with the optimized callbacks.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
