@@ -1,7 +1,12 @@
+// C implementation, using libxml SAX.
+//
+// Eli Bendersky [http://eli.thegreenplace.net]
+// This code is in the public domain.
 #include <libxml/parser.h>
 #include <stdio.h>
 #include <string.h>
 
+// Traversal state.
 typedef struct {
   int counter;
   int inLocation;
@@ -64,8 +69,8 @@ int main(int argc, char** argv) {
   handler.endElement = end_element_cb;
   handler.characters = characters_cb;
 
-  // Start with empty state; it will be initialized by the startDocument
-  // callback.
+	// Start with uninitialized state; it will be initialized by the startDocument
+	// callback.
   CountState count_state;
 
   if (xmlSAXUserParseFile(&handler, &count_state, argv[1]) != 0) {
