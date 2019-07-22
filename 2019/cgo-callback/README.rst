@@ -1,7 +1,7 @@
 First run ``make``, then ``go build`` and execute ``./example``. After
-``make`` can also run ``go test``.
+``make``, you can also run ``go test``.
 
-Alternative, run with ``go run``:
+Alternatively, run with ``go run``:
 
 .. sourcecode:: text
 
