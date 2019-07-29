@@ -78,10 +78,10 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
 
 if __name__ == "__main__":
     pwd = b'1' * 32
-    filename = 'pycrypto_file.py'
+    filename = '/tmp/file.my.enc'
 
-    with Timer('encrypt'):
-        enc_filename = encrypt_file(pwd, filename)
+    #with Timer('encrypt'):
+        #enc_filename = encrypt_file(pwd, filename)
 
     with Timer('decrypt'):
-        decrypt_file(pwd, enc_filename, out_filename=filename+'.dec')
+        decrypt_file(pwd, filename, out_filename=filename+'.dec')
