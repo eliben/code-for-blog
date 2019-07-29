@@ -1,3 +1,4 @@
+import argparse
 import os
 import struct
 import random
@@ -77,11 +78,21 @@ def decrypt_file(key, in_filename, out_filename=None, chunksize=24*1024):
 
 
 if __name__ == "__main__":
-    pwd = b'1' * 32
-    filename = '/tmp/file.my.enc'
+    argparser = argparse.ArgumentParser(description='Encrypt/Decrypt AES')
+    argparser.add_argument('filename', nargs=1)
+    argparser.add_argument('-e', dest='encrypt', action='store_true')
+    argparser.add_argument('-d', dest='decrypt', action='store_true')
+    args = argparser.parse_args()
+    infile = args.filename[0]
 
-    #with Timer('encrypt'):
-        #enc_filename = encrypt_file(pwd, filename)
+    key = b'1' * 32
 
-    with Timer('decrypt'):
-        decrypt_file(pwd, filename, out_filename=filename+'.dec')
+    if args.encrypt:
+        ofname = encrypt_file(key, infile, out_filename=infile+'.enc')
+        print('Encrypted to', ofname)
+    elif args.decrypt:
+        ofname = decrypt_file(key, infile, out_filename=infile+'.dec')
+        print('Decrypted to', ofname)
+    else:
+        argparser.print_help()
+        os.Exit(1)
