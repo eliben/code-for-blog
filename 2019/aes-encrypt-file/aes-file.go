@@ -131,6 +131,7 @@ func main() {
 	flag.Parse()
 	filename := flag.Arg(0)
 
+	// Uses a constant key
 	key := bytes.Repeat([]byte("1"), 32)
 	if *encFlag {
 		outFilename, err := encryptFile(key, filename, "")
