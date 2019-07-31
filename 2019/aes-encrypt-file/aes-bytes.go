@@ -17,7 +17,7 @@ func main() {
 
 	// Generate a random IV.
 	iv := make([]byte, aes.BlockSize)
-	if _, err := rand.Reader.Read(iv); err != nil {
+	if _, err := rand.Read(iv); err != nil {
 		log.Fatal(err)
 	}
 
