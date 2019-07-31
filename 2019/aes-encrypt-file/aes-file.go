@@ -40,15 +40,19 @@ func encryptFile(key []byte, filename string, outFilename string) (string, error
 		return "", err
 	}
 
-	// Pad plaintext to a multiple of BlockSize with space characters.
+	// Pad plaintext to a multiple of BlockSize with random padding.
 	if len(plaintext)%aes.BlockSize != 0 {
 		bytesToPad := aes.BlockSize - (len(plaintext) % aes.BlockSize)
-		plaintext = append(plaintext, bytes.Repeat([]byte(" "), bytesToPad)...)
+		padding := make([]byte, bytesToPad)
+		if _, err := rand.Read(padding); err != nil {
+			return "", err
+		}
+		plaintext = append(plaintext, padding...)
 	}
 
 	// Generate random IV and write it to the output file.
 	iv := make([]byte, aes.BlockSize)
-	if _, err := rand.Reader.Read(iv); err != nil {
+	if _, err := rand.Read(iv); err != nil {
 		return "", err
 	}
 	if _, err = of.Write(iv); err != nil {
