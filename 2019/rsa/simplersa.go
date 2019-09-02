@@ -1,11 +1,14 @@
+// Simple implementation of RSA encryption.
+// Please use crypto/rsa in real code.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package simplersa
 
 import (
 	"bytes"
 	"crypto/rand"
-	"crypto/rsa"
 	"fmt"
-	"log"
 	"math/big"
 )
 
@@ -183,52 +186,4 @@ func DecryptRSA(priv *PrivateKey, c []byte) ([]byte, error) {
 	}
 
 	return m[endPad+1:], nil
-}
-
-func main() {
-	//pub, priv, err := GenerateKeys(1024)
-	//if err != nil {
-	//log.Fatal(err)
-	//}
-	//fmt.Println("pub", pub)
-	//fmt.Println("priv", priv)
-
-	//msg := big.NewInt(78203948191283)
-	//if err != nil {
-	//log.Fatal(err)
-	//}
-
-	//c := encrypt(pub, msg)
-	//fmt.Println("c=", c)
-
-	//mm := decrypt(priv, c)
-	//fmt.Println("mm=", mm)
-
-	pub, priv, err := GenerateKeys(512)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	m, err := EncryptRSA(pub, []byte{222, 1, 2, 5, 6, 9, 1, 8})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Encrypted:", m)
-
-	p, err := DecryptRSA(priv, m)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Decrypted:", p)
-
-	var rsapriv rsa.PrivateKey
-	rsapriv.N = pub.N
-	rsapriv.E = int(pub.E.Int64())
-	rsapriv.D = priv.D
-
-	d, err := rsa.DecryptPKCS1v15(nil, &rsapriv, m)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("rsa decrypt", d)
 }
