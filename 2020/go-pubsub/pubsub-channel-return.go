@@ -57,12 +57,9 @@ func (ps *Pubsub) Close() {
 
 func main() {
 	ps := NewPubsub()
-	makesub := func(topic string) chan string {
-		return ps.Subscribe(topic)
-	}
-	ch1 := makesub("tech")
-	ch2 := makesub("travel")
-	ch3 := makesub("travel")
+	ch1 := ps.Subscribe("tech")
+	ch2 := ps.Subscribe("travel")
+	ch3 := ps.Subscribe("travel")
 
 	listener := func(name string, ch chan string) {
 		for i := range ch {
