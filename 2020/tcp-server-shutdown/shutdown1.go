@@ -1,4 +1,8 @@
 // Socket server that can be shut down -- stop serving, in a graceful manner.
+
+// TODO: copy most of this to shutdown1, they should be identical except
+// handleConnection.
+
 package shutdown1
 
 import (
@@ -14,8 +18,6 @@ type Server struct {
 	wg       sync.WaitGroup
 }
 
-// NewServer creates and launches a new server listening on addr. When the
-// server is returned, it's already listening for new connections.
 func NewServer(addr string) *Server {
 	s := &Server{
 		quit: make(chan interface{}),
@@ -29,21 +31,15 @@ func NewServer(addr string) *Server {
 	return s
 }
 
-// Stop asks the server to stop and blocks until the server is actually stopped.
 func (s *Server) Stop() {
-	log.Println("asking the server to stop")
 	close(s.quit)
 	s.listener.Close()
 	s.wg.Wait()
-	log.Println("server stopped")
 }
 
 func (s *Server) serve() {
 	s.wg.Add(1)
-
-	defer func() {
-		s.wg.Done()
-	}()
+	defer s.wg.Done()
 
 	for {
 		conn, err := s.listener.Accept()
@@ -53,24 +49,18 @@ func (s *Server) serve() {
 				return
 			default:
 			}
-
-			log.Println("accept error:", err)
 		} else {
-			go s.handleConection(conn)
+			go func() {
+				s.wg.Add(1)
+				s.handleConection(conn)
+				s.wg.Done()
+			}()
 		}
 	}
 }
 
 func (s *Server) handleConection(conn net.Conn) {
-	s.wg.Add(1)
-	log.Printf("connection from %v", conn.RemoteAddr())
-
-	defer func() {
-		log.Printf("connection from %v done", conn.RemoteAddr())
-		conn.Close()
-		s.wg.Done()
-	}()
-
+	defer conn.Close()
 	buf := make([]byte, 2048)
 	for {
 		n, err := conn.Read(buf)
