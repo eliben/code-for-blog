@@ -1,4 +1,5 @@
-// Run "go test shutdown1.go shutdown1_test.go"
+// TODO: don't use hard coded default addr, instead pick an empty port
+// in both shutdown2 and here, since otherwise they collide
 package shutdown1
 
 import (
