@@ -1,4 +1,9 @@
 // Socket server that can be shut down -- stop serving, in a graceful manner.
+// This version expects all clients to close their connections before it
+// successfully returns from Stop().
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 
 // TODO: copy most of this to shutdown1, they should be identical except
 // handleConnection.
@@ -48,6 +53,7 @@ func (s *Server) serve() {
 			case <-s.quit:
 				return
 			default:
+				log.Println("accept error", err)
 			}
 		} else {
 			go func() {
