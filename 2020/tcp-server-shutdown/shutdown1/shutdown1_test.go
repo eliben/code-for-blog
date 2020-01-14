@@ -1,5 +1,3 @@
-// TODO: don't use hard coded default addr, instead pick an empty port
-// in both shutdown2 and here, since otherwise they collide
 package shutdown1
 
 import (
@@ -89,6 +87,7 @@ func TestSlowClientEndingAfterStop(t *testing.T) {
 	// that.
 	time.Sleep(50 * time.Millisecond)
 	s.Stop()
+	wantFailDial(t, s.listener.Addr())
 }
 
 func TestMultipleServers(t *testing.T) {
