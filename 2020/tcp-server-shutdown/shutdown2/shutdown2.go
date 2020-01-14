@@ -83,6 +83,7 @@ ReadLoop:
 			if n == 0 {
 				return
 			}
+			log.Printf("received from %v: %s", conn.RemoteAddr(), string(buf[:n]))
 		}
 	}
 }
