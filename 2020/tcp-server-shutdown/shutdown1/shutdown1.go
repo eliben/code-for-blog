@@ -56,8 +56,8 @@ func (s *Server) serve() {
 				log.Println("accept error", err)
 			}
 		} else {
+			s.wg.Add(1)
 			go func() {
-				s.wg.Add(1)
 				s.handleConection(conn)
 				s.wg.Done()
 			}()
