@@ -28,6 +28,7 @@ func NewServer(addr string) *Server {
 		log.Fatal(err)
 	}
 	s.listener = l
+	s.wg.Add(1)
 	go s.serve()
 	return s
 }
@@ -39,7 +40,6 @@ func (s *Server) Stop() {
 }
 
 func (s *Server) serve() {
-	s.wg.Add(1)
 	defer s.wg.Done()
 
 	for {
