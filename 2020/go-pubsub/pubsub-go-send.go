@@ -24,7 +24,7 @@ func NewPubsub() *Pubsub {
 	return ps
 }
 
-func (ps *Pubsub) Subscribe(topic string) chan string {
+func (ps *Pubsub) Subscribe(topic string) <-chan string {
 	ps.mu.Lock()
 	defer ps.mu.Unlock()
 
@@ -68,7 +68,7 @@ func main() {
 	ch2 := ps.Subscribe("travel")
 	ch3 := ps.Subscribe("travel")
 
-	listener := func(name string, ch chan string) {
+	listener := func(name string, ch <-chan string) {
 		for i := range ch {
 			fmt.Printf("[%s] got %s\n", name, i)
 		}
