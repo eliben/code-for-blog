@@ -4,10 +4,6 @@
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
-
-// TODO: copy most of this to shutdown1, they should be identical except
-// handleConnection.
-
 package shutdown1
 
 import (
