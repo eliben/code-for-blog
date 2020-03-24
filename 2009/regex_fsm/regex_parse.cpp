@@ -4,6 +4,7 @@
 // Eli Bendersky (eliben@gmail.com)
 //
 
+#include <cassert>
 #include <iostream>
 #include <string>
 #include <cstdlib>
