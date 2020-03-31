@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -12,22 +13,22 @@ func TestParseFlagsCorrect(t *testing.T) {
 		conf Config
 	}{
 		{[]string{"-verbose"},
-			Config{verbose: true, greeting: "", level: 0}},
+			Config{verbose: true, greeting: "", level: 0, args: []string{}}},
 
 		{[]string{"-level", "5"},
-			Config{verbose: false, greeting: "", level: 5}},
+			Config{verbose: false, greeting: "", level: 5, args: []string{}}},
 
-		{[]string{"-verbose"},
-			Config{verbose: true, greeting: "", level: 0}},
+		{[]string{"-verbose", "foo", "bar"},
+			Config{verbose: true, greeting: "", level: 0, args: []string{"foo", "bar"}}},
 
 		{[]string{"-greeting", "joe"},
-			Config{verbose: false, greeting: "joe", level: 0}},
+			Config{verbose: false, greeting: "joe", level: 0, args: []string{}}},
 
 		{[]string{"-greeting", "joe", "-verbose"},
-			Config{verbose: true, greeting: "joe", level: 0}},
+			Config{verbose: true, greeting: "joe", level: 0, args: []string{}}},
 
-		{[]string{"-level", "8", "-greeting", "joe", "-verbose"},
-			Config{verbose: true, greeting: "joe", level: 8}},
+		{[]string{"-level", "8", "-greeting", "joe", "-verbose", "foo"},
+			Config{verbose: true, greeting: "joe", level: 8, args: []string{"foo"}}},
 	}
 
 	for _, tt := range tests {
@@ -39,7 +40,7 @@ func TestParseFlagsCorrect(t *testing.T) {
 			if output != "" {
 				t.Errorf("output got %q, want empty", output)
 			}
-			if *conf != tt.conf {
+			if !reflect.DeepEqual(*conf, tt.conf) {
 				t.Errorf("conf got %+v, want %+v", *conf, tt.conf)
 			}
 		})
