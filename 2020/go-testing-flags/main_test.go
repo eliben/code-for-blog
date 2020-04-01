@@ -12,6 +12,12 @@ func TestParseFlagsCorrect(t *testing.T) {
 		args []string
 		conf Config
 	}{
+		{[]string{},
+			Config{verbose: false, greeting: "", level: 0, args: []string{}}},
+
+		{[]string{"duh"},
+			Config{verbose: false, greeting: "", level: 0, args: []string{"duh"}}},
+
 		{[]string{"-verbose"},
 			Config{verbose: true, greeting: "", level: 0, args: []string{}}},
 
