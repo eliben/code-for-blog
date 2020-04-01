@@ -37,7 +37,7 @@ func parseFlags(progname string, args []string) (config *Config, output string, 
 		return nil, buf.String(), err
 	}
 	conf.args = flags.Args()
-	return &conf, "", nil
+	return &conf, buf.String(), nil
 }
 
 func doWork(config *Config) {
@@ -53,7 +53,7 @@ func main() {
 		fmt.Println("got error:", err)
 		fmt.Println("output:\n", output)
 		os.Exit(1)
-	} else if conf != nil {
-		doWork(conf)
 	}
+
+	doWork(conf)
 }
