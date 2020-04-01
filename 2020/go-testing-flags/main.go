@@ -12,7 +12,7 @@ type Config struct {
 	greeting string
 	level    int
 
-	// args is the non-flag command-line arguments ("positional" arguments).
+	// args are the positional (non-flag) command-line arguments.
 	args []string
 }
 
@@ -20,8 +20,8 @@ type Config struct {
 // Typically os.Args[0] is provided as 'progname' and os.args[1:] as 'args'.
 // Returns the Config in case parsing succeeded, or an error. In any case, the
 // output of the flag.Parse is returned in outpout.
-// A special case is help requests with -h or -help: in this case the error
-// flag.ErrHelp is returned and output will contain the usage message.
+// A special case is usage requests with -h or -help: then the error flag.ErrHelp
+// is returned and output will contain the usage message.
 func parseFlags(progname string, args []string) (config *Config, output string, err error) {
 	flags := flag.NewFlagSet(progname, flag.ContinueOnError)
 	var buf bytes.Buffer
