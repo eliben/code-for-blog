@@ -4,9 +4,12 @@
 package fakestdio
 
 import (
+	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"log"
 	"os"
+	"sync"
 )
 
 // FakeStdio can be used to fake stdin and capture stdout.
@@ -17,8 +20,12 @@ import (
 type FakeStdio struct {
 	origStdout   *os.File
 	stdoutReader *os.File
-	origStdin    *os.File
-	stdinWriter  *os.File
+
+	outBuf *bytes.Buffer
+	outWg  *sync.WaitGroup
+
+	origStdin   *os.File
+	stdinWriter *os.File
 }
 
 func New(stdinText string) (*FakeStdio, error) {
@@ -47,9 +54,32 @@ func New(stdinText string) (*FakeStdio, error) {
 	origStdout := os.Stdout
 	os.Stdout = stdoutWriter
 
+	var wg sync.WaitGroup
+	var outBuf bytes.Buffer
+
+	// This goroutine continuously reads stdout into buf.
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		buf := make([]byte, 2048)
+		for {
+			n, err := stdoutReader.Read(buf)
+			if err != nil && err != io.EOF {
+				log.Println("read error", err)
+				return
+			}
+			if n == 0 {
+				return
+			}
+			outBuf.Write(buf[:n])
+		}
+	}()
+
 	return &FakeStdio{
 		origStdout:   origStdout,
 		stdoutReader: stdoutReader,
+		outBuf:       &outBuf,
+		outWg:        &wg,
 		origStdin:    origStdin,
 		stdinWriter:  stdinWriter,
 	}, nil
@@ -71,11 +101,9 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 		return nil, fmt.Errorf("ReadAndRestore from closed FakeStdio")
 	}
 
+	// TODO: explain
 	os.Stdout.Close()
-	b, err := ioutil.ReadAll(sf.stdoutReader)
-	if err != nil {
-		return nil, err
-	}
+	sf.outWg.Wait()
 
 	os.Stdout = sf.origStdout
 	os.Stdin = sf.origStdin
@@ -90,5 +118,5 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 		sf.stdinWriter = nil
 	}
 
-	return b, nil
+	return sf.outBuf.Bytes(), nil
 }
