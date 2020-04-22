@@ -52,8 +52,8 @@ func TestFakeOutLarge(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	for i := 0; i < 20000; i++ {
-		fmt.Print("fo00")
+	for i := 0; i < 500000; i++ {
+		fmt.Print("fo00sd")
 	}
 
 	b, err := fs.ReadAndRestore()
