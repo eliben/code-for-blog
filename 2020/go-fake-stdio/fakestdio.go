@@ -1,5 +1,4 @@
 // TODO: example in example_test?
-// TODO: goroutine leak test?
 
 package fakestdio
 
@@ -99,7 +98,9 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 		return nil, fmt.Errorf("ReadAndRestore from closed FakeStdio")
 	}
 
-	// TODO: explain
+	// Close the writer side of the faked stdout pipe. This signals to the
+	// goroutine reading from it that it should exit. Then, wait for the goroutine
+	// to actually exit so we can access outWg safely.
 	os.Stdout.Close()
 	sf.outWg.Wait()
 
