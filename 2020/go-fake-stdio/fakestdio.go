@@ -57,13 +57,12 @@ func New(stdinText string) (*FakeStdio, error) {
 	var wg sync.WaitGroup
 	var outBuf bytes.Buffer
 
-	// This goroutine continuously reads stdout into buf.
+	// This goroutine continuously reads stdout into outBuf.
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		buf := make([]byte, 2048)
 		for {
-			n, err := stdoutReader.Read(buf)
+			n, err := outBuf.ReadFrom(stdoutReader)
 			if err != nil && err != io.EOF {
 				log.Println("read error", err)
 				return
@@ -71,7 +70,6 @@ func New(stdinText string) (*FakeStdio, error) {
 			if n == 0 {
 				return
 			}
-			outBuf.Write(buf[:n])
 		}
 	}()
 
