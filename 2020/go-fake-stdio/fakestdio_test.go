@@ -6,9 +6,14 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/fortytw2/leaktest"
 )
 
 func TestFakeOut(t *testing.T) {
+	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
+
 	var tests = []struct {
 		wantOut string
 	}{
@@ -47,6 +52,8 @@ func TestFakeOut(t *testing.T) {
 }
 
 func TestFakeOutLarge(t *testing.T) {
+	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
+
 	fs, err := New("")
 	if err != nil {
 		t.Fatal(err)
@@ -65,6 +72,8 @@ func TestFakeOutLarge(t *testing.T) {
 }
 
 func TestFakeIn(t *testing.T) {
+	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
+
 	var tests = []struct {
 		wantIn string
 	}{
@@ -110,6 +119,8 @@ func TestFakeIn(t *testing.T) {
 }
 
 func TestFakeInAndOut(t *testing.T) {
+	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
+
 	wantIn := "bamboleo"
 	fs, err := New(wantIn)
 	if err != nil {
@@ -139,6 +150,8 @@ func TestFakeInAndOut(t *testing.T) {
 }
 
 func TestCloseStdin(t *testing.T) {
+	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
+
 	wantIn := "marin\nnazar"
 	fs, err := New(wantIn)
 	if err != nil {
