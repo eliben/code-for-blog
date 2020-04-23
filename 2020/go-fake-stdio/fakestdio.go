@@ -1,5 +1,3 @@
-// TODO: example in example_test?
-
 package fakestdio
 
 import (
@@ -13,9 +11,10 @@ import (
 
 // FakeStdio can be used to fake stdin and capture stdout.
 // Between creating a new FakeStdio and calling ReadAndRestore on it,
-// code reading os.Stdin in the process will get the contents of stdinText
-// passed to New. Output to os.Stdout will be captured and returned from
-// ReadAndRestore.
+// code reading os.Stdin will get the contents of stdinText passed to New.
+// Output to os.Stdout will be captured and returned from ReadAndRestore.
+// FakeStdio is not reusable; don't attempt to use it after calling
+// ReadAndRestore, but it should be safe to create a new FakeStdio.
 type FakeStdio struct {
 	origStdout   *os.File
 	stdoutReader *os.File
@@ -28,17 +27,26 @@ type FakeStdio struct {
 }
 
 func New(stdinText string) (*FakeStdio, error) {
+	// Pipe for stdin.
+	//
+	//                 ======
+	//  w ------------->||||------> r
+	// (stdinWriter)   ======      (os.Stdin)
 	stdinReader, stdinWriter, err := os.Pipe()
 	if err != nil {
 		return nil, err
 	}
 
+	// Pipe for stdout.
+	//
+	//               ======
+	//  w ----------->||||------> r
+	// (os.Stdout)   ======      (stdoutReader)
 	stdoutReader, stdoutWriter, err := os.Pipe()
 	if err != nil {
 		return nil, err
 	}
 
-	// Fake stdin and write input text.
 	origStdin := os.Stdin
 	os.Stdin = stdinReader
 
@@ -49,14 +57,15 @@ func New(stdinText string) (*FakeStdio, error) {
 		return nil, err
 	}
 
-	// Fake stdout.
 	origStdout := os.Stdout
 	os.Stdout = stdoutWriter
 
 	var wg sync.WaitGroup
 	var outBuf bytes.Buffer
 
-	// This goroutine continuously reads stdout into outBuf.
+	// This goroutine continuously reads stdout into outBuf in the background.
+	// Access to outBuf is not protected because we read it only after this
+	// goroutine exits.
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -99,7 +108,7 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 	}
 
 	// Close the writer side of the faked stdout pipe. This signals to the
-	// goroutine reading from it that it should exit. Then, wait for the goroutine
+	// background goroutine it that it should exit. Then, wait for the goroutine
 	// to actually exit so we can access outWg safely.
 	os.Stdout.Close()
 	sf.outWg.Wait()
