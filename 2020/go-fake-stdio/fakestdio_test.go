@@ -127,31 +127,35 @@ func TestFakeIn(t *testing.T) {
 func TestFakeInAndOut(t *testing.T) {
 	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
 
-	wantIn := "bamboleo"
-	fs, err := New(wantIn)
-	if err != nil {
-		t.Fatal(err)
-	}
+	for i := 1; i <= 3; i++ {
+		t.Run(fmt.Sprintf("run #%d", i), func(t *testing.T) {
+			wantIn := fmt.Sprintf("bamboleo%d", i)
+			fs, err := New(wantIn)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	wantOut := "joe\n"
-	fmt.Print(wantOut)
+			wantOut := fmt.Sprintf("joe%d\n", i)
+			fmt.Print(wantOut)
 
-	b := make([]byte, 1024)
-	n, err := os.Stdin.Read(b)
-	if err != nil {
-		t.Fatal(err)
-	}
+			b := make([]byte, 1024)
+			n, err := os.Stdin.Read(b)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-	bout, err := fs.ReadAndRestore()
-	if err != nil {
-		t.Fatal(err)
-	}
-	if string(bout) != wantOut {
-		t.Errorf("got %q, want %q", string(bout), wantOut)
-	}
+			bout, err := fs.ReadAndRestore()
+			if err != nil {
+				t.Fatal(err)
+			}
+			if string(bout) != wantOut {
+				t.Errorf("got %q, want %q", string(bout), wantOut)
+			}
 
-	if n != 8 || string(b[:n]) != wantIn {
-		t.Errorf("got n=%d, b=%q; want n=%d, b=%q", n, string(b[:n]), 8, wantIn)
+			if n != len(wantIn) || string(b[:n]) != wantIn {
+				t.Errorf("got n=%d, b=%q; want n=%d, b=%q", n, string(b[:n]), len(wantIn), wantIn)
+			}
+		})
 	}
 }
 
