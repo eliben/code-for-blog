@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -52,15 +53,18 @@ func TestFakeOut(t *testing.T) {
 }
 
 func TestFakeOutLarge(t *testing.T) {
-	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
+	defer leaktest.CheckTimeout(t, 300*time.Millisecond)()
 
 	fs, err := New("")
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	var want strings.Builder
 	for i := 0; i < 500000; i++ {
-		fmt.Print("fo00sd")
+		snippet := strconv.Itoa(i)
+		fmt.Print(snippet)
+		want.WriteString(snippet)
 	}
 
 	b, err := fs.ReadAndRestore()
@@ -68,7 +72,9 @@ func TestFakeOutLarge(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	fmt.Println(len(b))
+	if want.String() != string(b) {
+		t.Errorf("got %v, want %v", string(b), want)
+	}
 }
 
 func TestFakeIn(t *testing.T) {
