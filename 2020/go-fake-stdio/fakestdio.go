@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"sync"
 )
 
 // FakeStdio can be used to fake stdin and capture stdout.
@@ -19,8 +18,7 @@ type FakeStdio struct {
 	origStdout   *os.File
 	stdoutReader *os.File
 
-	outBuf *bytes.Buffer
-	outWg  *sync.WaitGroup
+	outCh chan []byte
 
 	origStdin   *os.File
 	stdinWriter *os.File
@@ -60,25 +58,21 @@ func New(stdinText string) (*FakeStdio, error) {
 	origStdout := os.Stdout
 	os.Stdout = stdoutWriter
 
-	var wg sync.WaitGroup
-	var outBuf bytes.Buffer
+	outCh := make(chan []byte)
 
-	// This goroutine reads stdout into outBuf in the background.
-	// Access to outBuf is not protected because we read it only after this
-	// goroutine exits.
-	wg.Add(1)
+	// This goroutine reads stdout into a buffer in the background.
 	go func() {
-		defer wg.Done()
-		if _, err := io.Copy(&outBuf, stdoutReader); err != nil {
+		var b bytes.Buffer
+		if _, err := io.Copy(&b, stdoutReader); err != nil {
 			log.Println(err)
 		}
+		outCh <- b.Bytes()
 	}()
 
 	return &FakeStdio{
 		origStdout:   origStdout,
 		stdoutReader: stdoutReader,
-		outBuf:       &outBuf,
-		outWg:        &wg,
+		outCh:        outCh,
 		origStdin:    origStdin,
 		stdinWriter:  stdinWriter,
 	}, nil
@@ -101,10 +95,9 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 	}
 
 	// Close the writer side of the faked stdout pipe. This signals to the
-	// background goroutine it that it should exit. Then, wait for the goroutine
-	// to actually exit so we can access outWg safely.
+	// background goroutine it that it should exit.
 	os.Stdout.Close()
-	sf.outWg.Wait()
+	out := <-sf.outCh
 
 	os.Stdout = sf.origStdout
 	os.Stdin = sf.origStdin
@@ -119,5 +112,5 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 		sf.stdinWriter = nil
 	}
 
-	return sf.outBuf.Bytes(), nil
+	return out, nil
 }
