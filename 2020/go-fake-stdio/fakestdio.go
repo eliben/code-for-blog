@@ -63,21 +63,14 @@ func New(stdinText string) (*FakeStdio, error) {
 	var wg sync.WaitGroup
 	var outBuf bytes.Buffer
 
-	// This goroutine continuously reads stdout into outBuf in the background.
+	// This goroutine reads stdout into outBuf in the background.
 	// Access to outBuf is not protected because we read it only after this
 	// goroutine exits.
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		for {
-			n, err := outBuf.ReadFrom(stdoutReader)
-			if err != nil && err != io.EOF {
-				log.Println("read error", err)
-				return
-			}
-			if n == 0 {
-				return
-			}
+		if _, err := io.Copy(&outBuf, stdoutReader); err != nil {
+			log.Println(err)
 		}
 	}()
 
