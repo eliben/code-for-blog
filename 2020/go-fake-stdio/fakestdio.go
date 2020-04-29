@@ -1,3 +1,7 @@
+// Basic package for faking Stdio.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package fakestdio
 
 import (

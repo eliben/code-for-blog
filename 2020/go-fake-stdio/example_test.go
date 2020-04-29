@@ -1,3 +1,7 @@
+// Example of using fakestdio.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package fakestdio
 
 import (

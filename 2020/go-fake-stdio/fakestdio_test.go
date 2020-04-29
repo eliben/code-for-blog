@@ -1,3 +1,7 @@
+// Fakestdio tests.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package fakestdio
 
 import (
@@ -7,14 +11,9 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
-
-	"github.com/fortytw2/leaktest"
 )
 
 func TestFakeOut(t *testing.T) {
-	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
-
 	var tests = []struct {
 		wantOut string
 	}{
@@ -53,8 +52,6 @@ func TestFakeOut(t *testing.T) {
 }
 
 func TestFakeOutLarge(t *testing.T) {
-	defer leaktest.CheckTimeout(t, 300*time.Millisecond)()
-
 	fs, err := New("")
 	if err != nil {
 		t.Fatal(err)
@@ -78,8 +75,6 @@ func TestFakeOutLarge(t *testing.T) {
 }
 
 func TestFakeIn(t *testing.T) {
-	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
-
 	var tests = []struct {
 		wantIn string
 	}{
@@ -125,8 +120,6 @@ func TestFakeIn(t *testing.T) {
 }
 
 func TestFakeInAndOut(t *testing.T) {
-	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
-
 	for i := 1; i <= 3; i++ {
 		t.Run(fmt.Sprintf("run #%d", i), func(t *testing.T) {
 			wantIn := fmt.Sprintf("bamboleo%d", i)
@@ -160,8 +153,6 @@ func TestFakeInAndOut(t *testing.T) {
 }
 
 func TestCloseStdin(t *testing.T) {
-	defer leaktest.CheckTimeout(t, 100*time.Millisecond)()
-
 	wantIn := "marin\nnazar"
 	fs, err := New(wantIn)
 	if err != nil {
