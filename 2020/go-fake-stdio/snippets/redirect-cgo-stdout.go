@@ -1,3 +1,7 @@
+// Redirecting stdout coming from cgo.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 // #include <stdio.h>
