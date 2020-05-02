@@ -99,7 +99,7 @@ func (sf *FakeStdio) ReadAndRestore() ([]byte, error) {
 	}
 
 	// Close the writer side of the faked stdout pipe. This signals to the
-	// background goroutine it that it should exit.
+	// background goroutine that it should exit.
 	os.Stdout.Close()
 	out := <-sf.outCh
 
