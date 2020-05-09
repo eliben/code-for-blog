@@ -56,7 +56,9 @@ func asStructFull() {
 	if err := json.Unmarshal(jsonText, &ag); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(ag)
+	for _, fruit := range ag.Fruits {
+		fmt.Printf("%s -> %f\n", fruit.Name, fruit.Sweetness)
+	}
 }
 
 type Fruit struct {
