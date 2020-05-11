@@ -6,8 +6,6 @@ import (
 	"log"
 )
 
-// TODO: the fruits is a good example of varying struct type -- there is no
-// static type that would fit. Maybe do it in a followup?
 var jsonText = []byte(`
 {
   "attrs": [
@@ -120,8 +118,9 @@ func asHybrid() {
 	if err := json.Unmarshal(fruitsRaw, &fruits); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println(fruits)
+	for _, fruit := range fruits {
+		fmt.Printf("%s -> %f\n", fruit.Name, fruit.Sweetness)
+	}
 }
 
 func main() {
@@ -129,7 +128,7 @@ func main() {
 
 	asMapGenericNoErr()
 
-	//asStructFull()
+	asStructFull()
 
-	//asHybrid()
+	asHybrid()
 }
