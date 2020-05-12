@@ -29,7 +29,7 @@ func main() {
 	if err := json.Unmarshal(jsonText, &opts); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(opts)
+	fmt.Printf("%+v\n", opts)
 
 	// Using an explicit decoder and enabling DisallowUnknownFields will catch
 	// the unrecognized field.
