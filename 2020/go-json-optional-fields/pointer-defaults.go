@@ -20,12 +20,6 @@ type Options struct {
 	Power   *int    `json:"power,omitempty"`
 }
 
-func Bool(v bool) *bool { return &v }
-
-func Int(v int) *int { return &v }
-
-func String(v string) *string { return &v }
-
 func main() {
 	var opts Options
 	if err := json.Unmarshal(jsonText, &opts); err != nil {
@@ -39,4 +33,16 @@ func main() {
 	if opts.Power != nil {
 		fmt.Printf("Power specified: %d\n", *opts.Power)
 	}
+
+	opts2 := Options{
+		Id:    String("joe"),
+		Power: Int(100),
+	}
+
+	jsonOut, _ := json.MarshalIndent(opts2, "", "  ")
+	fmt.Println(string(jsonOut))
 }
+
+func Bool(v bool) *bool       { return &v }
+func Int(v int) *int          { return &v }
+func String(v string) *string { return &v }
