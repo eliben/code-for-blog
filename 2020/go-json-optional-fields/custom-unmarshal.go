@@ -26,8 +26,17 @@ func (o *Options) UnmarshalJSON(text []byte) error {
 	if err := json.Unmarshal(text, &m); err != nil {
 		return err
 	}
-	fmt.Println("Unmarshal:", string(text))
-	fmt.Println("Map:", m)
+
+	if iid, ok := m["id"]; ok {
+		id, ok := iid.(string)
+		if !ok {
+			return fmt.Errorf("got type %T for 'id', want string", iid)
+		}
+		o.Id = id
+	} else {
+		o.Id = ""
+	}
+
 	return nil
 }
 
