@@ -37,6 +37,38 @@ func (o *Options) UnmarshalJSON(text []byte) error {
 		o.Id = ""
 	}
 
+	if iverbose, ok := m["verbose"]; ok {
+		verbose, ok := iverbose.(bool)
+		if !ok {
+			return fmt.Errorf("got type %T for 'verbose', want bool", iverbose)
+		}
+		o.Verbose = verbose
+	} else {
+		o.Verbose = true
+	}
+
+	if ilevel, ok := m["level"]; ok {
+		flevel, ok := ilevel.(float64)
+		if !ok {
+			return fmt.Errorf("got type %T for 'level', want float64", ilevel)
+		}
+		o.Level = int(flevel)
+	} else {
+		o.Level = 1
+	}
+
+	if ipower, ok := m["power"]; ok {
+		fpower, ok := ipower.(float64)
+		if !ok {
+			return fmt.Errorf("got type %T for 'power', want float64", ipower)
+		}
+		o.Power = int(fpower)
+	} else {
+		o.Power = 1
+	}
+
+	// TODO: verify no unknown fields
+
 	return nil
 }
 
