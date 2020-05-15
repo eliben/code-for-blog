@@ -52,7 +52,7 @@ func asMapGeneric() {
 	}
 	fslice, ok := fruits.([]interface{})
 	if !ok {
-		log.Fatal("'fruits' field not a map")
+		log.Fatal("'fruits' field not a slice")
 	}
 
 	for _, f := range fslice {
