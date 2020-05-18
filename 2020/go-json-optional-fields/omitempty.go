@@ -42,4 +42,11 @@ func main() {
 
 	jsonOut, _ := json.MarshalIndent(opts, "", "  ")
 	fmt.Println(string(jsonOut))
+
+	opts3 := Options{
+		Id:    "baz",
+		Level: 0,
+	}
+	out, _ := json.MarshalIndent(opts3, "", "  ")
+	fmt.Println(string(out))
 }
