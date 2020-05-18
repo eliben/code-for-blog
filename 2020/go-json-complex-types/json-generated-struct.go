@@ -1,3 +1,8 @@
+// Sample code for unmarshaling complex JSON structures into Go structs,
+// using several approaches.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
