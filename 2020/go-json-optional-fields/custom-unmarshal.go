@@ -22,6 +22,8 @@ type Options struct {
 }
 
 func (o *Options) UnmarshalJSON(text []byte) error {
+	// Ask json to parse text to a generic map[string]interface{}, which accepts
+	// any key and any (JSON-valid) value type.
 	var m map[string]interface{}
 	if err := json.Unmarshal(text, &m); err != nil {
 		return err
