@@ -21,10 +21,7 @@ type Options struct {
 }
 
 func main() {
-	var opts Options
-	if err := json.Unmarshal(jsonText, &opts); err != nil {
-		log.Fatal(err)
-	}
+	opts := parseOptions(jsonText)
 
 	if opts.Level != nil {
 		fmt.Printf("Level specified: %d\n", *opts.Level)
@@ -41,6 +38,20 @@ func main() {
 
 	jsonOut, _ := json.MarshalIndent(opts2, "", "  ")
 	fmt.Println(string(jsonOut))
+}
+
+func parseOptions(jsn []byte) Options {
+	var opts Options
+	if err := json.Unmarshal(jsonText, &opts); err != nil {
+		log.Fatal(err)
+	}
+
+	if opts.Power == nil {
+		var v int = 10
+		opts.Power = &v
+	}
+
+	return opts
 }
 
 func Bool(v bool) *bool       { return &v }
