@@ -1,3 +1,7 @@
+// Pointer fields in a JSON type to set defaults to missing keys.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
