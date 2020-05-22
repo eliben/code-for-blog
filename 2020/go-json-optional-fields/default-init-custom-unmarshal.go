@@ -1,3 +1,7 @@
+// Set default values prior to parsing with a custom UnmarshalJSON.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
