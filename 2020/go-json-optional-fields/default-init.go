@@ -22,7 +22,9 @@ type Options struct {
 
 func parseOptions(jsn []byte) Options {
 	opts := Options{
-		Power: 10,
+		Verbose: false,
+		Level:   0,
+		Power:   10,
 	}
 	if err := json.Unmarshal(jsn, &opts); err != nil {
 		log.Fatal(err)
