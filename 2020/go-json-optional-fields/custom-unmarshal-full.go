@@ -1,4 +1,5 @@
-// Custom unmarshaling of a JSON type to set defaults to missing keys.
+// Custom unmarshaling of a JSON type to a map, in order to set defaults to
+// missing keys.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
