@@ -6,19 +6,19 @@ from utils import Timer
 
 class SimpleAnimation(object):
     """ A simple animation. Scrolls cyclically through a list of
-        images, drawing them onto the screen in the same posision.    
+        images, drawing them onto the screen in the same posision.
     """
     def __init__(self, screen, pos, images, scroll_period, duration=-1):
-        """ Create an animation.        
-            
+        """ Create an animation.
+
             screen: The screen to which the animation will be drawn
             pos: Position on the screen
-            images: 
+            images:
                 A list of surface objects to cyclically scroll through
-            scroll_period: 
+            scroll_period:
                 Scrolling period (in ms)
             duration:
-                Duration of the animation (in ms). If -1, the 
+                Duration of the animation (in ms). If -1, the
                 animation will have indefinite duration.
         """
         self.screen = screen
@@ -27,21 +27,21 @@ class SimpleAnimation(object):
         self.img_ptr = 0
         self.active = True
         self.duration = duration
-        
+
         self.scroll_timer = Timer(scroll_period, self._advance_img)
         self.active_timer = Timer(duration, self._inactivate, True)
-    
+
     def is_active(self):
         """ Is the animation active ?
-        
+
             An animation is active from the moment of its creation
             and until the duration has passed.
         """
         return self.active
-    
+
     def update(self, time_passed):
         """ Update the animation's state.
-        
+
             time_passed:
                 The time passed (in ms) since the previous update.
         """
@@ -55,11 +55,11 @@ class SimpleAnimation(object):
             cur_img = self.images[self.img_ptr]
             self.draw_rect = cur_img.get_rect().move(self.pos)
             self.screen.blit(cur_img, self.draw_rect)
-            
+
     def _inactivate(self):
         if self.duration >= 0:
             self.active = False
-    
+
     def _advance_img(self):
         self.img_ptr = (self.img_ptr + 1) % len(self.images)
 
@@ -76,14 +76,14 @@ if __name__ == "__main__":
 
     while True:
         time_passed = clock.tick(50)
-        
+
         screen.fill((0, 0, 0))
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-        
+
         expl.update(time_passed)
         expl.draw()
-        
+
         pygame.display.flip()

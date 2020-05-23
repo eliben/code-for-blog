@@ -18,7 +18,7 @@ pygame.draw.circle(surf2, (200,0,0,100),(100,100), 100)
 surf1.set_alpha(100)
 surf2.set_alpha(100)
 
-                    
+
 srect = pygame.Surface((90, 90))
 pygame.draw.rect(srect, Color(0, 120, 200), Rect(0, 0, 90, 90))
 srect.set_alpha(130)
