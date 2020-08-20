@@ -1,3 +1,7 @@
+// Basic example of embedding a struct in a struct.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"

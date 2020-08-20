@@ -1,5 +1,8 @@
 // Demonstrates how to use sort, and how to reverse-sort using an embedded
 // interface.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

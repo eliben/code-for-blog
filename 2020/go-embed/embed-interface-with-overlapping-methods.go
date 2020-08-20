@@ -1,5 +1,8 @@
 // Embed interfaces with overlapping method sets
 // see https://github.com/golang/proposal/blob/master/design/6977-overlapping-interfaces.md
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
