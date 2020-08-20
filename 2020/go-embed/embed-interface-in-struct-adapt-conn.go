@@ -2,6 +2,9 @@
 // rest.
 // Shows https://github.com/golang/go/issues/22013#issuecomment-331886875 in
 // action.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

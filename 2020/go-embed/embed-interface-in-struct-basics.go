@@ -1,8 +1,10 @@
-package main
-
 // Show how embedding an interface in a struct makes the struct automatically
 // implement the interface; but unless the embedded field is initialized with
 // something, actual calls to these methods will panic.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+package main
 
 import "fmt"
 
