@@ -1,4 +1,15 @@
-// Find struct an interface types that embed other structs and interfaces.
+// Tool to find struct or interface types that embed other structs and
+// interfaces.
+//
+// Usage:
+//
+// $ go run <this file> -- <module root dir>
+//
+// Will run the tool on the given module. Can optionally provide -pattern to
+// adjust the package pattern.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

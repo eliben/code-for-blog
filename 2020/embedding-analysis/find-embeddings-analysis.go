@@ -1,3 +1,15 @@
+// Similar to find-embeddings.go, but uses the go/analysis framework.
+//
+// To use this tool, it's recommended to 'go build' it first and then invoke
+// it from the root directly of the module you want to analyze, with the package
+// patter as the sole argument; for example:
+//
+// $ find-embeddings-analysis ./...
+//
+// Run with -help to see the flags inherited from the go/analysis framework.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
