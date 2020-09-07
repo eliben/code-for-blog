@@ -15,7 +15,6 @@ import (
 )
 
 const mode packages.LoadMode = packages.NeedName |
-	packages.NeedFiles |
 	packages.NeedTypes |
 	packages.NeedSyntax |
 	packages.NeedTypesInfo
