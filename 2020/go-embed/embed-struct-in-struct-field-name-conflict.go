@@ -12,7 +12,7 @@ type Base struct {
 }
 
 func (base Base) DescribeTag() string {
-	return fmt.Sprintf("tag is %s", base.tag)
+	return fmt.Sprintf("Base tag is %s", base.tag)
 }
 
 type Container struct {
@@ -22,7 +22,7 @@ type Container struct {
 }
 
 func (co Container) DescribeTag() string {
-	return fmt.Sprintf("tag is %s", co.tag)
+	return fmt.Sprintf("Container tag is %s", co.tag)
 }
 
 func main() {
