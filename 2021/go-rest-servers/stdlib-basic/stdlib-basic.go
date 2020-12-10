@@ -112,8 +112,7 @@ func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request
 	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
 	defer ts.Unlock()
 
-	rid := ResponseId{Id: id}
-	js, err := json.Marshal(rid)
+	js, err := json.Marshal(ResponseId{Id: id})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
