@@ -50,12 +50,13 @@ func (ts *taskServer) taskHandler(w http.ResponseWriter, req *http.Request) {
 		}
 	} else {
 		// Request has an ID, as in "/task/<id>".
-		path := strings.TrimRight(req.URL.Path, "/")
-		if path[:6] != "/task/" {
-			http.Error(w, "expect /task/ in task handler", http.StatusInternalServerError)
+		path := strings.Trim(req.URL.Path, "/")
+		pathParts := strings.Split(path, "/")
+		if len(pathParts) < 2 {
+			http.Error(w, "expect /task/<id> in task handler", http.StatusBadRequest)
 			return
 		}
-		id, err := strconv.Atoi(path[6:])
+		id, err := strconv.Atoi(pathParts[1])
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
