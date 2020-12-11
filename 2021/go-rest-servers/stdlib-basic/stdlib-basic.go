@@ -261,5 +261,5 @@ func main() {
 	mux.HandleFunc("/tag/", server.tagHandler)
 	mux.HandleFunc("/due/", server.dueHandler)
 
-	http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux)
+	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux))
 }
