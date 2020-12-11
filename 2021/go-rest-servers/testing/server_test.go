@@ -392,10 +392,16 @@ func TestErrors(t *testing.T) {
 		method   string
 		wantCode int
 	}{
-		{"/foo", "GET", http.StatusNotFound},
-		{"/foo", "POST", http.StatusNotFound},
+		{"/foo/", "GET", http.StatusNotFound},
+		{"/foo/", "POST", http.StatusNotFound},
+		{"/task/", "PUT", http.StatusMethodNotAllowed},
+		{"/task/11", "PUT", http.StatusMethodNotAllowed},
+		{"/task/foobar", "GET", http.StatusBadRequest},
+		{"/task/foobar", "DELETE", http.StatusBadRequest},
+
 		{"/tag/todo", "POST", http.StatusMethodNotAllowed},
 		{"/tag/todo", "DELETE", http.StatusMethodNotAllowed},
+
 		{"/due/2020/11", "GET", http.StatusBadRequest},
 		{"/due/2020/11/20", "POST", http.StatusMethodNotAllowed},
 		{"/due/shell/11/20", "GET", http.StatusBadRequest},
