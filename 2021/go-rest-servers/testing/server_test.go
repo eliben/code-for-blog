@@ -385,3 +385,42 @@ func TestGetByDueDate(t *testing.T) {
 		})
 	}
 }
+
+func TestErrors(t *testing.T) {
+	var tests = []struct {
+		addr     string
+		method   string
+		wantCode int
+	}{
+		{"/foo", "GET", http.StatusNotFound},
+		{"/foo", "POST", http.StatusNotFound},
+		{"/tag/todo", "POST", http.StatusMethodNotAllowed},
+		{"/tag/todo", "DELETE", http.StatusMethodNotAllowed},
+		{"/due/2020/11", "GET", http.StatusBadRequest},
+		{"/due/2020/11/20", "POST", http.StatusMethodNotAllowed},
+		{"/due/shell/11/20", "GET", http.StatusBadRequest},
+		{"/due/2011/_/20", "GET", http.StatusBadRequest},
+		{"/due/2020/11/x", "GET", http.StatusBadRequest},
+	}
+
+	for _, tt := range tests {
+		ttname := fmt.Sprintf("%s->%s", tt.method, tt.addr)
+		t.Run(ttname, func(t *testing.T) {
+			req, err := http.NewRequest(tt.method, serverAddress()+tt.addr, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			var client http.Client
+			resp, err := client.Do(req)
+			if err != nil {
+				log.Fatal(err)
+			}
+			resp.Body.Close()
+
+			if resp.StatusCode != tt.wantCode {
+				t.Fatalf("want status code=%v, got %v at %s->%s", tt.wantCode, resp.StatusCode, tt.method, tt.addr)
+			}
+		})
+	}
+}
