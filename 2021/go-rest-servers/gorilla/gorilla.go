@@ -38,6 +38,40 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 	w.Write(js)
 }
 
+func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling task create at %s\n", req.URL.Path)
+}
+
+func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling get all tasks at %s\n", req.URL.Path)
+}
+
+func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
+	log.Printf("handling get task at %s\n", req.URL.Path)
+}
+
+func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
+	log.Printf("handling delete task at %s\n", req.URL.Path)
+}
+
+func (ts *taskServer) deleteAllTasksHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling delete all tasks at %s\n", req.URL.Path)
+	ts.Lock()
+	ts.store.DeleteAllTasks()
+	ts.Unlock()
+}
+
+func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
+	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
+
+	tag := mux.Vars(req)["tag"]
+	ts.Lock()
+	tasks := ts.store.GetTasksByTag(tag)
+	ts.Unlock()
+
+	renderJSON(w, tasks)
+}
+
 func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
 
@@ -75,6 +109,10 @@ func main() {
 
 	server := NewTaskServer()
 
+	router.HandleFunc("/task", server.createTaskHandler).Methods("POST")
+	router.HandleFunc("/task", server.getAllTasksHandler).Methods("GET")
+	router.HandleFunc("/task", server.deleteAllTasksHandler).Methods("DELETE")
+	router.HandleFunc("/tag/{tag}", server.tagHandler).Methods("GET")
 	router.HandleFunc(
 		"/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}",
 		server.dueHandler).Methods("GET")
