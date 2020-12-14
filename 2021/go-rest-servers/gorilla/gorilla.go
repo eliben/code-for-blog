@@ -182,7 +182,6 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
 	router := mux.NewRouter()
 	router.StrictSlash(true)
-
 	server := NewTaskServer()
 
 	router.HandleFunc("/task/", server.createTaskHandler).Methods("POST")
@@ -191,14 +190,7 @@ func main() {
 	router.HandleFunc("/task/{id:[0-9]+}/", server.getTaskHandler).Methods("GET")
 	router.HandleFunc("/task/{id:[0-9]+}/", server.deleteTaskHandler).Methods("DELETE")
 	router.HandleFunc("/tag/{tag}/", server.tagHandler).Methods("GET")
-	router.HandleFunc(
-		"/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/",
-		server.dueHandler).Methods("GET")
-
-	//server := NewTaskServer()
-	//mux.HandleFunc("/task/", server.taskHandler)
-	//mux.HandleFunc("/tag/", server.tagHandler)
-	//mux.HandleFunc("/due/", server.dueHandler)
+	router.HandleFunc("/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/", server.dueHandler).Methods("GET")
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), router))
 }
