@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"mime"
 	"net/http"
 	"os"
 	"strconv"
@@ -40,10 +41,54 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 
 func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling task create at %s\n", req.URL.Path)
+
+	// Types used internally in this handler to (de-)serialize the request and
+	// response from/to JSON.
+	type RequestTask struct {
+		Text string    `json:"text"`
+		Tags []string  `json:"tags"`
+		Due  time.Time `json:"due"`
+	}
+
+	type ResponseId struct {
+		Id int `json:"id"`
+	}
+
+	// Enforce a JSON Content-Type.
+	contentType := req.Header.Get("Content-Type")
+	mediatype, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if mediatype != "application/json" {
+		http.Error(w, "expect application/json Content-Type", http.StatusUnsupportedMediaType)
+		return
+	}
+
+	dec := json.NewDecoder(req.Body)
+	dec.DisallowUnknownFields()
+	var rt RequestTask
+	if err := dec.Decode(&rt); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ts.Lock()
+	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
+	defer ts.Unlock()
+
+	renderJSON(w, ResponseId{Id: id})
 }
 
 func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling get all tasks at %s\n", req.URL.Path)
+
+	ts.Lock()
+	allTasks := ts.store.GetAllTasks()
+	ts.Unlock()
+
+	renderJSON(w, allTasks)
 }
 
 func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
@@ -109,12 +154,12 @@ func main() {
 
 	server := NewTaskServer()
 
-	router.HandleFunc("/task", server.createTaskHandler).Methods("POST")
-	router.HandleFunc("/task", server.getAllTasksHandler).Methods("GET")
-	router.HandleFunc("/task", server.deleteAllTasksHandler).Methods("DELETE")
-	router.HandleFunc("/tag/{tag}", server.tagHandler).Methods("GET")
+	router.HandleFunc("/task/", server.createTaskHandler).Methods("POST")
+	router.HandleFunc("/task/", server.getAllTasksHandler).Methods("GET")
+	router.HandleFunc("/task/", server.deleteAllTasksHandler).Methods("DELETE")
+	router.HandleFunc("/tag/{tag}/", server.tagHandler).Methods("GET")
 	router.HandleFunc(
-		"/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}",
+		"/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/",
 		server.dueHandler).Methods("GET")
 
 	//server := NewTaskServer()
