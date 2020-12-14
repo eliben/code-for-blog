@@ -1,5 +1,7 @@
 package main
 
+// TODO: don't Atoi? gorilla already matches regex, and Atoi returns id 0 if error
+
 import (
 	"encoding/json"
 	"fmt"
@@ -94,12 +96,9 @@ func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Reques
 func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling get task at %s\n", req.URL.Path)
 
-	id, err := strconv.Atoi(mux.Vars(req)["id"])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
+	// Here and elsewhere, not checking error of Atoi because the router only
+	// matches the [0-9]+ regex.
+	id, _ := strconv.Atoi(mux.Vars(req)["id"])
 	ts.Lock()
 	task, err := ts.store.GetTask(id)
 	ts.Unlock()
@@ -115,14 +114,9 @@ func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
 func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling delete task at %s\n", req.URL.Path)
 
-	id, err := strconv.Atoi(mux.Vars(req)["id"])
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
+	id, _ := strconv.Atoi(mux.Vars(req)["id"])
 	ts.Lock()
-	err = ts.store.DeleteTask(id)
+	err := ts.store.DeleteTask(id)
 	ts.Unlock()
 
 	if err != nil {
@@ -156,21 +150,13 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, fmt.Sprintf("expect /due/<year>/<month>/<day>, got %v", req.URL.Path), http.StatusBadRequest)
 	}
 
-	year, err := strconv.Atoi(vars["year"])
-	if err != nil {
+	year, _ := strconv.Atoi(vars["year"])
+	month, _ := strconv.Atoi(vars["month"])
+	if month < int(time.January) || month > int(time.December) {
 		badRequestError()
 		return
 	}
-	month, err := strconv.Atoi(vars["month"])
-	if err != nil || month < int(time.January) || month > int(time.December) {
-		badRequestError()
-		return
-	}
-	day, err := strconv.Atoi(vars["day"])
-	if err != nil {
-		badRequestError()
-		return
-	}
+	day, _ := strconv.Atoi(vars["day"])
 
 	ts.Lock()
 	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
