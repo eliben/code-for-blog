@@ -91,12 +91,43 @@ func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Reques
 	renderJSON(w, allTasks)
 }
 
-func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
+func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling get task at %s\n", req.URL.Path)
+
+	id, err := strconv.Atoi(mux.Vars(req)["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ts.Lock()
+	task, err := ts.store.GetTask(id)
+	ts.Unlock()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	renderJSON(w, task)
 }
 
-func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
+func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling delete task at %s\n", req.URL.Path)
+
+	id, err := strconv.Atoi(mux.Vars(req)["id"])
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	ts.Lock()
+	err = ts.store.DeleteTask(id)
+	ts.Unlock()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+	}
 }
 
 func (ts *taskServer) deleteAllTasksHandler(w http.ResponseWriter, req *http.Request) {
@@ -157,6 +188,8 @@ func main() {
 	router.HandleFunc("/task/", server.createTaskHandler).Methods("POST")
 	router.HandleFunc("/task/", server.getAllTasksHandler).Methods("GET")
 	router.HandleFunc("/task/", server.deleteAllTasksHandler).Methods("DELETE")
+	router.HandleFunc("/task/{id:[0-9]+}/", server.getTaskHandler).Methods("GET")
+	router.HandleFunc("/task/{id:[0-9]+}/", server.deleteTaskHandler).Methods("DELETE")
 	router.HandleFunc("/tag/{tag}/", server.tagHandler).Methods("GET")
 	router.HandleFunc(
 		"/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/",
