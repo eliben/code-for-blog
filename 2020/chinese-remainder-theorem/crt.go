@@ -1,11 +1,5 @@
-package main
-
-import (
-	"fmt"
-	"math/big"
-)
-
-// Includes several implementations of CRT (Chinese Remainder Theorem).
+// Solver for the Chinese Remainder Theorem (CRT).
+//
 // All functions are to be used as follows:
 //
 //   result := f(a, n)
@@ -19,6 +13,15 @@ import (
 //
 // Restrictions: len(a) == len(n). Also, all n have to be coprime; otherwise
 // the result is not guaranteed to be correct.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+package main
+
+import (
+	"fmt"
+	"math/big"
+)
 
 func crtSearch(a, n []int64) int64 {
 	var N int64 = 1
@@ -28,12 +31,12 @@ func crtSearch(a, n []int64) int64 {
 
 search:
 	for i := int64(0); i < N; i++ {
+		// Does i satisfy all the congruences?
 		for k := 0; k < len(n); k++ {
 			if i%n[k] != a[k] {
 				continue search
 			}
 		}
-
 		return i
 	}
 
@@ -50,11 +53,14 @@ func crtSieve(a, n []int64) int64 {
 	incr := n[0]
 
 nextBase:
+	// This loop goes over the congruences one by one; base is a solution
+	// to the congruences seen so far.
 	for i := 1; i < len(a); i++ {
+		// Find a solution that works for the new congruence a[i] as well.
 		for candidate := base; candidate < N; candidate += incr {
 			if candidate%n[i] == a[i] {
 				base = candidate
-				incr = incr * n[i]
+				incr *= n[i]
 				continue nextBase
 			}
 		}
@@ -65,7 +71,7 @@ nextBase:
 }
 
 func crtSieveBig(a, n []*big.Int) *big.Int {
-	// Compute N: product(n[...])
+	// Same algorithm as crtSieve, but converted to use big.Int
 	N := new(big.Int).Set(n[0])
 	for _, nk := range n[1:] {
 		N.Mul(N, nk)
@@ -84,7 +90,6 @@ nextBase:
 				continue nextBase
 			}
 		}
-		// Inner loop exited without finding candidate
 		return big.NewInt(-1)
 	}
 	return base
