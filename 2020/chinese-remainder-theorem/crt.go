@@ -5,7 +5,20 @@ import (
 	"math/big"
 )
 
-// TODO: answer is not guaranteed to be correct if n are not co-prime!!
+// Includes several implementations of CRT (Chinese Remainder Theorem).
+// All functions are to be used as follows:
+//
+//   result := f(a, n)
+//
+// Where 'a' is the slice of residues and 'n' the slice of corresponding moduli.
+// These represent the set of congruences:
+//
+//    x = a[0] (mod n[0])
+//    x = a[1] (mod n[1])
+//    ...
+//
+// Restrictions: len(a) == len(n). Also, all n have to be coprime; otherwise
+// the result is not guaranteed to be correct.
 
 func crtSearch(a, n []int64) int64 {
 	var N int64 = 1
@@ -52,6 +65,7 @@ nextBase:
 }
 
 func crtSieveBig(a, n []*big.Int) *big.Int {
+	// Compute N: product(n[...])
 	N := new(big.Int).Set(n[0])
 	for _, nk := range n[1:] {
 		N.Mul(N, nk)

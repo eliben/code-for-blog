@@ -6,6 +6,8 @@ import (
 	"testing"
 )
 
+// bigIntSlice takes a slice of int64 and returns a slice of them all converted
+// to *big.Ints
 func bigIntSlice(nums []int64) []*big.Int {
 	b := make([]*big.Int, len(nums))
 	for i, n := range nums {
@@ -54,5 +56,18 @@ func TestCRTs(t *testing.T) {
 				t.Errorf("crtConstructBig=%v, want %v", r4big, tt.answer)
 			}
 		})
+	}
+}
+
+func TestCRTHuge(t *testing.T) {
+	// Check that both methods return the same result.
+	a := []int64{990101, 2019304, 80000, 102, 201, 3010, 500, 399}
+	n := []int64{3333383, 2666141, 902761, 668821, 77003, 61223, 60161, 25873}
+
+	r1 := crtSieveBig(bigIntSlice(a), bigIntSlice(n))
+	r2 := crtConstructBig(bigIntSlice(a), bigIntSlice(n))
+
+	if r1.Cmp(r2) != 0 {
+		t.Errorf("want equal results; got r1=%v, r2=%v", r1, r2)
 	}
 }
