@@ -59,7 +59,7 @@ func TestCRTs(t *testing.T) {
 	}
 }
 
-func TestCRTHuge(t *testing.T) {
+func TestCrtHuge(t *testing.T) {
 	// Check that both methods return the same result.
 	a := []int64{990101, 2019304, 80000, 102, 201, 3010, 500, 399}
 	n := []int64{3333383, 2666141, 902761, 668821, 77003, 61223, 60161, 25873}
@@ -69,5 +69,43 @@ func TestCRTHuge(t *testing.T) {
 
 	if r1.Cmp(r2) != 0 {
 		t.Errorf("want equal results; got r1=%v, r2=%v", r1, r2)
+	}
+}
+
+func BenchmarkCrtSearchSmall(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		crtSearch([]int64{19, 6, 7, 11}, []int64{31, 32, 99, 23})
+	}
+}
+
+func BenchmarkCrtSieveSmall(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		crtSieve([]int64{19, 6, 7, 11}, []int64{31, 32, 99, 23})
+	}
+}
+
+func BenchmarkCrtSieveSortedSmall(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		crtSieve([]int64{7, 6, 19, 11}, []int64{99, 32, 31, 23})
+	}
+}
+
+func BenchmarkCrtSieveSortedLarge(b *testing.B) {
+	as := bigIntSlice([]int64{990101, 2019304, 80000, 102, 201, 3010, 500, 399})
+	ns := bigIntSlice([]int64{3333383, 2666141, 902761, 668821, 77003, 61223, 60161, 25873})
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		crtSieveBig(as, ns)
+	}
+}
+
+func BenchmarkCrtConstructLarge(b *testing.B) {
+	as := bigIntSlice([]int64{990101, 2019304, 80000, 102, 201, 3010, 500, 399})
+	ns := bigIntSlice([]int64{3333383, 2666141, 902761, 668821, 77003, 61223, 60161, 25873})
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		crtConstructBig(as, ns)
 	}
 }
