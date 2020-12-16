@@ -5,6 +5,8 @@ import (
 	"math/big"
 )
 
+// TODO: answer is not guaranteed to be correct if n are not co-prime!!
+
 func crtSearch(a, n []int64) int64 {
 	var N int64 = 1
 	for _, nk := range n {
@@ -69,7 +71,7 @@ nextBase:
 			}
 		}
 		// Inner loop exited without finding candidate
-		return nil
+		return big.NewInt(-1)
 	}
 	return base
 }
@@ -91,7 +93,7 @@ func crtConstructBig(a, n []*big.Int) *big.Int {
 		// N'k (Nkp) is the multiplicative inverse of Nk modulo nk.
 		Nkp := new(big.Int)
 		if Nkp.ModInverse(Nk, nk) == nil {
-			return nil
+			return big.NewInt(-1)
 		}
 
 		// x += ak*Nk*Nkp
