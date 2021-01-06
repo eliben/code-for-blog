@@ -1,11 +1,3 @@
-// TODO: Next steps:
-//
-//  - Refactor repetitive JSON rendering from all handlers (after I have a
-//    tester client)
-//
-// Mention https://www.alexedwards.net/blog/how-to-properly-parse-a-json-request-body
-// and its gotchas about parsing JSON requests with proper error handling.
-
 package main
 
 import (
