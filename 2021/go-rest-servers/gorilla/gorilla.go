@@ -1,7 +1,5 @@
 package main
 
-// TODO: don't Atoi? gorilla already matches regex, and Atoi returns id 0 if error
-
 import (
 	"encoding/json"
 	"fmt"
