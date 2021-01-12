@@ -1,3 +1,9 @@
+// Basic example of a REST server with several routes, using only the standard
+// libraray; same as stdlib-basic, but with JSON rendering refactored into
+// a helper function.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

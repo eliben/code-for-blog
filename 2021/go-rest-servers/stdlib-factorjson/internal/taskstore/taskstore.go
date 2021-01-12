@@ -1,5 +1,8 @@
 // package taskstore provides a simple in-memory "data store" for tasks.
 // Tasks are uniquely identified by numeric IDs.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package taskstore
 
 import (

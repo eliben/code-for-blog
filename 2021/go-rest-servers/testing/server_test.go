@@ -1,5 +1,8 @@
 // Testing for taskstore servers; running tests assume a server runs at a fixed
 // port specified by the SERVERPORT env var.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package server
 
 import (
