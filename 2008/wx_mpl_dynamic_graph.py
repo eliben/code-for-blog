@@ -199,9 +199,9 @@ class GraphFrame(wx.Frame):
         self.fig = Figure((3.0, 3.0), dpi=self.dpi)
 
         self.axes = self.fig.add_subplot(111)
-        self.axes.set_axis_bgcolor('black')
+        self.axes.set_facecolor('black')
         self.axes.set_title('Very important random data', size=12)
-        
+
         pylab.setp(self.axes.get_xticklabels(), fontsize=8)
         pylab.setp(self.axes.get_yticklabels(), fontsize=8)
 
@@ -328,7 +328,7 @@ class GraphFrame(wx.Frame):
 
 
 if __name__ == '__main__':
-    app = wx.PySimpleApp()
+    app = wx.App()
     app.frame = GraphFrame()
     app.frame.Show()
     app.MainLoop()
