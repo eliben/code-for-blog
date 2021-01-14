@@ -113,7 +113,7 @@ class BarsFrame(wx.Frame):
             minValue=1,
             maxValue=100,
             style=wx.SL_AUTOTICKS | wx.SL_LABELS)
-        self.slider_width.SetTickFreq(10, 1)
+        self.slider_width.SetTickFreq(10)
         self.Bind(wx.EVT_COMMAND_SCROLL_THUMBTRACK, self.on_slider_width, self.slider_width)
 
         # Create the navigation toolbar, tied to the canvas
@@ -150,19 +150,19 @@ class BarsFrame(wx.Frame):
         """ Redraws the figure
         """
         str = self.textbox.GetValue()
-        self.data = map(int, str.split())
+        self.data = list(map(int, str.split()))
         x = range(len(self.data))
 
         # clear the axes and redraw the plot anew
         #
         self.axes.clear()        
         self.axes.grid(self.cb_grid.IsChecked())
-        
+
         self.axes.bar(
-            left=x, 
-            height=self.data, 
-            width=self.slider_width.GetValue() / 100.0, 
-            align='center', 
+            x=list(x),
+            height=self.data,
+            width=self.slider_width.GetValue() / 100.0,
+            align='center',
             alpha=0.44,
             picker=5)
         
@@ -246,7 +246,7 @@ class BarsFrame(wx.Frame):
 
 
 if __name__ == '__main__':
-    app = wx.PySimpleApp()
+    app = wx.App()
     app.frame = BarsFrame()
     app.frame.Show()
     app.MainLoop()
