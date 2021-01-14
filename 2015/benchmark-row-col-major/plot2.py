@@ -1,3 +1,5 @@
+# Tested with Python3.8 and matplotlib 3.3
+
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
@@ -21,7 +23,6 @@ width = (1.0 - space) / num_candidates
 for i, candidate in enumerate(candidates):
     indices = range(1, len(parameters) + 1)
     vals = dpoints[i, :]
-    print vals
     pos = [j - (1.0 - space) / 2 + i * width for j in indices]
     ax.bar(pos, vals, width=width, label=candidate,
            color=cm.Accent(float(i) / num_candidates))
