@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"sync"
 
 	"example.com/internal/taskstore"
@@ -29,14 +30,34 @@ func (ts *taskServer) getAllTasksHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, allTasks)
 }
 
+func (ts *taskServer) getTaskHandler(c *gin.Context) {
+	id, err := strconv.Atoi(c.Params.ByName("id"))
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ts.Lock()
+	task, err := ts.store.GetTask(id)
+	ts.Unlock()
+
+	if err != nil {
+		c.String(http.StatusNotFound, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, task)
+}
+
 func main() {
-	engine := gin.Default()
+	router := gin.Default()
 	server := NewTaskServer()
 
-	engine.GET("/task/", server.getAllTasksHandler)
+	router.GET("/task/", server.getAllTasksHandler)
+	router.GET("/task/:id", server.getTaskHandler)
 
 	// TODO: need StrictSlash equivalent?
 	// TODO: note that Default() already has some default middleware setup
 
-	engine.Run("localhost:" + os.Getenv("SERVERPORT"))
+	router.Run("localhost:" + os.Getenv("SERVERPORT"))
 }
