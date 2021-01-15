@@ -31,6 +31,12 @@ func (ts *taskServer) getAllTasksHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, allTasks)
 }
 
+func (ts *taskServer) deleteAllTasksHandler(c *gin.Context) {
+	ts.Lock()
+	ts.store.DeleteAllTasks()
+	ts.Unlock()
+}
+
 func (ts *taskServer) createTaskHandler(c *gin.Context) {
 	type RequestTask struct {
 		Text string    `json:"text"`
@@ -69,13 +75,72 @@ func (ts *taskServer) getTaskHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, task)
 }
 
+func (ts *taskServer) deleteTaskHandler(c *gin.Context) {
+	id, err := strconv.Atoi(c.Params.ByName("id"))
+	if err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+		return
+	}
+
+	ts.Lock()
+	err = ts.store.DeleteTask(id)
+	ts.Unlock()
+
+	if err != nil {
+		c.String(http.StatusNotFound, err.Error())
+	}
+}
+
+func (ts *taskServer) tagHandler(c *gin.Context) {
+	tag := c.Params.ByName("tag")
+	ts.Lock()
+	tasks := ts.store.GetTasksByTag(tag)
+	ts.Unlock()
+
+	c.JSON(http.StatusOK, tasks)
+}
+
+func (ts *taskServer) dueHandler(c *gin.Context) {
+	badRequestError := func() {
+		c.String(http.StatusBadRequest, "expect /due/<year>/<month>/<day>, got %v", c.FullPath())
+	}
+
+	year, err := strconv.Atoi(c.Params.ByName("year"))
+	if err != nil {
+		badRequestError()
+		return
+	}
+
+	month, err := strconv.Atoi(c.Params.ByName("month"))
+	if err != nil || month < int(time.January) || month > int(time.December) {
+		badRequestError()
+		return
+	}
+
+	day, err := strconv.Atoi(c.Params.ByName("day"))
+	if err != nil {
+		badRequestError()
+		return
+	}
+
+	ts.Lock()
+	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
+	ts.Unlock()
+
+	c.JSON(http.StatusOK, tasks)
+}
+
 func main() {
 	router := gin.Default()
 	server := NewTaskServer()
 
 	router.POST("/task/", server.createTaskHandler)
 	router.GET("/task/", server.getAllTasksHandler)
+	router.DELETE("/task/", server.deleteAllTasksHandler)
 	router.GET("/task/:id", server.getTaskHandler)
+	router.DELETE("/task/:id", server.deleteTaskHandler)
+	router.GET("/tag/:tag", server.tagHandler)
+	router.GET("/due/:year/:month/:day", server.dueHandler)
 
 	// TODO: need StrictSlash equivalent?
 	// TODO: note that Default() already has some default middleware setup
