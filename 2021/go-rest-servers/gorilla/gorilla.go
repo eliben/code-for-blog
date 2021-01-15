@@ -76,7 +76,7 @@ func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request
 
 	ts.Lock()
 	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
-	defer ts.Unlock()
+	ts.Unlock()
 
 	renderJSON(w, ResponseId{Id: id})
 }
