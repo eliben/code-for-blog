@@ -82,6 +82,17 @@ func createTask(t *testing.T, text string, tags []string, due time.Time) int {
 	return respValue.Id
 }
 
+func enforceContentJSON(t *testing.T, resp *http.Response) {
+	t.Helper()
+	contentType, ok := resp.Header["Content-Type"]
+	if !ok {
+		t.Fatalf("want response header to have Content-Type, got %v", resp.Header)
+	}
+	if len(contentType) < 1 || !(contentType[0] == "application/json" || contentType[0] == "application/json; charset=utf-8") {
+		t.Errorf("want Content-Type=application/json, got %v", contentType)
+	}
+}
+
 // getAllTasks obtains a list of all tasks in the server's store.
 func getAllTasks(t *testing.T) []Task {
 	t.Helper()
@@ -91,14 +102,7 @@ func getAllTasks(t *testing.T) []Task {
 	}
 	defer resp.Body.Close()
 
-	contentType, ok := resp.Header["Content-Type"]
-	if !ok {
-		t.Fatalf("want response header to have Content-Type, got %v", resp.Header)
-	}
-	if len(contentType) < 1 || contentType[0] != "application/json" {
-		t.Errorf("want Content-Type=application/json, got %v", contentType)
-	}
-
+	enforceContentJSON(t, resp)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
@@ -121,14 +125,7 @@ func getTasksByDueDate(t *testing.T, year int, month time.Month, day int) []Task
 	}
 	defer resp.Body.Close()
 
-	contentType, ok := resp.Header["Content-Type"]
-	if !ok {
-		t.Fatalf("want response header to have Content-Type, got %v", resp.Header)
-	}
-	if len(contentType) < 1 || contentType[0] != "application/json" {
-		t.Errorf("want Content-Type=application/json, got %v", contentType)
-	}
-
+	enforceContentJSON(t, resp)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
@@ -151,14 +148,7 @@ func getTasksByTag(t *testing.T, tag string) []Task {
 	}
 	defer resp.Body.Close()
 
-	contentType, ok := resp.Header["Content-Type"]
-	if !ok {
-		t.Fatalf("want response header to have Content-Type, got %v", resp.Header)
-	}
-	if len(contentType) < 1 || contentType[0] != "application/json" {
-		t.Errorf("want Content-Type=application/json, got %v", contentType)
-	}
-
+	enforceContentJSON(t, resp)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		t.Fatal(err)
@@ -183,14 +173,7 @@ func getTaskById(t *testing.T, id int) Task {
 	}
 	defer resp.Body.Close()
 
-	contentType, ok := resp.Header["Content-Type"]
-	if !ok {
-		t.Fatalf("want response header to have Content-Type, got %v", resp.Header)
-	}
-	if len(contentType) < 1 || contentType[0] != "application/json" {
-		t.Errorf("want Content-Type=application/json, got %v", contentType)
-	}
-
+	enforceContentJSON(t, resp)
 	if resp.StatusCode != http.StatusOK {
 		t.Fatalf("want status code=OK, got %v", resp.StatusCode)
 	}
