@@ -134,6 +134,8 @@ func main() {
 	router := gin.Default()
 	server := NewTaskServer()
 
+	// TODO: non standard signature for handlers, but check out WrapF/WrapH
+
 	router.POST("/task/", server.createTaskHandler)
 	router.GET("/task/", server.getAllTasksHandler)
 	router.DELETE("/task/", server.deleteAllTasksHandler)
@@ -142,8 +144,10 @@ func main() {
 	router.GET("/tag/:tag", server.tagHandler)
 	router.GET("/due/:year/:month/:day", server.dueHandler)
 
-	// TODO: need StrictSlash equivalent?
 	// TODO: note that Default() already has some default middleware setup
+	// logger and crash recovery (check them out). It's easy to see the logger
+	// in action, and should be easy to check for crashes (try to panic here and
+	// in the no-framework handler?)
 
 	router.Run("localhost:" + os.Getenv("SERVERPORT"))
 }
