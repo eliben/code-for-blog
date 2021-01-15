@@ -5,6 +5,7 @@ import (
 	"os"
 	"strconv"
 	"sync"
+	"time"
 
 	"example.com/internal/taskstore"
 	"github.com/gin-gonic/gin"
@@ -30,6 +31,25 @@ func (ts *taskServer) getAllTasksHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, allTasks)
 }
 
+func (ts *taskServer) createTaskHandler(c *gin.Context) {
+	type RequestTask struct {
+		Text string    `json:"text"`
+		Tags []string  `json:"tags"`
+		Due  time.Time `json:"due"`
+	}
+
+	var rt RequestTask
+	if err := c.ShouldBindJSON(&rt); err != nil {
+		c.String(http.StatusBadRequest, err.Error())
+	}
+
+	ts.Lock()
+	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
+	ts.Unlock()
+
+	c.JSON(http.StatusOK, gin.H{"Id": id})
+}
+
 func (ts *taskServer) getTaskHandler(c *gin.Context) {
 	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
@@ -53,6 +73,7 @@ func main() {
 	router := gin.Default()
 	server := NewTaskServer()
 
+	router.POST("/task/", server.createTaskHandler)
 	router.GET("/task/", server.getAllTasksHandler)
 	router.GET("/task/:id", server.getTaskHandler)
 
