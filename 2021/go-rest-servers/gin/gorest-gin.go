@@ -111,6 +111,8 @@ func main() {
 
 	// TODO: non standard signature for handlers, but check out WrapF/WrapH
 
+	// TODO: no regex in matcher: example of limitation
+
 	router.POST("/task/", server.createTaskHandler)
 	router.GET("/task/", server.getAllTasksHandler)
 	router.DELETE("/task/", server.deleteAllTasksHandler)
