@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"sync"
 	"time"
 
 	"example.com/internal/taskstore"
@@ -12,9 +11,6 @@ import (
 )
 
 type taskServer struct {
-	// Mutex protects access to the 'store' field. We don't make assumptions
-	// about the safety of any method of store, so all accesses are protected.
-	sync.Mutex
 	store *taskstore.TaskStore
 }
 
@@ -24,17 +20,12 @@ func NewTaskServer() *taskServer {
 }
 
 func (ts *taskServer) getAllTasksHandler(c *gin.Context) {
-	ts.Lock()
 	allTasks := ts.store.GetAllTasks()
-	ts.Unlock()
-
 	c.JSON(http.StatusOK, allTasks)
 }
 
 func (ts *taskServer) deleteAllTasksHandler(c *gin.Context) {
-	ts.Lock()
 	ts.store.DeleteAllTasks()
-	ts.Unlock()
 }
 
 func (ts *taskServer) createTaskHandler(c *gin.Context) {
@@ -49,10 +40,7 @@ func (ts *taskServer) createTaskHandler(c *gin.Context) {
 		c.String(http.StatusBadRequest, err.Error())
 	}
 
-	ts.Lock()
 	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
-	ts.Unlock()
-
 	c.JSON(http.StatusOK, gin.H{"Id": id})
 }
 
@@ -63,10 +51,7 @@ func (ts *taskServer) getTaskHandler(c *gin.Context) {
 		return
 	}
 
-	ts.Lock()
 	task, err := ts.store.GetTask(id)
-	ts.Unlock()
-
 	if err != nil {
 		c.String(http.StatusNotFound, err.Error())
 		return
@@ -82,21 +67,14 @@ func (ts *taskServer) deleteTaskHandler(c *gin.Context) {
 		return
 	}
 
-	ts.Lock()
-	err = ts.store.DeleteTask(id)
-	ts.Unlock()
-
-	if err != nil {
+	if err = ts.store.DeleteTask(id); err != nil {
 		c.String(http.StatusNotFound, err.Error())
 	}
 }
 
 func (ts *taskServer) tagHandler(c *gin.Context) {
 	tag := c.Params.ByName("tag")
-	ts.Lock()
 	tasks := ts.store.GetTasksByTag(tag)
-	ts.Unlock()
-
 	c.JSON(http.StatusOK, tasks)
 }
 
@@ -123,10 +101,7 @@ func (ts *taskServer) dueHandler(c *gin.Context) {
 		return
 	}
 
-	ts.Lock()
 	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
-	ts.Unlock()
-
 	c.JSON(http.StatusOK, tasks)
 }
 
@@ -147,7 +122,7 @@ func main() {
 	// TODO: note that Default() already has some default middleware setup
 	// logger and crash recovery (check them out). It's easy to see the logger
 	// in action, and should be easy to check for crashes (try to panic here and
-	// in the no-framework handler?)
+	// in the no-framework handler?) -- stdlib also has a panic interceptor?
 
 	router.Run("localhost:" + os.Getenv("SERVERPORT"))
 }
