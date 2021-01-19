@@ -122,7 +122,9 @@ func main() {
 	// TODO: note that Default() already has some default middleware setup
 	// logger and crash recovery (check them out). It's easy to see the logger
 	// in action, and should be easy to check for crashes (try to panic here and
-	// in the no-framework handler?) -- stdlib also has a panic interceptor?
+	// in the no-framework handler?)
+	// Note that stdlib also has a panic interceptor that aborts the request but
+	// not the whole server.
 
 	router.Run("localhost:" + os.Getenv("SERVERPORT"))
 }
