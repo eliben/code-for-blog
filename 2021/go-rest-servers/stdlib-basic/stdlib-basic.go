@@ -14,16 +14,12 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"example.com/internal/taskstore"
 )
 
 type taskServer struct {
-	// Mutex protects access to the 'store' field. We don't make assumptions
-	// about the safety of any method of store, so all accesses are protected.
-	sync.Mutex
 	store *taskstore.TaskStore
 }
 
@@ -105,10 +101,7 @@ func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request
 		return
 	}
 
-	ts.Lock()
 	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
-	ts.Unlock()
-
 	js, err := json.Marshal(ResponseId{Id: id})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -121,10 +114,7 @@ func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request
 func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling get all tasks at %s\n", req.URL.Path)
 
-	ts.Lock()
 	allTasks := ts.store.GetAllTasks()
-	ts.Unlock()
-
 	js, err := json.Marshal(allTasks)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -137,10 +127,7 @@ func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Reques
 func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
 	log.Printf("handling get task at %s\n", req.URL.Path)
 
-	ts.Lock()
 	task, err := ts.store.GetTask(id)
-	ts.Unlock()
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -158,10 +145,7 @@ func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, i
 func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
 	log.Printf("handling delete task at %s\n", req.URL.Path)
 
-	ts.Lock()
 	err := ts.store.DeleteTask(id)
-	ts.Unlock()
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 	}
@@ -169,9 +153,7 @@ func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request
 
 func (ts *taskServer) deleteAllTasksHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling delete all tasks at %s\n", req.URL.Path)
-	ts.Lock()
 	ts.store.DeleteAllTasks()
-	ts.Unlock()
 }
 
 func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
@@ -190,10 +172,7 @@ func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	tag := pathParts[1]
 
-	ts.Lock()
 	tasks := ts.store.GetTasksByTag(tag)
-	ts.Unlock()
-
 	js, err := json.Marshal(tasks)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -238,10 +217,7 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ts.Lock()
 	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
-	ts.Unlock()
-
 	js, err := json.Marshal(tasks)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
