@@ -1,3 +1,8 @@
+// Basic example of a REST server with several routes, using the gorilla/mux
+// router package.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
