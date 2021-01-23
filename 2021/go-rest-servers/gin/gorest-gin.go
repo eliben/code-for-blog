@@ -1,3 +1,7 @@
+// REST server implemented with Gin.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -109,10 +113,6 @@ func main() {
 	router := gin.Default()
 	server := NewTaskServer()
 
-	// TODO: non standard signature for handlers, but check out WrapF/WrapH
-
-	// TODO: no regex in matcher: example of limitation
-
 	router.POST("/task/", server.createTaskHandler)
 	router.GET("/task/", server.getAllTasksHandler)
 	router.DELETE("/task/", server.deleteAllTasksHandler)
@@ -120,13 +120,6 @@ func main() {
 	router.DELETE("/task/:id", server.deleteTaskHandler)
 	router.GET("/tag/:tag", server.tagHandler)
 	router.GET("/due/:year/:month/:day", server.dueHandler)
-
-	// TODO: note that Default() already has some default middleware setup
-	// logger and crash recovery (check them out). It's easy to see the logger
-	// in action, and should be easy to check for crashes (try to panic here and
-	// in the no-framework handler?)
-	// Note that stdlib also has a panic interceptor that aborts the request but
-	// not the whole server.
 
 	router.Run("localhost:" + os.Getenv("SERVERPORT"))
 }
