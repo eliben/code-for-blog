@@ -49,4 +49,12 @@ func main() {
 
 	ReverseAnything(iis)
 	fmt.Println(iis)
+
+	iints := []interface{}{2, 3, 4, 5}
+	ReverseAnything(iints)
+	fmt.Println(iints)
+
+	istrings := []interface{}{"joe", "mike", "hello"}
+	ReverseAnything(istrings)
+	fmt.Println(istrings)
 }
