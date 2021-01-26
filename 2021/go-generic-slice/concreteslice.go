@@ -22,12 +22,31 @@ func ReverseStrings(s []string) {
 	}
 }
 
+func ReverseAnything(s []interface{}) {
+	first := 0
+	last := len(s) - 1
+	for first < last {
+		s[first], s[last] = s[last], s[first]
+		first++
+		last--
+	}
+}
+
 func main() {
 	s := []int{2, 4, 8, 11}
 	ReverseInts(s)
 	fmt.Println(s)
 
 	ss := []string{"joe", "mike", "hello"}
-	ReverseStrings(ss)
-	fmt.Println(ss)
+	//ReverseStrings(ss)
+	//fmt.Println(ss)
+
+	//ReverseAnything(ss)
+	iis := make([]interface{}, len(ss))
+	for i, s := range ss {
+		iis[i] = s
+	}
+
+	ReverseAnything(iis)
+	fmt.Println(iis)
 }
