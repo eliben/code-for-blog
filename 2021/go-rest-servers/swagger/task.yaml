@@ -1,3 +1,6 @@
+# 
+# TODO: add license?
+
 openapi: 3.0.1
 info:
   title: Sample REST server
