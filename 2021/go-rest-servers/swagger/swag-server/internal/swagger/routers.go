@@ -95,4 +95,11 @@ var routes = Routes{
 		"/task/",
 		TaskPost,
 	},
+
+	Route{
+		"TaskDeleteAll",
+		strings.ToUpper("Delete"),
+		"/task/",
+		TaskDeleteAll,
+	},
 }
