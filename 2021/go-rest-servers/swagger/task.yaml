@@ -1,0 +1,148 @@
+openapi: 3.0.1
+info:
+  title: Sample REST server
+  description: TODO
+  version: 1.0.0
+servers:
+- url: https://example.com
+paths:
+  /task:
+    get:
+      summary: Returns a list of all tasks
+      responses:
+        '200':
+          description: A JSON array of task IDs
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Task'
+    post:
+      summary: Create a task
+      requestBody:
+        description: Task to be added to the store
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                tags:
+                  type: array
+                  items:
+                    type: string
+                due:
+                  type: string
+                  format: date-time
+      responses:
+          '200':
+            description: ID of created task
+            content:
+              application/json:
+                schema:
+                  type: integer
+  /task/{id}:
+    get:
+      summary: Get task with specific id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The user ID
+      responses:
+        '200':
+          description: Task with given id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+    delete:
+      summary: Delete task with specific id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The user ID
+      responses:
+        '200':
+          description: Task with given id deleted
+          content: {}
+  /tag/{tagname}:
+    get:
+      summary: Get tasks with given tag name
+      parameters:
+        - in: path
+          name: tagname
+          required: true
+          schema:
+            type: string
+          description: The tag name
+      responses:
+        '200':
+          description: A JSON array of task IDs
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Task'
+  /due/{year}/{month}/{day}:
+    get:
+      summary: Get tasks with given due date
+      parameters:
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+          description: The year
+        - in: path
+          name: month
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+          description: The month
+        - in: path
+          name: day
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 31
+          description: The day
+      responses:
+        '200':
+          description: A JSON array of task IDs
+          content:
+            application/json:
+              schema: 
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Task'
+components:
+  schemas:
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        due:
+          type: string
+          format: date-time
