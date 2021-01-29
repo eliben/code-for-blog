@@ -11,16 +11,13 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 
 	"example.com/internal/swagger"
 )
 
-// TODO: move swagger dir to internal?
-
 func main() {
 	log.Printf("Server started")
-
 	router := swagger.NewRouter()
-
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), router))
 }

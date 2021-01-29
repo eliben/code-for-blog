@@ -9,8 +9,27 @@
 package swagger
 
 import (
+	"encoding/json"
+	"mime"
 	"net/http"
+
+	"example.com/internal/taskstore"
 )
+
+// This is global because the generated server routes point to top-level
+// functions
+var store = taskstore.New()
+
+// renderJSON renders 'v' as JSON and writes it as a response into w.
+func renderJSON(w http.ResponseWriter, v interface{}) {
+	js, err := json.Marshal(v)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(js)
+}
 
 func DueYearMonthDayGet(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -23,8 +42,8 @@ func TagTagnameGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func TaskGet(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	allTasks := store.GetAllTasks()
+	renderJSON(w, allTasks)
 }
 
 func TaskIdDelete(w http.ResponseWriter, r *http.Request) {
@@ -38,6 +57,30 @@ func TaskIdGet(w http.ResponseWriter, r *http.Request) {
 }
 
 func TaskPost(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-	w.WriteHeader(http.StatusOK)
+	type ResponseId struct {
+		Id int `json:"id"`
+	}
+
+	// Enforce a JSON Content-Type.
+	contentType := r.Header.Get("Content-Type")
+	mediatype, _, err := mime.ParseMediaType(contentType)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	if mediatype != "application/json" {
+		http.Error(w, "expect application/json Content-Type", http.StatusUnsupportedMediaType)
+		return
+	}
+
+	dec := json.NewDecoder(r.Body)
+	dec.DisallowUnknownFields()
+	var rt Body
+	if err := dec.Decode(&rt); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	id := store.CreateTask(rt.Text, rt.Tags, rt.Due)
+	renderJSON(w, ResponseId{Id: id})
 }
