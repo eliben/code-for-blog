@@ -57,42 +57,42 @@ var routes = Routes{
 	Route{
 		"DueYearMonthDayGet",
 		strings.ToUpper("Get"),
-		"/due/{year}/{month}/{day}",
+		"/due/{year}/{month}/{day}/",
 		DueYearMonthDayGet,
 	},
 
 	Route{
 		"TagTagnameGet",
 		strings.ToUpper("Get"),
-		"/tag/{tagname}",
+		"/tag/{tagname}/",
 		TagTagnameGet,
 	},
 
 	Route{
 		"TaskGet",
 		strings.ToUpper("Get"),
-		"/task",
+		"/task/",
 		TaskGet,
 	},
 
 	Route{
 		"TaskIdDelete",
 		strings.ToUpper("Delete"),
-		"/task/{id}",
+		"/task/{id}/",
 		TaskIdDelete,
 	},
 
 	Route{
 		"TaskIdGet",
 		strings.ToUpper("Get"),
-		"/task/{id}",
+		"/task/{id}/",
 		TaskIdGet,
 	},
 
 	Route{
 		"TaskPost",
 		strings.ToUpper("Post"),
-		"/task",
+		"/task/",
 		TaskPost,
 	},
 }
