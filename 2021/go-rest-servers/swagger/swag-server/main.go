@@ -12,8 +12,10 @@ import (
 	"log"
 	"net/http"
 
-	"example.com/swagger"
+	"example.com/internal/swagger"
 )
+
+// TODO: move swagger dir to internal?
 
 func main() {
 	log.Printf("Server started")
