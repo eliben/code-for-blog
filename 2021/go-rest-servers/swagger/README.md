@@ -12,3 +12,6 @@ Note that this also creates a copy of the spec in
 input `task.yaml` - it's canonicalized and reformatted by the code generator.
 
 Had to rename `go` dir to `swagger` to align with package name (for modules).
+
+`task-swagger-2.json` is our API converted to Swagger (OpenAPI v2) using
+the online tool https://lucybot-inc.github.io/api-spec-converter/
