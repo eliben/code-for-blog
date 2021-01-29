@@ -1,0 +1,220 @@
+{
+  "info": {
+    "title": "Sample REST server",
+    "description": "TODO",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/task": {
+      "get": {
+        "summary": "Returns a list of all tasks",
+        "responses": {
+          "200": {
+            "description": "A JSON array of task IDs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          }
+        },
+        "parameters": [],
+        "produces": [
+          "application/json"
+        ]
+      },
+      "post": {
+        "summary": "Create a task",
+        "responses": {
+          "200": {
+            "description": "ID of created task",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "description": "Task to be added to the store",
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string"
+                },
+                "tags": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "due": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/task/{id}": {
+      "get": {
+        "summary": "Get task with specific id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "The user ID",
+            "minimum": 1,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task with given id",
+            "schema": {
+              "$ref": "#/definitions/Task"
+            }
+          }
+        },
+        "produces": [
+          "application/json"
+        ]
+      },
+      "delete": {
+        "summary": "Delete task with specific id",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "description": "The user ID",
+            "minimum": 1,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Task with given id deleted"
+          }
+        }
+      }
+    },
+    "/tag/{tagname}": {
+      "get": {
+        "summary": "Get tasks with given tag name",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "tagname",
+            "required": true,
+            "description": "The tag name",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON array of task IDs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          }
+        },
+        "produces": [
+          "application/json"
+        ]
+      }
+    },
+    "/due/{year}/{month}/{day}": {
+      "get": {
+        "summary": "Get tasks with given due date",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "description": "The year",
+            "minimum": 1,
+            "type": "integer"
+          },
+          {
+            "in": "path",
+            "name": "month",
+            "required": true,
+            "description": "The month",
+            "minimum": 1,
+            "maximum": 12,
+            "type": "integer"
+          },
+          {
+            "in": "path",
+            "name": "day",
+            "required": true,
+            "description": "The day",
+            "minimum": 1,
+            "maximum": 31,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A JSON array of task IDs",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Task"
+              }
+            }
+          }
+        },
+        "produces": [
+          "application/json"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0",
+  "host": "example.com",
+  "schemes": [
+    "https"
+  ],
+  "basePath": "/",
+  "definitions": {
+    "Task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "text": {
+          "type": "string"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "due": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "x-components": {}
+}
