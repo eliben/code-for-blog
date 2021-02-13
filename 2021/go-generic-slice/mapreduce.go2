@@ -1,0 +1,52 @@
+// Generic Map/Reduce/Filter functions.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+package main
+
+import "fmt"
+import "strconv"
+import "strings"
+
+func Map[T, U any](s []T, f func(T) U) []U {
+	r := make([]U, len(s))
+	for i, v := range s {
+		r[i] = f(v)
+	}
+	return r
+}
+
+func Reduce[T, U any](s []T, int U, f func(U, T) U) U {
+	r := int
+	for _, v := range s {
+		r = f(r, v)
+	}
+	return r
+}
+
+func Filter[T any](s []T, f func(T) bool) []T {
+	var r []T
+	for _, v := range s {
+		if f(v) {
+			r = append(r, v)
+		}
+	}
+	return r
+}
+
+func main() {
+	s := []int{2, 4, 8, 11}
+
+	ds := Map(s, func(i int) string {return strconv.Itoa(2*i)})
+	fmt.Println(ds)
+
+	evens := Filter(s, func(i int) bool {return i % 2 == 0})
+	fmt.Println(evens)
+
+  names := []string{"joe", "mike", "sue"}
+  namesUpper := Map(names, strings.ToUpper)
+	fmt.Println(namesUpper)
+
+	product := Reduce(s, 1, func(a, b int) int {return a*b})
+	fmt.Println(product)
+}

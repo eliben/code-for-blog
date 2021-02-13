@@ -1,0 +1,27 @@
+// Generic ReverseSlice.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+package main
+
+import "fmt"
+
+func ReverseSlice[T any](s []T) {
+	first := 0
+	last := len(s) - 1
+	for first < last {
+		s[first], s[last] = s[last], s[first]
+		first++
+		last--
+	}
+}
+
+func main() {
+	s := []int{2, 4, 8, 11}
+	ReverseSlice(s)
+	fmt.Println(s)
+
+	ss := []string{"joe", "mike", "hello"}
+	ReverseSlice(ss)
+	fmt.Println(ss)
+}
