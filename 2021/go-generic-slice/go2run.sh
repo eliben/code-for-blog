@@ -1,7 +1,10 @@
 #!/usr/bin/bash
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 
-# Helper script to run generic code in pre-1.18 Go; update GO2DIR to point to
-# where you have a checkout of the dev.go2go branch.
+# Helper script to run generic code in pre-1.18 Go; update GO2DIR to
+# point to where you have a checkout of the dev.go2go branch.
 
 set -eux
 set -o pipefail

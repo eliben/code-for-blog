@@ -1,3 +1,7 @@
+// Examples of writing concrete (non-generic) functions on slices.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"
