@@ -16,8 +16,8 @@ func Map[T, U any](s []T, f func(T) U) []U {
 	return r
 }
 
-func Reduce[T, U any](s []T, int U, f func(U, T) U) U {
-	r := int
+func Reduce[T, U any](s []T, init U, f func(U, T) U) U {
+	r := init
 	for _, v := range s {
 		r = f(r, v)
 	}
