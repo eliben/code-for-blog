@@ -1,5 +1,7 @@
 // Basic stdlib-only REST server with some middleware.
 //
+// TODO: replace existing logs
+//
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
@@ -15,7 +17,6 @@ import (
 	"strings"
 	"time"
 
-	"example.com/internal/middleware"
 	"example.com/internal/taskstore"
 )
 
@@ -170,7 +171,7 @@ func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
+	log.Printf("handling tasks by due at %s\n", req.URL.Path)
 
 	if req.Method != http.MethodGet {
 		http.Error(w, fmt.Sprintf("expect method GET /due/<date>, got %v", req.Method), http.StatusMethodNotAllowed)
@@ -213,7 +214,8 @@ func main() {
 	server := NewTaskServer()
 	mux.HandleFunc("/task/", server.taskHandler)
 	mux.HandleFunc("/tag/", server.tagHandler)
-	mux.Handle("/due/", middleware.Logging(http.HandlerFunc(server.dueHandler)))
+	mux.HandleFunc("/due/", server.dueHandler)
+	//mux.Handle("/due/", middleware.Logging(http.HandlerFunc(server.dueHandler)))
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux))
 }
