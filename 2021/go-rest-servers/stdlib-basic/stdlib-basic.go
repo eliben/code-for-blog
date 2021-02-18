@@ -183,7 +183,7 @@ func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
+	log.Printf("handling tasks by due at %s\n", req.URL.Path)
 
 	if req.Method != http.MethodGet {
 		http.Error(w, fmt.Sprintf("expect method GET /due/<date>, got %v", req.Method), http.StatusMethodNotAllowed)

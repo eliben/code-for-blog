@@ -127,7 +127,7 @@ func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
+	log.Printf("handling tasks by due at %s\n", req.URL.Path)
 
 	vars := mux.Vars(req)
 	badRequestError := func() {
