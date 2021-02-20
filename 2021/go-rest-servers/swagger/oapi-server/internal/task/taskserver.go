@@ -1,6 +1,7 @@
 package task
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -41,7 +42,13 @@ func (ts *TaskServer) PostTask(ctx echo.Context) error {
 
 	// TODO: check non-nil on these fields?!
 	// TODO: do I need additional error checking here?
-	id := ts.store.CreateTask(*taskBody.Text, *taskBody.Tags, *taskBody.Due)
+	fmt.Println("got", taskBody)
+	var tags []string
+	if taskBody.Tags != nil {
+		tags = *taskBody.Tags
+	}
+
+	id := ts.store.CreateTask(*taskBody.Text, tags, *taskBody.Due)
 	type ResponseId struct {
 		Id int `json:"id"`
 	}
@@ -60,7 +67,7 @@ func (ts *TaskServer) DeleteAllTasks(ctx echo.Context) error {
 func (ts *TaskServer) GetTaskId(ctx echo.Context, id int) error {
 	task, err := ts.store.GetTask(id)
 	if err != nil {
-		return err
+		return echo.ErrNotFound
 	}
 	return ctx.JSON(http.StatusOK, task)
 }
