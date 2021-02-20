@@ -1,7 +1,6 @@
 package task
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
@@ -40,12 +39,13 @@ func (ts *TaskServer) PostTask(ctx echo.Context) error {
 		return err
 	}
 
-	// TODO: check non-nil on these fields?!
-	// TODO: do I need additional error checking here?
-	fmt.Println("got", taskBody)
 	var tags []string
 	if taskBody.Tags != nil {
 		tags = *taskBody.Tags
+	}
+
+	if taskBody.Text == nil || taskBody.Due == nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "POST task needs non-empty text and due")
 	}
 
 	id := ts.store.CreateTask(*taskBody.Text, tags, *taskBody.Due)
