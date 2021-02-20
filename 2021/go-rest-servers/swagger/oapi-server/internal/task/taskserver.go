@@ -42,6 +42,7 @@ func (ts *TaskServer) PostTask(ctx echo.Context) error {
 		Id int `json:"id"`
 	}
 	ctx.JSON(http.StatusOK, ResponseId{Id: id})
+	return nil
 }
 
 func (ts *TaskServer) DeleteTaskId(ctx echo.Context, id int) error {
@@ -54,4 +55,5 @@ func (ts *TaskServer) GetTaskId(ctx echo.Context, id int) error {
 		return err
 	}
 	ctx.JSON(http.StatusOK, task)
+	return nil
 }

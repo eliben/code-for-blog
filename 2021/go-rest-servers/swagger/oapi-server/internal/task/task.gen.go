@@ -184,11 +184,10 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	}
 
 	router.GET(baseURL+"/due/:year/:month/:day", wrapper.GetDueYearMonthDay)
-	router.GET(baseURL+"/tag/:tagname", wrapper.GetTagTagname)
-	router.GET(baseURL+"/task", wrapper.GetTask)
-	router.POST(baseURL+"/task", wrapper.PostTask)
-	router.DELETE(baseURL+"/task/:id", wrapper.DeleteTaskId)
-	router.GET(baseURL+"/task/:id", wrapper.GetTaskId)
+	router.GET(baseURL+"/tag/:tagname/", wrapper.GetTagTagname)
+	router.GET(baseURL+"/task/", wrapper.GetTask)
+	router.POST(baseURL+"/task/", wrapper.PostTask)
+	router.DELETE(baseURL+"/task/:id/", wrapper.DeleteTaskId)
+	router.GET(baseURL+"/task/:id/", wrapper.GetTaskId)
 
 }
-
