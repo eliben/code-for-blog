@@ -1,3 +1,7 @@
+// Sample task server using oapi-codegen boilerplate.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package task
 
 import (
