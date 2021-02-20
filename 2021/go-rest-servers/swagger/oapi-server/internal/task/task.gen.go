@@ -47,6 +47,9 @@ type ServerInterface interface {
 	// Delete task with specific id
 	// (DELETE /task/{id})
 	DeleteTaskId(ctx echo.Context, id int) error
+	// Delete all tasks
+	// (DELETE /task/
+	DeleteAllTasks(ctx echo.Context) error
 	// Get task with specific id
 	// (GET /task/{id})
 	GetTaskId(ctx echo.Context, id int) error
@@ -139,6 +142,10 @@ func (w *ServerInterfaceWrapper) DeleteTaskId(ctx echo.Context) error {
 	return err
 }
 
+func (w *ServerInterfaceWrapper) DeleteAllTasks(ctx echo.Context) error {
+	return w.Handler.DeleteAllTasks(ctx)
+}
+
 // GetTaskId converts echo context to params.
 func (w *ServerInterfaceWrapper) GetTaskId(ctx echo.Context) error {
 	var err error
@@ -188,6 +195,7 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 	router.GET(baseURL+"/task/", wrapper.GetTask)
 	router.POST(baseURL+"/task/", wrapper.PostTask)
 	router.DELETE(baseURL+"/task/:id/", wrapper.DeleteTaskId)
+	router.DELETE(baseURL+"/task/", wrapper.DeleteAllTasks)
 	router.GET(baseURL+"/task/:id/", wrapper.GetTaskId)
 
 }

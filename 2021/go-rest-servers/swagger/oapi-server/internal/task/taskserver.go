@@ -49,6 +49,11 @@ func (ts *TaskServer) DeleteTaskId(ctx echo.Context, id int) error {
 	return nil
 }
 
+func (ts *TaskServer) DeleteAllTasks(ctx echo.Context) error {
+	ts.store.DeleteAllTasks()
+	return nil
+}
+
 func (ts *TaskServer) GetTaskId(ctx echo.Context, id int) error {
 	task, err := ts.store.GetTask(id)
 	if err != nil {
