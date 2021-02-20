@@ -15,7 +15,7 @@ func main() {
 	// Middleware
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(middleware.AddTrailingSlash())
+	e.Pre(middleware.AddTrailingSlash())
 
 	taskserver := task.NewTaskServer()
 	task.RegisterHandlers(e, taskserver)

@@ -2,6 +2,7 @@ package task
 
 import (
 	"net/http"
+	"time"
 
 	"example.com/internal/taskstore"
 	"github.com/labstack/echo/v4"
@@ -17,15 +18,18 @@ func NewTaskServer() *TaskServer {
 }
 
 func (ts *TaskServer) GetDueYearMonthDay(ctx echo.Context, year int, month int, day int) error {
-	return nil
+	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
+	return ctx.JSON(http.StatusOK, tasks)
 }
 
 func (ts *TaskServer) GetTagTagname(ctx echo.Context, tagname string) error {
-	return nil
+	tasks := ts.store.GetTasksByTag(tagname)
+	return ctx.JSON(http.StatusOK, tasks)
 }
 
 func (ts *TaskServer) GetTask(ctx echo.Context) error {
-	return nil
+	allTasks := ts.store.GetAllTasks()
+	return ctx.JSON(http.StatusOK, allTasks)
 }
 
 func (ts *TaskServer) PostTask(ctx echo.Context) error {
@@ -41,12 +45,11 @@ func (ts *TaskServer) PostTask(ctx echo.Context) error {
 	type ResponseId struct {
 		Id int `json:"id"`
 	}
-	ctx.JSON(http.StatusOK, ResponseId{Id: id})
-	return nil
+	return ctx.JSON(http.StatusOK, ResponseId{Id: id})
 }
 
 func (ts *TaskServer) DeleteTaskId(ctx echo.Context, id int) error {
-	return nil
+	return ts.store.DeleteTask(id)
 }
 
 func (ts *TaskServer) DeleteAllTasks(ctx echo.Context) error {
@@ -59,6 +62,5 @@ func (ts *TaskServer) GetTaskId(ctx echo.Context, id int) error {
 	if err != nil {
 		return err
 	}
-	ctx.JSON(http.StatusOK, task)
-	return nil
+	return ctx.JSON(http.StatusOK, task)
 }
