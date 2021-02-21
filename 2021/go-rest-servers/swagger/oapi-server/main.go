@@ -17,8 +17,8 @@ func main() {
 	e := echo.New()
 
 	// Middleware
+	e.Pre(middleware.RemoveTrailingSlash())
 	e.Use(middleware.Logger())
-	e.Pre(middleware.AddTrailingSlash())
 
 	taskserver := task.NewTaskServer()
 	task.RegisterHandlers(e, taskserver)
