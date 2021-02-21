@@ -20,3 +20,5 @@ oapi-server builds upon code generated with the deepmap/oapi-codegen tool:
 
     oapi-codegen -package task -generate types,server task.yaml > oapi-server/internal/task/task.gen.go
 
+The .gen.go file is unmodified except the addition of the "delete all" handler,
+which isn't part of the public API.
