@@ -1,7 +1,5 @@
 // Basic stdlib-only REST server with some middleware.
 //
-// TODO: replace existing logs
-//
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
@@ -215,8 +213,6 @@ func main() {
 	server := NewTaskServer()
 	mux.HandleFunc("/task/", server.taskHandler)
 	mux.HandleFunc("/tag/", server.tagHandler)
-	//mux.HandleFunc("/due/", server.dueHandler)
-	//mux.Handle("/due/", middleware.Logging(http.HandlerFunc(server.dueHandler)))
 	mux.Handle("/due/", middleware.PanicRecovery(http.HandlerFunc(server.dueHandler)))
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux))
