@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"testing"
 	"time"
 )
@@ -88,8 +89,15 @@ func enforceContentJSON(t *testing.T, resp *http.Response) {
 	if !ok {
 		t.Fatalf("want response header to have Content-Type, got %v", resp.Header)
 	}
-	if len(contentType) < 1 || !(contentType[0] == "application/json" || contentType[0] == "application/json; charset=utf-8") {
-		t.Errorf("want Content-Type=application/json, got %v", contentType)
+
+	if len(contentType) < 1 {
+		t.Fatalf("want non-empty Content-Type, got %v", resp.Header)
+	}
+
+	ct := strings.ToLower(contentType[0])
+
+	if ct != "application/json" && ct != "application/json; charset=utf-8" {
+		t.Errorf("want Content-Type=application/json, got %v", ct)
 	}
 }
 
