@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"example.com/internal/middleware"
 	"example.com/internal/taskstore"
 )
 
@@ -206,6 +207,7 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
+	panic(11)
 	renderJSON(w, tasks)
 }
 
@@ -214,8 +216,9 @@ func main() {
 	server := NewTaskServer()
 	mux.HandleFunc("/task/", server.taskHandler)
 	mux.HandleFunc("/tag/", server.tagHandler)
-	mux.HandleFunc("/due/", server.dueHandler)
+	//mux.HandleFunc("/due/", server.dueHandler)
 	//mux.Handle("/due/", middleware.Logging(http.HandlerFunc(server.dueHandler)))
+	mux.Handle("/due/", middleware.PanicRecovery(http.HandlerFunc(server.dueHandler)))
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux))
 }
