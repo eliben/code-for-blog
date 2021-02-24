@@ -15,3 +15,6 @@ curl -iL -w "\n" -X POST -H "Content-Type: application/json" --data '{"text":"bu
 
 # Get tasks by tag
 curl -iL -w "\n" ${SERVERADDR}/tag/todo/
+
+# Get tasks by due
+curl -iL -w "\n" ${SERVERADDR}/due/2016/01/03
