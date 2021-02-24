@@ -207,7 +207,6 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 	}
 
 	tasks := ts.store.GetTasksByDueDate(year, time.Month(month), day)
-	panic(11)
 	renderJSON(w, tasks)
 }
 
