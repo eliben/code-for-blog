@@ -203,6 +203,7 @@ func main() {
 	mux.HandleFunc("/due/", server.dueHandler)
 
 	handler := middleware.Logging(mux)
+	handler = middleware.PanicRecovery(handler)
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), handler))
 }
