@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Logging is middleware for logging information about each request.
 func Logging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		start := time.Now()
@@ -15,6 +16,8 @@ func Logging(next http.Handler) http.Handler {
 	})
 }
 
+// PanicRecovery is middleware for recovering from panics in `next` and
+// returning a StatusInternalServerError to the client.
 func PanicRecovery(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		defer func() {
