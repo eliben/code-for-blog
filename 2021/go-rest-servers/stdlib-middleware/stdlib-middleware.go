@@ -78,8 +78,6 @@ func (ts *taskServer) taskHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling task create at %s\n", req.URL.Path)
-
 	// Types used internally in this handler to (de-)serialize the request and
 	// response from/to JSON.
 	type RequestTask struct {
@@ -117,15 +115,11 @@ func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request
 }
 
 func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling get all tasks at %s\n", req.URL.Path)
-
 	allTasks := ts.store.GetAllTasks()
 	renderJSON(w, allTasks)
 }
 
 func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
-	log.Printf("handling get task at %s\n", req.URL.Path)
-
 	task, err := ts.store.GetTask(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -136,8 +130,6 @@ func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, i
 }
 
 func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
-	log.Printf("handling delete task at %s\n", req.URL.Path)
-
 	err := ts.store.DeleteTask(id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -145,13 +137,10 @@ func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request
 }
 
 func (ts *taskServer) deleteAllTasksHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling delete all tasks at %s\n", req.URL.Path)
 	ts.store.DeleteAllTasks()
 }
 
 func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
-
 	if req.Method != http.MethodGet {
 		http.Error(w, fmt.Sprintf("expect method GET /tag/<tag>, got %v", req.Method), http.StatusMethodNotAllowed)
 		return
@@ -170,8 +159,6 @@ func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
-	log.Printf("handling tasks by due at %s\n", req.URL.Path)
-
 	if req.Method != http.MethodGet {
 		http.Error(w, fmt.Sprintf("expect method GET /due/<date>, got %v", req.Method), http.StatusMethodNotAllowed)
 		return
@@ -213,7 +200,9 @@ func main() {
 	server := NewTaskServer()
 	mux.HandleFunc("/task/", server.taskHandler)
 	mux.HandleFunc("/tag/", server.tagHandler)
-	mux.Handle("/due/", middleware.PanicRecovery(http.HandlerFunc(server.dueHandler)))
+	mux.HandleFunc("/due/", server.dueHandler)
 
-	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux))
+	handler := middleware.Logging(mux)
+
+	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), handler))
 }
