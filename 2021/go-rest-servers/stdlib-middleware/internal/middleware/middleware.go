@@ -1,3 +1,7 @@
+// Basic stdlib-only REST server with some middleware.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package middleware
 
 import (
