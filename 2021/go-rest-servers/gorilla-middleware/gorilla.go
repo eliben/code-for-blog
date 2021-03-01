@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 
 	"example.com/internal/taskstore"
@@ -146,6 +147,11 @@ func main() {
 	router.HandleFunc("/task/{id:[0-9]+}/", server.deleteTaskHandler).Methods("DELETE")
 	router.HandleFunc("/tag/{tag}/", server.tagHandler).Methods("GET")
 	router.HandleFunc("/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/", server.dueHandler).Methods("GET")
+
+	router.Use(func(h http.Handler) http.Handler {
+		return handlers.LoggingHandler(os.Stdout, h)
+	})
+	router.Use(handlers.RecoveryHandler(handlers.PrintRecoveryStack(true)))
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), router))
 }
