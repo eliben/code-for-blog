@@ -134,7 +134,6 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 	renderJSON(w, tasks)
 }
 
-// TODO: per-route middleware with subrouter?
 func main() {
 	router := mux.NewRouter()
 	router.StrictSlash(true)
@@ -148,6 +147,7 @@ func main() {
 	router.HandleFunc("/tag/{tag}/", server.tagHandler).Methods("GET")
 	router.HandleFunc("/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/", server.dueHandler).Methods("GET")
 
+	// Set up logging and panic recovery middleware.
 	router.Use(func(h http.Handler) http.Handler {
 		return handlers.LoggingHandler(os.Stdout, h)
 	})
