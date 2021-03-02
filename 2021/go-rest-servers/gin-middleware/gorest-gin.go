@@ -1,4 +1,4 @@
-// REST server implemented with Gin.
+// REST server implemented with Gin, with middleware.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -110,7 +110,11 @@ func (ts *taskServer) dueHandler(c *gin.Context) {
 }
 
 func main() {
-	router := gin.Default()
+	// Set up middleware for logging and panic recovery explicitly.
+	router := gin.New()
+	router.Use(gin.Logger())
+	router.Use(gin.Recovery())
+
 	server := NewTaskServer()
 
 	router.POST("/task/", server.createTaskHandler)
