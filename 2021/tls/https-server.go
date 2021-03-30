@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP network address")
+	addr := flag.String("addr", ":4000", "HTTPS network address")
 	certFile := flag.String("certfile", "cert.pem", "certificate PEM file")
 	keyFile := flag.String("keyfile", "key.pem", "key PEM file")
 	flag.Parse()
