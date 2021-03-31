@@ -34,18 +34,15 @@ func main() {
 	clientCertPool := x509.NewCertPool()
 	clientCertPool.AppendCertsFromPEM(clientCert)
 
-	tlsConfig := &tls.Config{
-		MinVersion:               tls.VersionTLS13,
-		PreferServerCipherSuites: true,
-		ClientCAs:                clientCertPool,
-		ClientAuth:               tls.RequireAndVerifyClientCert,
-	}
-	tlsConfig.BuildNameToCertificate()
-
 	srv := &http.Server{
-		Addr:      *addr,
-		Handler:   mux,
-		TLSConfig: tlsConfig,
+		Addr:    *addr,
+		Handler: mux,
+		TLSConfig: &tls.Config{
+			MinVersion:               tls.VersionTLS13,
+			PreferServerCipherSuites: true,
+			ClientCAs:                clientCertPool,
+			ClientAuth:               tls.RequireAndVerifyClientCert,
+		},
 	}
 
 	log.Printf("Starting server on %s", *addr)
