@@ -1,3 +1,10 @@
+// Simple HTTPS client in Go with mTLS.
+//
+// The client authenticates itself with its own certificate, as well as checks
+// the server's certificate.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

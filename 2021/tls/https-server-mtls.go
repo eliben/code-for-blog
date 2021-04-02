@@ -1,3 +1,9 @@
+// Simple HTTPS server in Go with mTLS.
+//
+// The server expects a client to be authenticated with a certificate.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

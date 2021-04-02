@@ -1,4 +1,13 @@
+// Generates a self-signed x509 certificate and a private key into PEM files.
+//
+// The certificate it generates is suitable for either server or client auth.
+// Functionality is similar to the go/src/crypto/tls/generate_cert.go tool, but
+// with less configurability.
+//
 // x509 certs are described in https://tools.ietf.org/html/rfc5280
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
