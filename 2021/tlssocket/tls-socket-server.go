@@ -34,9 +34,11 @@ func main() {
 		}
 		log.Printf("accepted connection from %s\n", conn.RemoteAddr())
 
-		if tlsconn, ok := conn.(*tls.Conn); ok {
-			log.Printf("%+v\n", tlsconn.ConnectionState())
-		}
+		// This should be optional in the blog post; the type assertion is done
+		// only to invoke the ConnectionState() method.
+		//if tlsconn, ok := conn.(*tls.Conn); ok {
+		//log.Printf("%+v\n", tlsconn.ConnectionState())
+		//}
 
 		go func(c net.Conn) {
 			io.Copy(c, c)
