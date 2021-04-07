@@ -17,7 +17,7 @@ import (
 
 func main() {
 	addr := flag.String("addr", "localhost:4000", "HTTPS server address")
-	certFile := flag.String("certfile", "cert.pem", "server certificate")
+	certFile := flag.String("certfile", "cert.pem", "trusted CA certificate")
 	flag.Parse()
 
 	cert, err := os.ReadFile(*certFile)
