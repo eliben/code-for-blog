@@ -12,7 +12,7 @@ import (
 
 func main() {
 	port := flag.String("port", "4040", "port to connect")
-	certFile := flag.String("certfile", "cert.pem", "server certificate")
+	certFile := flag.String("certfile", "cert.pem", "trusted CA certificate")
 	flag.Parse()
 
 	cert, err := os.ReadFile(*certFile)
