@@ -20,7 +20,7 @@ import (
 
 func main() {
 	addr := flag.String("addr", "localhost:4000", "HTTPS server address")
-	certFile := flag.String("certfile", "cert.pem", "server certificate")
+	certFile := flag.String("certfile", "cert.pem", "trusted CA certificate")
 	clientCertFile := flag.String("clientcert", "clientcert.pem", "certificate PEM for client")
 	clientKeyFile := flag.String("clientkey", "clientkey.pem", "key PEM for client")
 	flag.Parse()
