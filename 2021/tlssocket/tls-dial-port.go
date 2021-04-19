@@ -20,6 +20,7 @@ func main() {
 	if err != nil {
 		log.Fatal("TLS connection failed: " + err.Error())
 	}
+	defer conn.Close()
 
 	certChain := conn.ConnectionState().PeerCertificates
 	for i, cert := range certChain {
