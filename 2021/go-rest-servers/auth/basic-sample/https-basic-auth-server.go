@@ -10,13 +10,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// We store bcrypt-ed passwords for each user. The actual passwords are "1234"
+// for "joe" and "strongerpassword9902" for "mary", but these should not be
+// stored anywhere.
 var usersPasswords = map[string][]byte{
 	"joe":  []byte("$2a$12$aMfFQpGSiPiYkekov7LOsu63pZFaWzmlfm1T8lvG6JFj2Bh4SZPWS"),
 	"mary": []byte("$2a$12$l398tX477zeEBP6Se0mAv.ZLR8.LZZehuDgbtw2yoQeMjIyCNCsRW"),
 }
 
 func verifyUserPass(username, password string) bool {
-	fmt.Println("asked to verify user:", username, "pass:", password)
 	wantPass, hasUser := usersPasswords[username]
 	if !hasUser {
 		return false
