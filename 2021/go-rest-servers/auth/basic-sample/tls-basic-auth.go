@@ -8,6 +8,13 @@ import (
 	"net/http"
 )
 
+func verifyUserPass(username, password string) bool {
+	if username == "joe" && password == "1234" {
+		return true
+	}
+	return false
+}
+
 func main() {
 	addr := flag.String("addr", ":4000", "HTTPS network address")
 	certFile := flag.String("certfile", "cert.pem", "certificate PEM file")
@@ -20,7 +27,17 @@ func main() {
 			http.NotFound(w, req)
 			return
 		}
-		fmt.Fprintf(w, "Proudly served with Go and HTTPS!")
+		fmt.Fprintf(w, "Proudly served with Go and HTTPS!\n")
+	})
+
+	mux.HandleFunc("/secret/", func(w http.ResponseWriter, req *http.Request) {
+		user, pass, ok := req.BasicAuth()
+		if ok && verifyUserPass(user, pass) {
+			fmt.Fprintf(w, "You get to see the secret\n")
+		} else {
+			w.Header().Set("WWW-Authenticate", `Basic realm="api"`)
+			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		}
 	})
 
 	srv := &http.Server{
