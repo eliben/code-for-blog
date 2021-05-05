@@ -8,8 +8,13 @@ import (
 	"net/http"
 )
 
+var usersPasswords = map[string]string{
+	"joe": "1234",
+}
+
 func verifyUserPass(username, password string) bool {
-	if username == "joe" && password == "1234" {
+	wantPass, hasUser := usersPasswords[username]
+	if hasUser && wantPass == password {
 		return true
 	}
 	return false
