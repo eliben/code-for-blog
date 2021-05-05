@@ -6,15 +6,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
-var usersPasswords = map[string]string{
-	"joe": "1234",
+var usersPasswords = map[string][]byte{
+	"joe":  []byte("$2a$12$aMfFQpGSiPiYkekov7LOsu63pZFaWzmlfm1T8lvG6JFj2Bh4SZPWS"),
+	"mary": []byte("$2a$12$l398tX477zeEBP6Se0mAv.ZLR8.LZZehuDgbtw2yoQeMjIyCNCsRW"),
 }
 
 func verifyUserPass(username, password string) bool {
+	fmt.Println("asked to verify user:", username, "pass:", password)
 	wantPass, hasUser := usersPasswords[username]
-	if hasUser && wantPass == password {
+	if !hasUser {
+		return false
+	}
+	if cmperr := bcrypt.CompareHashAndPassword(wantPass, []byte(password)); cmperr == nil {
 		return true
 	}
 	return false
