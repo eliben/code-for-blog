@@ -16,6 +16,7 @@ import (
 	"strconv"
 	"time"
 
+	"example.com/internal/middleware"
 	"example.com/internal/taskstore"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -143,7 +144,10 @@ func main() {
 	router.StrictSlash(true)
 	server := NewTaskServer()
 
-	router.HandleFunc("/task/", server.createTaskHandler).Methods("POST")
+	// The "create task" path is protected with the BasicAuth middleware.
+	createTaskHandler := http.HandlerFunc(server.createTaskHandler)
+
+	router.Handle("/task/", middleware.BasicAuth(createTaskHandler)).Methods("POST")
 	router.HandleFunc("/task/", server.getAllTasksHandler).Methods("GET")
 	router.HandleFunc("/task/", server.deleteAllTasksHandler).Methods("DELETE")
 	router.HandleFunc("/task/{id:[0-9]+}/", server.getTaskHandler).Methods("GET")
