@@ -18,6 +18,8 @@ func main() {
 	pass := flag.String("pass", "", "password")
 	flag.Parse()
 
+	// Read the trusted CA certificate from a file and set up a client with TLS
+	// config to trust a server signed with this certificate.
 	cert, err := os.ReadFile(*certFile)
 	if err != nil {
 		log.Fatal(err)
@@ -35,22 +37,23 @@ func main() {
 		},
 	}
 
+	// Set up HTTPS request with basic authorization.
 	req, err := http.NewRequest(http.MethodGet, "https://"+*addr, nil)
 	if err != nil {
 		log.Fatal(err)
 	}
 	req.SetBasicAuth(*user, *pass)
 
-	r, err := client.Do(req)
+	resp, err := client.Do(req)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer r.Body.Close()
+	defer resp.Body.Close()
 
-	html, err := io.ReadAll(r.Body)
+	html, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("HTTP Status:", r.Status)
+	fmt.Println("HTTP Status:", resp.Status)
 	fmt.Println("Response body:", string(html))
 }
