@@ -1,11 +1,13 @@
-// Basic stdlib-only REST server with some middleware.
+// Stdlib-only REST server with HTTPS and basic auth middleware.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"log"
 	"mime"
@@ -196,6 +198,10 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	certFile := flag.String("certfile", "cert.pem", "certificate PEM file")
+	keyFile := flag.String("keyfile", "key.pem", "key PEM file")
+	flag.Parse()
+
 	mux := http.NewServeMux()
 	server := NewTaskServer()
 	mux.HandleFunc("/task/", server.taskHandler)
@@ -205,5 +211,16 @@ func main() {
 	handler := middleware.Logging(mux)
 	handler = middleware.PanicRecovery(handler)
 
-	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), handler))
+	addr := "localhost:" + os.Getenv("SERVERPORT")
+	srv := &http.Server{
+		Addr:    addr,
+		Handler: handler,
+		TLSConfig: &tls.Config{
+			MinVersion:               tls.VersionTLS13,
+			PreferServerCipherSuites: true,
+		},
+	}
+
+	log.Printf("Starting server on %s", addr)
+	log.Fatal(srv.ListenAndServeTLS(*certFile, *keyFile))
 }
