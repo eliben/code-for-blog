@@ -1,4 +1,4 @@
-// Middleware.
+// Middleware for basic HTTP authentication.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -16,6 +16,8 @@ import (
 // the username, if the user was properly authenticated with a password.
 const UserContextKey = "user"
 
+// BasicAuth is middleware that verifies the request has appropriate basic auth
+// set up with a user:password pair verified by authdb.
 func BasicAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		user, pass, ok := req.BasicAuth()

@@ -43,6 +43,9 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 }
 
 func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request) {
+	// If we want, we can obtain the authenticated user from
+	// req.Context().Value(middleware.UserContextKey))
+
 	// Types used internally in this handler to (de-)serialize the request and
 	// response from/to JSON.
 	type RequestTask struct {
@@ -145,9 +148,8 @@ func main() {
 	server := NewTaskServer()
 
 	// The "create task" path is protected with the BasicAuth middleware.
-	createTaskHandler := http.HandlerFunc(server.createTaskHandler)
-
-	router.Handle("/task/", middleware.BasicAuth(createTaskHandler)).Methods("POST")
+	router.Handle("/task/",
+		middleware.BasicAuth(http.HandlerFunc(server.createTaskHandler))).Methods("POST")
 	router.HandleFunc("/task/", server.getAllTasksHandler).Methods("GET")
 	router.HandleFunc("/task/", server.deleteAllTasksHandler).Methods("DELETE")
 	router.HandleFunc("/task/{id:[0-9]+}/", server.getTaskHandler).Methods("GET")
@@ -155,7 +157,7 @@ func main() {
 	router.HandleFunc("/tag/{tag}/", server.tagHandler).Methods("GET")
 	router.HandleFunc("/due/{year:[0-9]+}/{month:[0-9]+}/{day:[0-9]+}/", server.dueHandler).Methods("GET")
 
-	// Set up logging and panic recovery middleware.
+	// Set up logging and panic recovery middleware for all paths.
 	router.Use(func(h http.Handler) http.Handler {
 		return handlers.LoggingHandler(os.Stdout, h)
 	})
