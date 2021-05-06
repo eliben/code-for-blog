@@ -18,6 +18,8 @@ var usersPasswords = map[string][]byte{
 	"mary": []byte("$2a$12$l398tX477zeEBP6Se0mAv.ZLR8.LZZehuDgbtw2yoQeMjIyCNCsRW"),
 }
 
+// verifyUserPass verifies that username/password is a valid pair matching
+// our userPasswords "database".
 func verifyUserPass(username, password string) bool {
 	wantPass, hasUser := usersPasswords[username]
 	if !hasUser {
