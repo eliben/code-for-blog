@@ -1,4 +1,4 @@
-// Stdlib-only REST server with HTTPS and basic auth middleware.
+// Gorilla-mux server with HTTPS and basic authentication.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
