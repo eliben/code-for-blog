@@ -1,3 +1,10 @@
+// Package authdb emulates an "authentication database".
+//
+// It just exposes a global map of username -> bcrypt-ed password; in real life
+// this would be a wrapper around a real DB table.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package authdb
 
 import "golang.org/x/crypto/bcrypt"
