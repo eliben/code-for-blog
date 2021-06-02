@@ -5,9 +5,12 @@ package graph
 
 import (
 	"context"
+	"fmt"
+	"time"
 
 	"example.com/graph/generated"
 	"example.com/graph/model"
+	"example.com/internal/taskstore"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
@@ -29,15 +32,20 @@ func (r *mutationResolver) DeleteAllTasks(ctx context.Context) (*bool, error) {
 	return nil, r.Store.DeleteAllTasks()
 }
 
-func (r *queryResolver) GetAllTasks(ctx context.Context) ([]*model.Task, error) {
-	tasks := r.Store.GetAllTasks()
+// convertTaskSlice converts a slice of taskstore.Task to a slice of *model.Task
+// (as required by the GraphQL resolvers).
+func convertTaskSlice(tasks []taskstore.Task) []*model.Task {
 	mtasks := make([]*model.Task, 0, len(tasks))
 	for _, t := range tasks {
 		mtask := model.Task(t)
 		mtasks = append(mtasks, &mtask)
 	}
+	return mtasks
+}
 
-	return mtasks, nil
+func (r *queryResolver) GetAllTasks(ctx context.Context) ([]*model.Task, error) {
+	tasks := r.Store.GetAllTasks()
+	return convertTaskSlice(tasks), nil
 }
 
 func (r *queryResolver) GetTask(ctx context.Context, id int) (*model.Task, error) {
@@ -48,6 +56,15 @@ func (r *queryResolver) GetTask(ctx context.Context, id int) (*model.Task, error
 		mtask := model.Task(task)
 		return &mtask, nil
 	}
+}
+
+func (r *queryResolver) GetTasksByTag(ctx context.Context, tag string) ([]*model.Task, error) {
+	tasks := r.Store.GetTasksByTag(tag)
+	return convertTaskSlice(tasks), nil
+}
+
+func (r *queryResolver) GetTasksByDue(ctx context.Context, due time.Time) ([]*model.Task, error) {
+	panic(fmt.Errorf("not implemented"))
 }
 
 // Mutation returns generated.MutationResolver implementation.
