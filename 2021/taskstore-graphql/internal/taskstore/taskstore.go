@@ -12,7 +12,7 @@ import (
 )
 
 type Task struct {
-	Id   int       `json:"id"`
+	ID   int       `json:"id"`
 	Text string    `json:"text"`
 	Tags []string  `json:"tags"`
 	Due  time.Time `json:"due"`
@@ -40,7 +40,7 @@ func (ts *TaskStore) CreateTask(text string, tags []string, due time.Time) int {
 	defer ts.Unlock()
 
 	task := Task{
-		Id:   ts.nextId,
+		ID:   ts.nextId,
 		Text: text,
 		Due:  due}
 	task.Tags = make([]string, len(tags))
@@ -48,7 +48,7 @@ func (ts *TaskStore) CreateTask(text string, tags []string, due time.Time) int {
 
 	ts.tasks[ts.nextId] = task
 	ts.nextId++
-	return task.Id
+	return task.ID
 }
 
 // GetTask retrieves a task from the store, by id. If no such id exists, an

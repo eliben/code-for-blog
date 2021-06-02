@@ -7,14 +7,14 @@ import (
 )
 
 type NewTask struct {
-	Text string    `json:"text"`
-	Tags []string  `json:"tags"`
+	Text string    `json:"Text"`
+	Tags []string  `json:"Tags"`
 	Due  time.Time `json:"Due"`
 }
 
 type Task struct {
-	ID   string    `json:"id"`
-	Text string    `json:"text"`
-	Tags []string  `json:"tags"`
+	ID   int       `json:"Id"`
+	Text string    `json:"Text"`
+	Tags []string  `json:"Tags"`
 	Due  time.Time `json:"Due"`
 }

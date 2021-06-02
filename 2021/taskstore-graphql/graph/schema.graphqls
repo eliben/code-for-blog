@@ -10,14 +10,14 @@ type Mutation {
 scalar Time
 
 type Task {
-    id: ID!
-    text: String!
-    tags: [String!]
+    Id: ID!
+    Text: String!
+    Tags: [String!]
     Due: Time!
 }
 
 input NewTask {
-    text: String!
-    tags: [String!]
+    Text: String!
+    Tags: [String!]
     Due: Time!
 }
