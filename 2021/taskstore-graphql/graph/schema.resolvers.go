@@ -11,11 +11,15 @@ import (
 	"example.com/graph/model"
 )
 
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
+func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
+func (r *queryResolver) GetAllTasks(ctx context.Context) ([]*model.Task, error) {
+	panic(fmt.Errorf("not implemented"))
+}
+
+func (r *queryResolver) GetTask(ctx context.Context, id string) (*model.Task, error) {
 	panic(fmt.Errorf("not implemented"))
 }
 
