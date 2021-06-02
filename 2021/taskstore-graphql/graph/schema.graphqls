@@ -5,6 +5,9 @@ type Query {
 
 type Mutation {
     createTask(input: NewTask!): Task!
+
+    deleteTask(id: ID!): Boolean
+    deleteAllTasks: Boolean
 }
 
 scalar Time

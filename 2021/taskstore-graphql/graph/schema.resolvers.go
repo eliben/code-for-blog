@@ -21,6 +21,14 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 	}
 }
 
+func (r *mutationResolver) DeleteTask(ctx context.Context, id int) (*bool, error) {
+	return nil, r.Store.DeleteTask(id)
+}
+
+func (r *mutationResolver) DeleteAllTasks(ctx context.Context) (*bool, error) {
+	return nil, r.Store.DeleteAllTasks()
+}
+
 func (r *queryResolver) GetAllTasks(ctx context.Context) ([]*model.Task, error) {
 	tasks := r.Store.GetAllTasks()
 	mtasks := make([]*model.Task, 0, len(tasks))
