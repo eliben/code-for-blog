@@ -16,7 +16,6 @@ type Task {
     Due: Time!
 }
 
-
 input NewTask {
     text: String!
     tags: [String!]
