@@ -7,5 +7,5 @@ import "example.com/internal/taskstore"
 // It serves as dependency injection for your app, add any dependencies you require here.
 
 type Resolver struct {
-	store *taskstore.TaskStore
+	Store *taskstore.TaskStore
 }

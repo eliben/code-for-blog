@@ -5,22 +5,41 @@ package graph
 
 import (
 	"context"
-	"fmt"
 
 	"example.com/graph/generated"
 	"example.com/graph/model"
 )
 
 func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented"))
+	id := r.Store.CreateTask(input.Text, input.Tags, input.Due)
+	task, err := r.Store.GetTask(id)
+	if err != nil {
+		return nil, err
+	} else {
+		mtask := model.Task(task)
+		return &mtask, err
+	}
 }
 
 func (r *queryResolver) GetAllTasks(ctx context.Context) ([]*model.Task, error) {
-	panic(fmt.Errorf("not implemented"))
+	tasks := r.Store.GetAllTasks()
+	mtasks := make([]*model.Task, len(tasks))
+	for _, t := range tasks {
+		mtask := model.Task(t)
+		mtasks = append(mtasks, &mtask)
+	}
+
+	return mtasks, nil
 }
 
-func (r *queryResolver) GetTask(ctx context.Context, id string) (*model.Task, error) {
-	panic(fmt.Errorf("not implemented"))
+func (r *queryResolver) GetTask(ctx context.Context, id int) (*model.Task, error) {
+	task, err := r.Store.GetTask(id)
+	if err != nil {
+		return nil, err
+	} else {
+		mtask := model.Task(task)
+		return &mtask, nil
+	}
 }
 
 // Mutation returns generated.MutationResolver implementation.

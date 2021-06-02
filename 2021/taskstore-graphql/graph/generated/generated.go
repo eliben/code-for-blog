@@ -49,7 +49,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		GetAllTasks func(childComplexity int) int
-		GetTask     func(childComplexity int, id string) int
+		GetTask     func(childComplexity int, id int) int
 	}
 
 	Task struct {
@@ -65,7 +65,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	GetAllTasks(ctx context.Context) ([]*model.Task, error)
-	GetTask(ctx context.Context, id string) (*model.Task, error)
+	GetTask(ctx context.Context, id int) (*model.Task, error)
 }
 
 type executableSchema struct {
@@ -112,7 +112,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.GetTask(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.GetTask(childComplexity, args["id"].(int)), true
 
 	case "Task.Due":
 		if e.complexity.Task.Due == nil {
@@ -121,21 +121,21 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Task.Due(childComplexity), true
 
-	case "Task.id":
+	case "Task.Id":
 		if e.complexity.Task.ID == nil {
 			break
 		}
 
 		return e.complexity.Task.ID(childComplexity), true
 
-	case "Task.tags":
+	case "Task.Tags":
 		if e.complexity.Task.Tags == nil {
 			break
 		}
 
 		return e.complexity.Task.Tags(childComplexity), true
 
-	case "Task.text":
+	case "Task.Text":
 		if e.complexity.Task.Text == nil {
 			break
 		}
@@ -218,16 +218,15 @@ type Mutation {
 scalar Time
 
 type Task {
-    id: ID!
-    text: String!
-    tags: [String!]
+    Id: ID!
+    Text: String!
+    Tags: [String!]
     Due: Time!
 }
 
-
 input NewTask {
-    text: String!
-    tags: [String!]
+    Text: String!
+    Tags: [String!]
     Due: Time!
 }
 `, BuiltIn: false},
@@ -271,10 +270,10 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_getTask_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 int
 	if tmp, ok := rawArgs["id"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalNID2int(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -420,7 +419,7 @@ func (ec *executionContext) _Query_getTask(ctx context.Context, field graphql.Co
 	fc.Args = args
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTask(rctx, args["id"].(string))
+		return ec.resolvers.Query().GetTask(rctx, args["id"].(int))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -505,7 +504,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Task_id(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+func (ec *executionContext) _Task_Id(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -535,12 +534,12 @@ func (ec *executionContext) _Task_id(ctx context.Context, field graphql.Collecte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Task_text(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+func (ec *executionContext) _Task_Text(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -575,7 +574,7 @@ func (ec *executionContext) _Task_text(ctx context.Context, field graphql.Collec
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Task_tags(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
+func (ec *executionContext) _Task_Tags(ctx context.Context, field graphql.CollectedField, obj *model.Task) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
 			ec.Error(ctx, ec.Recover(ctx, r))
@@ -1735,18 +1734,18 @@ func (ec *executionContext) unmarshalInputNewTask(ctx context.Context, obj inter
 
 	for k, v := range asMap {
 		switch k {
-		case "text":
+		case "Text":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("text"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Text"))
 			it.Text, err = ec.unmarshalNString2string(ctx, v)
 			if err != nil {
 				return it, err
 			}
-		case "tags":
+		case "Tags":
 			var err error
 
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("tags"))
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Tags"))
 			it.Tags, err = ec.unmarshalOString2ᚕstringᚄ(ctx, v)
 			if err != nil {
 				return it, err
@@ -1867,18 +1866,18 @@ func (ec *executionContext) _Task(ctx context.Context, sel ast.SelectionSet, obj
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Task")
-		case "id":
-			out.Values[i] = ec._Task_id(ctx, field, obj)
+		case "Id":
+			out.Values[i] = ec._Task_Id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "text":
-			out.Values[i] = ec._Task_text(ctx, field, obj)
+		case "Text":
+			out.Values[i] = ec._Task_Text(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "tags":
-			out.Values[i] = ec._Task_tags(ctx, field, obj)
+		case "Tags":
+			out.Values[i] = ec._Task_Tags(ctx, field, obj)
 		case "Due":
 			out.Values[i] = ec._Task_Due(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -2155,13 +2154,13 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")
