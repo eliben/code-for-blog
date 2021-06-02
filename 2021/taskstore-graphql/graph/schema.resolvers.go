@@ -5,7 +5,6 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"example.com/graph/generated"
@@ -64,7 +63,9 @@ func (r *queryResolver) GetTasksByTag(ctx context.Context, tag string) ([]*model
 }
 
 func (r *queryResolver) GetTasksByDue(ctx context.Context, due time.Time) ([]*model.Task, error) {
-	panic(fmt.Errorf("not implemented"))
+	y, m, d := due.Date()
+	tasks := r.Store.GetTasksByDueDate(y, m, d)
+	return convertTaskSlice(tasks), nil
 }
 
 // Mutation returns generated.MutationResolver implementation.
