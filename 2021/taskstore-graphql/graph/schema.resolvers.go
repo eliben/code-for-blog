@@ -23,7 +23,7 @@ func (r *mutationResolver) CreateTask(ctx context.Context, input model.NewTask) 
 
 func (r *queryResolver) GetAllTasks(ctx context.Context) ([]*model.Task, error) {
 	tasks := r.Store.GetAllTasks()
-	mtasks := make([]*model.Task, len(tasks))
+	mtasks := make([]*model.Task, 0, len(tasks))
 	for _, t := range tasks {
 		mtask := model.Task(t)
 		mtasks = append(mtasks, &mtask)
