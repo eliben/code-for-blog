@@ -1,6 +1,9 @@
 type Query {
     getAllTasks: [Task]
     getTask(id: ID!): Task
+
+    getTasksByTag(tag: String!): [Task]
+    getTasksByDue(due: Time!): [Task]
 }
 
 type Mutation {
