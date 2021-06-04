@@ -15,15 +15,29 @@ type Mutation {
 
 scalar Time
 
+type Attachment {
+    Name: String!
+    Date: Time!
+    Contents: String!
+}
+
 type Task {
     Id: ID!
     Text: String!
     Tags: [String!]
     Due: Time!
+    Attachments: [Attachment!]
+}
+
+input NewAttachment {
+    Name: String!
+    Date: Time!
+    Contents: String!
 }
 
 input NewTask {
     Text: String!
     Tags: [String!]
     Due: Time!
+    Attachments: [NewAttachment!]
 }
