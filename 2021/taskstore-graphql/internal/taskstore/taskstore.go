@@ -4,6 +4,10 @@
 // This package was modified from the earlier parts in the REST series to use
 // graph/model.Task and its subtypes and add attachments; each Task here has a
 // slice of Attachment.
+// The reason for the modification is to remove the impedance mismatch between
+// taskstore's types and model's types, which are identical semantically but
+// still require conversions (because model uses pointers, for example)
+// resulting in much boilerplate.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
