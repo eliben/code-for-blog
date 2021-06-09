@@ -292,7 +292,11 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "graph/schema.graphqls", Input: `type Query {
+	{Name: "graph/schema.graphqls", Input: `# GraphQL schema for our task server.
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
+type Query {
     getAllTasks: [Task]
     getTask(id: ID!): Task
 
