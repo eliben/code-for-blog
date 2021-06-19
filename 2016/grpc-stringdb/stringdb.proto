@@ -7,6 +7,9 @@ syntax = "proto3";
 
 package stringdb;
 
+// Set Go package path
+option go_package = "grpc-stringdb-sample/stringdb";
+
 service StringDb {
   // Get the value stored on the server for a given key
   rpc GetValue (GetValueRequest) returns (GetValueReply) {}
