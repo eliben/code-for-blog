@@ -1,0 +1,47 @@
+# GraphQL schema for our task server.
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
+type Query {
+    getAllTasks: [Task]
+    getTask(id: ID!): Task
+
+    getTasksByTag(tag: String!): [Task]
+    getTasksByDue(due: Time!): [Task]
+}
+
+type Mutation {
+    createTask(input: NewTask!): Task!
+
+    deleteTask(id: ID!): Boolean
+    deleteAllTasks: Boolean
+}
+
+scalar Time
+
+type Attachment {
+    Name: String!
+    Date: Time!
+    Contents: String!
+}
+
+type Task {
+    Id: ID!
+    Text: String!
+    Tags: [String!]
+    Due: Time!
+    Attachments: [Attachment!]
+}
+
+input NewAttachment {
+    Name: String!
+    Date: Time!
+    Contents: String!
+}
+
+input NewTask {
+    Text: String!
+    Tags: [String!]
+    Due: Time!
+    Attachments: [NewAttachment!]
+}
