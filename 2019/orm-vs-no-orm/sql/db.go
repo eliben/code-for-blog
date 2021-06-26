@@ -124,7 +124,7 @@ func dbPostFullDetails(db *sql.DB, postID int64) (post, []comment, []tag, error)
 	// Get all comments for the post from Comment
 	commRows, err := db.Query(`select Comment.commentID, Comment.author,
 	                                  Comment.published, Comment.content
-															from Comment where Comment.postID = ?`, postID)
+	                            from Comment where Comment.postID = ?`, postID)
 	if err != nil {
 		return post{}, nil, nil, err
 	}
@@ -142,8 +142,8 @@ func dbPostFullDetails(db *sql.DB, postID int64) (post, []comment, []tag, error)
 	var tags []tag
 	tagsRows, err := db.Query(`select Tag.tagID, Tag.name
 	                           from PostTag
-														 inner join Tag on Tag.tagID = PostTag.tagID
-														 where PostTag.postID = ?`, postID)
+	                            inner join Tag on Tag.tagID = PostTag.tagID
+	                            where PostTag.postID = ?`, postID)
 	if err != nil {
 		return post{}, nil, nil, err
 	}
