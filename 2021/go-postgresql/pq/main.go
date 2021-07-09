@@ -6,6 +6,9 @@ import (
 	"log"
 
 	_ "github.com/lib/pq"
+	// To use the pgx driver, import this instead of pq. You'll also have to
+	// change the driverName param of sql.Open from "postgres" to "pgx".
+	//_ "github.com/jackc/pgx/v4/stdlib"
 )
 
 func Check(err error) {
