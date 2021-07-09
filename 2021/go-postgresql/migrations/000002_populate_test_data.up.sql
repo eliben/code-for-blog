@@ -1,11 +1,11 @@
 -- Creating IDs manually here so it's easy to populate the course_user table.
 
 insert into courses values
-  (1, '2018-01-04'::timestamp, 'Introduction to Biology'),
-  (2, '2020-11-12'::timestamp, 'Python 101'),
-  (3, '2019-05-28'::timestamp, 'Organic Chemistry'),
-  (4, '2012-02-29'::timestamp, 'French cuisine'),
-  (5, '2016-06-16'::timestamp, 'Signals and Systems');
+  (1, '2018-01-04'::timestamp, 'Introduction to Biology', array['science', 'hands-on']),
+  (2, '2020-11-12'::timestamp, 'Python 101', array['programming', 'snakes', 'code']),
+  (3, '2019-05-28'::timestamp, 'Organic Chemistry', array['science']),
+  (4, '2012-02-29'::timestamp, 'French cuisine', array['cooking', 'international']),
+  (5, '2016-06-16'::timestamp, 'Signals and Systems', array['science', 'EE', 'math', 'control']);
 
 insert into projects values
   (1, 'Basics of dissection', '<redacted>', 1),
