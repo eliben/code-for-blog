@@ -34,5 +34,6 @@ insert into course_user values
   (2, 1),
   (3, 6),
   (3, 5),
+  (4, 5),
   (3, 4),
   (5, 5);
