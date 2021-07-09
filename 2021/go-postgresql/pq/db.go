@@ -63,3 +63,25 @@ func dbAllCoursesForUser(db *sql.DB, userId int64) ([]course, error) {
 	}
 	return courses, nil
 }
+
+func dbAllProjectsForUser(db *sql.DB, userId int64) ([]project, error) {
+	rows, err := db.Query(`
+		select projects.id, projects.name, projects.content
+		from courses
+		inner join course_user on courses.id = course_user.course_id
+		inner join projects on courses.id = projects.course_id
+		where course_user.user_id = $1`, userId)
+	if err != nil {
+		return nil, err
+	}
+	var projects []project
+	for rows.Next() {
+		var p project
+		err = rows.Scan(&p.Id, &p.Name, &p.Content)
+		if err != nil {
+			return nil, err
+		}
+		projects = append(projects, p)
+	}
+	return projects, nil
+}
