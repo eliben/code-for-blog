@@ -23,4 +23,8 @@ func main() {
 	users, err := dbAllUsersForCourse(db, 2)
 	Check(err)
 	fmt.Println(users)
+
+	courses, err := dbAllCoursesForUser(db, 5)
+	Check(err)
+	fmt.Println(courses)
 }

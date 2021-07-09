@@ -9,7 +9,6 @@ type course struct {
 	Id        int64
 	CreatedAt time.Time
 	Title     string
-	Teacher   string
 }
 
 type user struct {
@@ -42,4 +41,25 @@ func dbAllUsersForCourse(db *sql.DB, courseId int64) ([]user, error) {
 		users = append(users, u)
 	}
 	return users, nil
+}
+
+func dbAllCoursesForUser(db *sql.DB, userId int64) ([]course, error) {
+	rows, err := db.Query(`
+		select courses.id, courses.created_at, courses.title
+		from courses
+		inner join course_user on courses.id = course_user.course_id
+		where course_user.user_id = $1`, userId)
+	if err != nil {
+		return nil, err
+	}
+	var courses []course
+	for rows.Next() {
+		var c course
+		err = rows.Scan(&c.Id, &c.CreatedAt, &c.Title)
+		if err != nil {
+			return nil, err
+		}
+		courses = append(courses, c)
+	}
+	return courses, nil
 }
