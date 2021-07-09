@@ -1,7 +1,8 @@
 create table if not exists courses (
     id bigserial primary key,
     created_at timestamp(0) with time zone not null default now(),
-    title text not null
+    title text not null,
+    hashtags text[]
 );
 
 create table if not exists projects (

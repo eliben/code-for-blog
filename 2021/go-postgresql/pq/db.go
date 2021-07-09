@@ -3,12 +3,15 @@ package main
 import (
 	"database/sql"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type course struct {
 	Id        int64
 	CreatedAt time.Time
 	Title     string
+	Hashtags  []string
 }
 
 type user struct {
@@ -45,7 +48,7 @@ func dbAllUsersForCourse(db *sql.DB, courseId int64) ([]user, error) {
 
 func dbAllCoursesForUser(db *sql.DB, userId int64) ([]course, error) {
 	rows, err := db.Query(`
-		select courses.id, courses.created_at, courses.title
+		select courses.id, courses.created_at, courses.title, courses.hashtags
 		from courses
 		inner join course_user on courses.id = course_user.course_id
 		where course_user.user_id = $1`, userId)
@@ -55,7 +58,7 @@ func dbAllCoursesForUser(db *sql.DB, userId int64) ([]course, error) {
 	var courses []course
 	for rows.Next() {
 		var c course
-		err = rows.Scan(&c.Id, &c.CreatedAt, &c.Title)
+		err = rows.Scan(&c.Id, &c.CreatedAt, &c.Title, pq.Array(&c.Hashtags))
 		if err != nil {
 			return nil, err
 		}
