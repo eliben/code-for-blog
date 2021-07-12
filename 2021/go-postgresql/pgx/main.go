@@ -21,12 +21,7 @@ func main() {
 	Check(err)
 	defer conn.Close(ctx)
 
-	var greeting string
-	err = conn.QueryRow(ctx, "select 'Hello, world!'").Scan(&greeting)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
-	}
-
-	fmt.Println(greeting)
+	users, err := dbAllUsersForCourse(ctx, conn, 2)
+	Check(err)
+	fmt.Println(users)
 }
