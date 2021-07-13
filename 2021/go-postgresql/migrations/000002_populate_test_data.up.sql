@@ -1,4 +1,4 @@
--- Creating IDs manually here so it's easy to populate the course_user table.
+-- Inserting IDs manually here so it's easy to populate the course_user table.
 
 insert into courses values
   (1, '2018-01-04'::timestamp, 'Introduction to Biology', array['science', 'hands-on']),
