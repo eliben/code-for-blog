@@ -22,6 +22,9 @@ locally with `psql`:
 
     $ psql postgres://testuser:testpassword@localhost/testmooc
 
+Instead of this local setup, you could run a managed PostgreSQL on one of the
+public clouds; in that case your DSN will be different.
+
 ## Populating the database
 
 I've been using the [migrate tool](https://github.com/golang-migrate/migrate).
