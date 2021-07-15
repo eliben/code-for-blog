@@ -15,6 +15,8 @@ import (
 	//_ "github.com/jackc/pgx/v4/stdlib"
 )
 
+// Check is a helper that terminates the program with err.Error() logged in
+// case err is not nil.
 func Check(err error) {
 	if err != nil {
 		log.Fatal(err)
