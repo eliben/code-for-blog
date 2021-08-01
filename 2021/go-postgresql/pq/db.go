@@ -38,6 +38,7 @@ func dbAllUsersForCourse(db *sql.DB, courseId int64) ([]user, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var users []user
 	for rows.Next() {
 		var u user
@@ -46,6 +47,9 @@ func dbAllUsersForCourse(db *sql.DB, courseId int64) ([]user, error) {
 			return nil, err
 		}
 		users = append(users, u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return users, nil
 }
@@ -59,6 +63,7 @@ func dbAllCoursesForUser(db *sql.DB, userId int64) ([]course, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var courses []course
 	for rows.Next() {
 		var c course
@@ -67,6 +72,9 @@ func dbAllCoursesForUser(db *sql.DB, userId int64) ([]course, error) {
 			return nil, err
 		}
 		courses = append(courses, c)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return courses, nil
 }
@@ -81,6 +89,7 @@ func dbAllProjectsForUser(db *sql.DB, userId int64) ([]project, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var projects []project
 	for rows.Next() {
 		var p project
@@ -89,6 +98,9 @@ func dbAllProjectsForUser(db *sql.DB, userId int64) ([]project, error) {
 			return nil, err
 		}
 		projects = append(projects, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return projects, nil
 }
