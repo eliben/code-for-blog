@@ -38,6 +38,7 @@ func dbAllUsersForCourse(ctx context.Context, conn *pgx.Conn, courseId int64) ([
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var users []user
 	for rows.Next() {
 		var u user
@@ -46,6 +47,9 @@ func dbAllUsersForCourse(ctx context.Context, conn *pgx.Conn, courseId int64) ([
 			return nil, err
 		}
 		users = append(users, u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return users, nil
 }
@@ -59,6 +63,7 @@ func dbAllCoursesForUser(ctx context.Context, conn *pgx.Conn, userId int64) ([]c
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var courses []course
 	for rows.Next() {
 		var c course
@@ -67,6 +72,9 @@ func dbAllCoursesForUser(ctx context.Context, conn *pgx.Conn, userId int64) ([]c
 			return nil, err
 		}
 		courses = append(courses, c)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return courses, nil
 }
@@ -81,6 +89,7 @@ func dbAllProjectsForUser(ctx context.Context, conn *pgx.Conn, userId int64) ([]
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	var projects []project
 	for rows.Next() {
 		var p project
@@ -89,6 +98,9 @@ func dbAllProjectsForUser(ctx context.Context, conn *pgx.Conn, userId int64) ([]
 			return nil, err
 		}
 		projects = append(projects, p)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
 	return projects, nil
 }
