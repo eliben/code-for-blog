@@ -33,7 +33,7 @@ int main(int argc, const char* argv[]) {
     printf("Original file:\n--------\n");
     printf("%s", dstring_cstr(contents));
     printf("\n--------\n\n");
-    
+
     // The Post object takes ownership of the strings passed to it
     Post* post = Post_new(42, dstring_new("Someone"), contents);
 
@@ -41,7 +41,7 @@ int main(int argc, const char* argv[]) {
     // working directory.
     PluginManager* pm = PluginManager_new();
     dstring dirname = dstring_new("plugins");
-    void* pdstate = discover_plugins(dirname, pm);  
+    void* pdstate = discover_plugins(dirname, pm);
     dstring_free(dirname);
 
     dstring htmlized = htmlize(pm, 0, post);
@@ -57,4 +57,3 @@ int main(int argc, const char* argv[]) {
 
     return 0;
 }
-

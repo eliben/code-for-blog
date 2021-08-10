@@ -21,4 +21,3 @@ int init_tt(PluginManager* pm) {
     dstring_free(rolename);
     return 1;
 }
-
