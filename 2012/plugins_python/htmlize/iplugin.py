@@ -61,5 +61,3 @@ def discover_plugins(dirs):
                     # IPluginRegistry
                     mod = imp.load_module(modname, file, path, descr)
     return IPluginRegistry.plugins
-
-
