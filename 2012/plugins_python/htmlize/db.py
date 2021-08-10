@@ -20,7 +20,7 @@ class DB(object):
     def __init__(self):
         self.posts = {}
         self.id = 0
-        
+
     def create_new_post(self, author, date, title, contents):
         post = self.posts[self.id] = Post(self.id, author, date,
                                           title, contents)
@@ -37,5 +37,3 @@ class DB(object):
             if post.title == title:
                 return post
         return None
-
-

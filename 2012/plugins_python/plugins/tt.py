@@ -17,4 +17,3 @@ class TtFormatter(IPlugin):
 
     def _tt_hook(self, contents):
         return '<tt>' + contents + '</tt>'
-
