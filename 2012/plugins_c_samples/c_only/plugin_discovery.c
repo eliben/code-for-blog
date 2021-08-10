@@ -64,7 +64,7 @@ static dstring get_plugin_name(char* filename) {
 // NULL is returned.
 //
 static void* load_plugin(dstring name, dstring fullpath, PluginManager* pm) {
-    // Make sure the path to dlopen has a slash, for it to consider it 
+    // Make sure the path to dlopen has a slash, for it to consider it
     // an actual filesystem path and not just a lookup name.
     dstring slashedpath = dstring_format("./%s", dstring_cstr(fullpath));
 
@@ -159,5 +159,3 @@ void cleanup_plugins(void* vpds) {
     }
     mem_free(pds);
 }
-
-

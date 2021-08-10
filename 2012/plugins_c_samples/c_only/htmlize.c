@@ -1,6 +1,6 @@
 //
 // htmlize.c: Core htmlize functionality
-// 
+//
 // Eli Bendersky (eliben@gmail.com)
 // This code is in the public domain
 //
@@ -124,7 +124,7 @@ static dstring apply_role_hooks(dstring contents, PluginManager* pm,
 
             dstring_free(text);
             text = newtext;
-            
+
             // p must point into the new string, after the role
             p = dstring_cstr(text) + len_before_role +
                 dstring_len(transformed);
@@ -155,4 +155,3 @@ dstring htmlize(PluginManager* pm, DB* db, Post* post) {
 
     return after_content_hooks;
 }
-

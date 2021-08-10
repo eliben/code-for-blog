@@ -104,4 +104,3 @@ dstring PluginManager_apply_contents_hooks(PluginManager* pm, dstring contents,
 
     return contents;
 }
-
