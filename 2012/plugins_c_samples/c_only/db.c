@@ -1,6 +1,6 @@
 //
 // db.c: Mock database implementation
-// 
+//
 // Eli Bendersky (eliben@gmail.com)
 // This code is in the public domain
 //
@@ -45,4 +45,3 @@ const dstring Post_get_contents(Post* post) {
 const dstring Post_get_author(Post* post) {
     return post->author;
 }
-

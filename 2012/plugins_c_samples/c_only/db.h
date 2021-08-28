@@ -27,4 +27,3 @@ const dstring Post_get_author(Post* post);
 
 
 #endif /* DB_H */
-
