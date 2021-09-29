@@ -31,7 +31,6 @@ func main() {
 				x.Name.Name += "2"
 			}
 
-			body := x.Body
 			newCallStmt := &ast.ExprStmt{
 				X: &ast.CallExpr{
 					Fun: &ast.SelectorExpr{
@@ -51,7 +50,7 @@ func main() {
 				},
 			}
 
-			body.List = append([]ast.Stmt{newCallStmt}, body.List...)
+			x.Body.List = append([]ast.Stmt{newCallStmt}, x.Body.List...)
 		}
 
 		return true
