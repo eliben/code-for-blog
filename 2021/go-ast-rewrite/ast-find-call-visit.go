@@ -1,3 +1,7 @@
+// Find calls to a certain function in Go code using ast.Walk
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

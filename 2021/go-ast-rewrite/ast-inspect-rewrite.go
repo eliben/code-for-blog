@@ -1,3 +1,7 @@
+// Apply basic AST rewriting to Go code, without using external packages.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
