@@ -1,3 +1,8 @@
+// Sample generator that prints out invocation details.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 //go:build ignore
 
 package main
