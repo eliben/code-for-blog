@@ -11,6 +11,7 @@ macro_rules! calculator_tests {
             fn mytest() {
                 let c = <$type>::new();
                 assert_eq!(c.add(2, 3), 5);
+                assert_eq!(c.add(10, -43), -33);
             }
         }
     )*
@@ -22,9 +23,10 @@ macro_rules! calculator_tests {
 
 #[cfg(test)]
 mod tests {
-    use crate::calculator::Calculator;
+    use crate::calculator::{Bar, Calculator, Foo};
+
     calculator_tests! {
-        foo: crate::calculator::Foo,
-        bar: crate::calculator::Bar,
+        foo: Foo,
+        bar: Bar,
     }
 }

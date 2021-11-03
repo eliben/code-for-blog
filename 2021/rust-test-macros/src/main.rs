@@ -1,6 +1,7 @@
 mod calculator;
-mod typetest;
+mod testbytrait;
+mod typetestmod;
 
 fn main() {
-    println!("Hello, world!");
+    println!("Nothing to see here; run 'cargo test'");
 }
