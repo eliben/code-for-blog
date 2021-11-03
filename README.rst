@@ -1,5 +1,5 @@
 This repository collects code samples linked from `my blog
-<http://eli.thegreenplace.net>`_. Unless otherwise noted, all the code here is
+<https://eli.thegreenplace.net>`_. Unless otherwise noted, all the code here is
 in the public domain (see the ``LICENSE`` file in this repository for more
 details).
 
