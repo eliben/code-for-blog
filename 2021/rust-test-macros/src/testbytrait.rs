@@ -10,7 +10,7 @@ mod tests {
 
     fn trait_tester<C: Calculator>(c: &C) {
         assert_eq!(c.add(2, 3), 5);
-        assert_eq!(c.add(10, -43), -33);
+        assert_eq!(c.add(10, 43), 53);
     }
 
     #[test]
