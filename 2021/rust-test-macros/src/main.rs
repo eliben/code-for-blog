@@ -1,5 +1,6 @@
 mod calculator;
 mod testbytrait;
+mod typetest;
 mod typetestmod;
 
 fn main() {
