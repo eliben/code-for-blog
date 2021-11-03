@@ -1,5 +1,5 @@
 pub trait Calculator {
-    fn add(&self, a: i32, b: i32) -> i32;
+    fn add(&self, a: u32, b: u32) -> u32;
 }
 
 pub struct Foo {}
@@ -11,7 +11,7 @@ impl Foo {
 }
 
 impl Calculator for Foo {
-    fn add(&self, a: i32, b: i32) -> i32 {
+    fn add(&self, a: u32, b: u32) -> u32 {
         a + b
     }
 }
@@ -25,7 +25,11 @@ impl Bar {
 }
 
 impl Calculator for Bar {
-    fn add(&self, a: i32, b: i32) -> i32 {
-        a + b
+    fn add(&self, a: u32, b: u32) -> u32 {
+        if b == 0 {
+            a
+        } else {
+            self.add(a, b - 1) + 1
+        }
     }
 }
