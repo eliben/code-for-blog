@@ -8,7 +8,7 @@ macro_rules! calculator_tests {
             use super::*;
 
             #[test]
-            fn mytest() {
+            fn test() {
                 let c = <$type>::new();
                 assert_eq!(c.add(2, 3), 5);
                 assert_eq!(c.add(10, -43), -33);
