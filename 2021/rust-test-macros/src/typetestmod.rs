@@ -1,6 +1,3 @@
-// Keeping name different from type because the test func name needs to be an
-// identifier, and types can be qualified like crate::module::Type.
-
 macro_rules! calculator_tests {
     ($($name:ident: $type:ty,)*) => {
     $(
@@ -13,13 +10,16 @@ macro_rules! calculator_tests {
                 assert_eq!(c.add(2, 3), 5);
                 assert_eq!(c.add(10, 43), 53);
             }
+
+            #[test]
+            fn test_feature1() {
+                let c = <$type>::new();
+                assert_eq!(c.add(6, 9), 15);
+            }
         }
     )*
     }
 }
-
-// The different module is to give different names to tests.
-// Could also place all of them into the same module...
 
 #[cfg(test)]
 mod tests {
