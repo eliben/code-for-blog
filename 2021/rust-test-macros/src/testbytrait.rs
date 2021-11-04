@@ -1,7 +1,3 @@
-// if I have multiple test functions, each test_$Type has to invoke each
-// one of them, and they all cannot run in parallel, be seen in reports,
-// invoked by name w/ "cargo test" etc.
-
 #[cfg(test)]
 mod tests {
     use crate::calculator::{Bar, Calculator, Foo};
