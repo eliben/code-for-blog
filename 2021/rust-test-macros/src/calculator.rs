@@ -1,16 +1,15 @@
 pub trait Calculator {
+    fn new() -> Self;
     fn add(&self, a: u32, b: u32) -> u32;
 }
 
 pub struct Foo {}
 
-impl Foo {
-    pub fn new() -> Self {
+impl Calculator for Foo {
+    fn new() -> Self {
         Self {}
     }
-}
 
-impl Calculator for Foo {
     fn add(&self, a: u32, b: u32) -> u32 {
         a + b
     }
@@ -18,13 +17,11 @@ impl Calculator for Foo {
 
 pub struct Bar {}
 
-impl Bar {
-    pub fn new() -> Self {
+impl Calculator for Bar {
+    fn new() -> Self {
         Self {}
     }
-}
 
-impl Calculator for Bar {
     fn add(&self, a: u32, b: u32) -> u32 {
         if b == 0 {
             a
