@@ -1,3 +1,7 @@
+// Writing tests with a macro that generates a `mod` per type.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 macro_rules! calculator_tests {
     ($($name:ident: $type:ty,)*) => {
     $(
