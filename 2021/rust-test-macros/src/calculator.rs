@@ -1,3 +1,7 @@
+// Calculator trait and a couple of basic implementations.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 pub trait Calculator {
     fn new() -> Self;
     fn add(&self, a: u32, b: u32) -> u32;

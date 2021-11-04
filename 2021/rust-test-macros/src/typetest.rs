@@ -1,5 +1,7 @@
-// This works for one test fn, but not for multiple; how do we crate different
-// names? No simple way to do this, due to macro hygiene.
+// Writing tests with a macro that generates a function per type.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 macro_rules! calculator_tests {
     ($($name:ident: $type:ty,)*) => {
     $(
