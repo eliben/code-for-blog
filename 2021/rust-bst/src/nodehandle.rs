@@ -1,3 +1,8 @@
+// Semi-safe approach using a Vec owning all the nodes and numeric indices into
+// this Vec as handles.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 pub struct Tree {
     // All the nodes are owned by the `nodes` vector. Throughout the code, a
     // NodeHandle value of 0 means "none".

@@ -1,3 +1,7 @@
+// Unsafe approach using raw pointers and unsafe{} blocks.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 pub struct Tree {
     count: usize,
     root: *mut Node,
