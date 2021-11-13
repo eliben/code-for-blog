@@ -1,3 +1,7 @@
+// Safe approach using Option<Rc<RefCell<Node>>>.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
 
