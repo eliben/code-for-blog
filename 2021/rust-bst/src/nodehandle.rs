@@ -111,6 +111,8 @@ impl Tree {
         self.display_node(self.root, 0)
     }
 
+    // Returns a string representation of the `node` subtree, with an initial
+    // indentation level.
     fn display_node(&self, fromnode: NodeHandle, indent: usize) -> String {
         let indent_str = " ".repeat(indent);
         if fromnode == 0 {
@@ -206,6 +208,7 @@ impl Tree {
         }
     }
 
+    // Remove the given node from the tree.
     fn remove_node(&mut self, node: NodeHandle) {
         let lchild = self.nodes[node].left;
         let rchild = self.nodes[node].right;
