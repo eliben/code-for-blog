@@ -1,3 +1,7 @@
+// Main file with all the tests.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 #![allow(dead_code)]
 #![allow(clippy::comparison_chain)]
 #![allow(clippy::collapsible_else_if)]
@@ -6,26 +10,13 @@ mod rcrefcell;
 mod unsafeall;
 
 fn main() {
-    let mut t = unsafeall::Tree::new();
-    t.insert(10);
-    t.insert(12);
-    t.insert(5);
-    t.insert(4);
-    t.insert(20);
-    t.insert(8);
-    t.insert(7);
-    t.insert(15);
-    t.insert(13);
-
-    println!("{}", t.display());
-
-    println!("{}", t.find(20));
-    println!("{}", t.find(21));
-    println!("{}", t.find(10));
+    println!("Nothing to see here; run 'cargo test'");
 }
 
 #[cfg(test)]
 mod tests {
+    // The tests are parameterized with this macro, and invoked for each of
+    // the Tree implementations (they all have the same API).
     macro_rules! bst_tests {
         ($($name:ident: $type:ty,)*) => {
         $(
