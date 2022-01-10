@@ -1,3 +1,8 @@
+/* Code sample: compiling shared libraries with -fpic.
+**
+** Eli Bendersky (https://eli.thegreenplace.net)
+** This code is in the public domain.
+*/
 #include <stdio.h>
 
 extern int ml_func(int, int);
