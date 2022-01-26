@@ -18,6 +18,12 @@ impl Magic for bool {
     }
 }
 
+impl<T> Magic for Vec<T> {
+    fn magic_num(&self) -> usize {
+        return if self.len() == 0 { 10 } else { 5 };
+    }
+}
+
 fn report_magic<M: Magic>(v: &M) {
     println!("magic num: {}", v.magic_num());
 }
@@ -33,4 +39,7 @@ fn main() {
     report_magic(&tv);
 
     println!("{}", true.magic_num());
+
+    let vv = vec![1, 2, 3];
+    report_magic(&vv);
 }
