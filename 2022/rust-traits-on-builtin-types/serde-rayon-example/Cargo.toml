@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 byteorder = "1.4.3"
+rayon = "1.5.1"
 serde = "1.0.136"
 serde_json = "1.0.78"

@@ -3,6 +3,8 @@ use serde_json;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 
+use rayon::prelude::*;
+
 fn main() {
     let mut serializer = serde_json::Serializer::new(std::io::stdout());
 
@@ -21,4 +23,9 @@ fn main() {
     wv.write_u16::<LittleEndian>(259).unwrap();
     wv.write_u16::<LittleEndian>(517).unwrap();
     println!("{:?}", wv);
+
+    let exps = vec![2, 4, 6, 12, 24];
+
+    let powers_of_two: Vec<_> = exps.par_iter().map(|n| 2_u64.pow(*n)).collect();
+    println!("{:?}", powers_of_two);
 }
