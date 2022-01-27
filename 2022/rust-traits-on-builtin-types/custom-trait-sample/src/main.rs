@@ -1,3 +1,5 @@
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 trait Magic {
     fn magic_num(&self) -> usize;
 }

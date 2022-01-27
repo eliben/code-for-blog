@@ -1,3 +1,5 @@
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use serde::Serialize;
 use serde_json;
 
@@ -25,7 +27,6 @@ fn main() {
     println!("{:?}", wv);
 
     let exps = vec![2, 4, 6, 12, 24];
-
     let powers_of_two: Vec<_> = exps.par_iter().map(|n| 2_u64.pow(*n)).collect();
     println!("{:?}", powers_of_two);
 }
