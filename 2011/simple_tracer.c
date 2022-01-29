@@ -3,7 +3,7 @@
 ** Note: this was originally developed for a 32-bit x86 Linux system; some
 ** changes may be required to port to x86-64.
 **
-** Eli Bendersky (http://eli.thegreenplace.net)
+** Eli Bendersky (https://eli.thegreenplace.net)
 ** This code is in the public domain.
 */
 #include <stdio.h>
