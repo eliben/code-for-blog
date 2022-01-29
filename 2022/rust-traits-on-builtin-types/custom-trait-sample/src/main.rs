@@ -10,19 +10,31 @@ struct Foobar {
 
 impl Magic for Foobar {
     fn magic_num(&self) -> usize {
-        return if self.name.len() == 0 { 2 } else { 33 };
+        if self.name.is_empty() {
+            2
+        } else {
+            33
+        }
     }
 }
 
 impl Magic for bool {
     fn magic_num(&self) -> usize {
-        return if *self { 3 } else { 54 };
+        if *self {
+            3
+        } else {
+            54
+        }
     }
 }
 
 impl<T> Magic for Vec<T> {
     fn magic_num(&self) -> usize {
-        return if self.len() == 0 { 10 } else { 5 };
+        if self.is_empty() {
+            10
+        } else {
+            5
+        }
     }
 }
 

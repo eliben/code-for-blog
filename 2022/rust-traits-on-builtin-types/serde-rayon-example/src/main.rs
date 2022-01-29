@@ -1,7 +1,6 @@
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 use serde::Serialize;
-use serde_json;
 
 use byteorder::{LittleEndian, WriteBytesExt};
 
@@ -15,11 +14,11 @@ fn main() {
     // when the Serialize trait is imported.
     print!("Serializing an integer: ");
     185.serialize(&mut serializer).unwrap();
-    println!("");
+    println!();
 
     print!("Serializing a vector of integers: ");
     vec![2, 3, 4].serialize(&mut serializer).unwrap();
-    println!("");
+    println!();
 
     let mut wv = vec![];
     wv.write_u16::<LittleEndian>(259).unwrap();
