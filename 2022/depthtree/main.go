@@ -64,7 +64,7 @@ func (dl DList) BuildTree() *Tree {
 	result := &Tree{}
 	t := result
 
-	// depth is the current depth of t in the tree.
+	// depth is the current depth of t's children.
 	depth := 1
 
 	// stack of parent nodes to implement backtracking up the tree once we're done
@@ -77,10 +77,10 @@ func (dl DList) BuildTree() *Tree {
 	// last insertion was made.
 nextItem:
 	for _, item := range dl {
-		// The inner loop find the right place for item in the tree and performs
+		// The inner loop finds the right place for item in the tree and performs
 		// insertion.
 		// Loop invariant: t points at the node where we're trying to insert, depth
-		// is its depth in the tree and stack holds a stack of t's parents.
+		// is the depth of its children and stack holds a stack of t's parents.
 		for {
 			// Check if item can be inserted as a child of t; this can be done only if
 			// our depth matches the item's and t doesn't have both its children yet.
@@ -121,7 +121,7 @@ nextItem:
 	return result
 }
 
-// BuildTreeRec builds a Tree from a DList using recursive algorithm.
+// BuildTreeRec builds a Tree from a DList using a recursive algorithm.
 func (dl DList) BuildTreeRec() *Tree {
 	cursor := 0
 
