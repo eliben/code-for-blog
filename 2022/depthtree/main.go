@@ -1,5 +1,8 @@
 // Binary tree construction from inorder-depth representation.
 //
+// The main() here is just a small experiment; to exercise the code run
+// `go test`.
+//
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
