@@ -1,0 +1,5 @@
+package main
+
+func foo(a, b, c int) int {
+	return a + b - c
+}
