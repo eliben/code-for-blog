@@ -1,3 +1,7 @@
+// Demonstrates file-driven tests in Go.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package somepackage
 
 import (
