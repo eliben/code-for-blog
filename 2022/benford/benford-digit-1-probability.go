@@ -36,7 +36,7 @@ func main() {
 
 	// Need to be careful with the ranges and plot size here: some gonum bug
 	// affects how many points are emitted in some cases.
-	for i := 1; i < 2500; i++ {
+	for i := 1; i < 2000; i++ {
 		leadDigits[getLeadDigit(i)]++
 
 		// p is the ratio of numbers starting with 1 seen up to and including i.
