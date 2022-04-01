@@ -1,0 +1,4 @@
+*.o
+*.out
+cpu*.out
+
