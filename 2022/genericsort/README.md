@@ -13,7 +13,7 @@ For profiling, run something like:
 
 To dump assembly, run:
 
-  $ go tool objdump ./bubble.out
+  $ go tool objdump -S ./bubble.out
 
 I also find https://github.com/aclements/objbrowse useful for more interactive
 browsing of Go assembly code.
