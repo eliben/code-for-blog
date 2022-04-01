@@ -75,6 +75,7 @@ func makeRandomStrings(n int) []string {
 	var letters = []rune("abcdefghijklmnopqrstuvwxyz")
 	ss := make([]string, n)
 	for i := 0; i < n; i++ {
+		// Each random string has length between 2-11
 		var sb strings.Builder
 		slen := 2 + rand.Intn(10)
 		for j := 0; j < slen; j++ {
@@ -86,7 +87,6 @@ func makeRandomStrings(n int) []string {
 }
 
 func makeRandomStructs(n int) myStructs {
-	rand.Seed(42)
 	structs := make([]*myStruct, n)
 	for i := 0; i < n; i++ {
 		structs[i] = &myStruct{n: rand.Intn(n)}

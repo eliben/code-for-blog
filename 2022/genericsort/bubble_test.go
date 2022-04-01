@@ -13,7 +13,7 @@ import (
 )
 
 func TestBubbleSort(t *testing.T) {
-	for _, length := range []int{1, 2, 4, 6, 32, 800} {
+	for _, length := range []int{1, 2, 4, 6, 17, 32, 800} {
 		testname := fmt.Sprintf("sort-len-%d", length)
 		t.Run(testname, func(t *testing.T) {
 			// Test that our bubble sort works by comparing it to the built-in sort.
