@@ -72,6 +72,16 @@ func BenchmarkSortStringFunc(b *testing.B) {
 	}
 }
 
+func BenchmarkSortStringFuncGen(b *testing.B) {
+	lessFunc := func(a, b string) bool { return a < b }
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		ss := makeRandomStrings(N)
+		b.StartTimer()
+		bubbleSortFunc(ss, lessFunc)
+	}
+}
+
 func TestStructSorts(t *testing.T) {
 	ss := makeRandomStructs(200)
 	ss2 := make([]*myStruct, len(ss))
@@ -105,5 +115,15 @@ func BenchmarkSortFuncStructs(b *testing.B) {
 		ss := makeRandomStructs(N)
 		b.StartTimer()
 		bubbleSortFunc(ss, lessFunc)
+	}
+}
+
+func BenchmarkSortFuncGenStructs(b *testing.B) {
+	lessFunc := func(a, b *myStruct) bool { return a.n < b.n }
+	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+		ss := makeRandomStructs(N)
+		b.StartTimer()
+		bubbleSortFuncGen(ss, lessFunc)
 	}
 }

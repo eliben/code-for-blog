@@ -60,6 +60,24 @@ func bubbleSortFunc[T any](x []T, less func(a, b T) bool) {
 	}
 }
 
+// A variant of bubbleSortFunc where the comparison function uses a type
+// parameter.
+func bubbleSortFuncGen[T any, LT func(a, b T) bool](x []T, less LT) {
+	n := len(x)
+	for {
+		swapped := false
+		for i := 1; i < n; i++ {
+			if less(x[i], x[i-1]) {
+				x[i-1], x[i] = x[i], x[i-1]
+				swapped = true
+			}
+		}
+		if !swapped {
+			return
+		}
+	}
+}
+
 type myStruct struct {
 	a, b, c, d string
 	n          int
