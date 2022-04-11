@@ -84,6 +84,15 @@ func TestLexer(t *testing.T) {
 	}
 }
 
+func TestUnicodeQuoted(t *testing.T) {
+	var input = `let name = "日本語"`
+	toks := tokenizeAllAppend([]byte(input))
+
+	if toks[3].Name != QUOTE || toks[3].Val != "\"日本語\"" {
+		t.Errorf("unexpected token at position 3")
+	}
+}
+
 func BenchmarkLexerAppend(b *testing.B) {
 	buf, err := ioutil.ReadFile(inputFilename)
 	if err != nil {
