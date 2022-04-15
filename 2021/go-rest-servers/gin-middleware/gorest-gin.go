@@ -42,6 +42,7 @@ func (ts *taskServer) createTaskHandler(c *gin.Context) {
 	var rt RequestTask
 	if err := c.ShouldBindJSON(&rt); err != nil {
 		c.String(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	id := ts.store.CreateTask(rt.Text, rt.Tags, rt.Due)
