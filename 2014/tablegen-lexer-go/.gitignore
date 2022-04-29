@@ -1,3 +1,6 @@
 *.out
 *.test
+*.mprof
+*.com
+*.o
 
