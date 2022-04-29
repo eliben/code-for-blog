@@ -1,0 +1,30 @@
+* Tests reading from a character input device
+*
+TERM	EQU		19
+CARD_RD	EQU		16
+
+* Here the text messages are stored
+*
+		ORIG	2700
+M_OK	ALF		"OK   "
+
+* Here the program itself starts
+*
+		ORIG	3000
+PROG	NOP
+		ENTA	0
+		ENT5	5
+
+* There are 5 lines in the card device. From each, we take
+* the 7th char and accumulate their values together
+* M + N + O + T + E = 73
+*
+LOOP	IN		1000(CARD_RD)
+		ADD		1001(2:2)
+		DEC5	1
+		J5P		LOOP
+		SUB		=73=
+		JANZ	FINALE
+GOOD	OUT		M_OK(TERM)
+FINALE	HLT
+END		PROG

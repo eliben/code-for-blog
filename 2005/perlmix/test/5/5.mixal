@@ -1,0 +1,115 @@
+* See TAOCP 1.4.2 (Coroutines)
+*
+
+* NEXTCHR: Subroutine for character input.
+* Reads the next non-blank char from the card reader
+* and places it in rA
+*
+CARD	EQU		16
+INPUT	ORIG	*+16			place for card input
+NEXTCHR	STJ		9F				entrance to subroutine
+		JXNZ	3F				initially rX = 0
+1H		J6N		2F				initially rI6 = 0
+		IN		INPUT(CARD)		read next card
+		JBUS	*(CARD)			wait for completion
+		ENN6	16				let rI6 point to first word
+2H		LDX		INPUT+16,6		get next word of input
+		INC6	1				advance pointer
+3H		ENTA	0
+		SLAX	1				next char -> rA
+9H		JANZ	*				skip blanks	
+		JMP		NEXTCHR+1
+
+
+* Input coroutine
+*
+2H		INCA	30				nondigit found
+		JMP		COUT			send it to OUT coroutine
+IN1		JMP		NEXTCHR			get next character
+		DECA	30
+		JAN		2B				is it a letter ?
+		CMPA	=10=
+		JGE		2B				is is a special character ?
+		STA		*+1(0:2)		digit n found
+		ENT5	*				rI5 <- n
+		JMP		NEXTCHR			get next character
+		JMP		COUT			send it to OUT coroutine
+		DEC5	1				n <- n - 1
+		J5NN	*-2				repeat if necessary
+		JMP 	IN1				begin new cycle
+
+
+* Output coroutine
+*
+		ALF		"     "			constant used for blanking
+OUTPUT	ORIG	*+16			buffer area for answers
+PUNCH	EQU		17				card punch
+OUT1	ENT4	-16				start new output card
+		ENT1	OUTPUT
+		MOVE	-1,1(16)		set output area to blanks
+1H		JMP		CIN				get next translated character
+		STA		OUTPUT+16,4(1:1)	store
+		CMPA	PERIOD			end ?
+		JE		9F
+		JMP		CIN				if not, get another character
+		STA		OUTPUT+16,4(2:2)	store
+		CMPA	PERIOD			end ?
+		JE		9F		
+		JMP		CIN				if not, get another character
+		STA		OUTPUT+16,4(3:3)	store
+		CMPA	PERIOD			end ?
+		JE		9F
+		INC4	1				move to next word in output
+		J4N		1B				end of card ?
+9H		OUT		OUTPUT(PUNCH)	if so, punch
+		JBUS	*(PUNCH)		wait for completion
+		JNE		OUT1			return for more, unless "." was found
+		JMP		TEST_R
+PERIOD	ALF		"    ."
+
+* Expected decoding
+*
+		ORIG	3400
+EXPECT	ALF		"ABB  "
+		ALF		"BEE  "
+		ALF		"EEE  "
+		ALF		"E44  "
+		ALF		"446  "
+		ALF		"66F  "
+		ALF		"GZY  "
+		ALF		"W22  "
+		ALF		"220  "
+		ALF		"0PQ  "
+		ALF		"999  "
+		ALF		"999  "
+		ALF		"999  "
+		ALF		"R.   "
+		
+* Tests the results
+*
+		ORIG	3500
+TERM	EQU		19
+TEST_R	ENT1	-1
+5H		INC1	1
+		LDA		OUTPUT,1
+		CMPA	EXPECT,1
+		JNE		FINALE
+		CMP1	=15=
+		JNE		5B
+		OUT 	MSG(TERM)
+FINALE	HLT
+MSG		ALF		"OK   "
+
+* MAIN
+*
+		ORIG	3800
+START	ENT6	0
+		ENTX	0
+		JMP		OUT1			start with COUT
+COUT	STJ		INX				coroutine linkage
+OUTX	JMP 	OUT1
+CIN		STJ		OUTX
+INX		JMP		IN1
+		END 	START
+
+		

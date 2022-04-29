@@ -1,0 +1,50 @@
+* Tests subroutine usage and looping , using Knuth's "maximum" 
+* routine from the book example ("program M")
+*
+TERM	EQU		19
+
+* Here the text messages are stored
+*
+		ORIG	2700
+M_OK	ALF		"OK   "
+
+* Here the data is stored
+* 
+		ORIG	1500
+X		CON		0			dummy
+		CON		125
+		CON		-17
+		CON		141
+		CON		-850
+		CON		16
+		CON		-1540
+
+* X is where the data is stored. The argument to
+* this subroutine is rI1 - num of elements in X.
+* It places the maximal element in rA
+*
+		ORIG	2000
+MAXIMUM	STJ		EXIT
+INIT	ENT3	0,1
+		JMP		CHANGEM
+LOOP	CMPA	X,3
+		JGE		*+3
+CHANGEM	ENT2	0,3
+		LDA		X,3
+		DEC3	1
+		J3P		LOOP
+EXIT	JMP		*
+
+* Here the program itself starts
+*
+		ORIG	3000
+PROG	NOP
+		ENT1	6
+		JMP		MAXIMUM
+		CMPA	=141=
+		JE		GOOD
+		JMP		FINALE
+
+GOOD	OUT		M_OK(TERM)
+FINALE	HLT
+END		PROG

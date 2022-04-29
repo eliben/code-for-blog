@@ -1,0 +1,57 @@
+* Tests basic things - moving stuff from/to registers
+* and memory, jumps, etc.
+*
+TERM	EQU		19
+
+* From here on the text messages are stored
+*
+		ORIG	2700
+ERRNO	CON		0			the address of an error message will be written here
+M_OK	ALF		"OK   "
+
+		ORIG	M_OK+20
+M_CMP	ALF		"CMP E"
+		ALF		"RROR "
+		
+		ORIG	M_CMP+20
+M_JMP	ALF		"JMP E"
+		ALF		"RROR "
+	
+* Data in memory
+*
+		ORIG	2000
+DATA1	CON		19
+
+* Here the program itself starts
+*
+		ORIG	3000
+PROG	NOP
+		ENTA	999		
+		CMPA	=999=
+		JE		1F
+		ENTA	M_CMP
+		STA		ERRNO
+		JMP		ERROR
+		
+1H		ENTX	-125
+		CMPX	=22=
+		JGE		J_ERR
+		JXNN	J_ERR
+		JXZ		J_ERR
+		JXP		J_ERR
+		
+		ENT1	=2=
+		J1NZ	GOOD
+		JMP		J_ERR
+
+J_ERR	ENTA	M_JMP
+		STA		ERRNO
+		JMP		ERROR
+
+ERROR	LD6		ERRNO
+		OUT		0,6(TERM)
+		JMP		FINALE
+		
+GOOD	OUT		M_OK(TERM)
+FINALE	HLT
+END		PROG

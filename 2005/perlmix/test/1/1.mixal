@@ -1,0 +1,20 @@
+* Simple test of reading a binary disk
+* Reads second word of block 151 of disk 3 (device 11), 
+* and expects it to be "- 55 61 11 22 11"
+*
+TERM	EQU		19
+DEVN	EQU		11
+TARGET	EQU		2500
+		ORIG	2700
+MSG		ALF		"OK   "
+
+		ORIG 	3000
+PROG	NOP
+		ENTX	151				points to the disk block
+		IN		TARGET(DEVN)	read in the disk block
+		LDA		=-55(0:1),61(2:2),11(3:3),22(4:4)=
+		CMPA	TARGET+1		compare to 2nd word in disk block
+		JNE		FINALE			finish w/o printing OK if not what expected
+		OUT 	MSG(TERM)
+FINALE	HLT
+END		PROG

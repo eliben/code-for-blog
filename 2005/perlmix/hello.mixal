@@ -1,0 +1,10 @@
+* The mandatory 'Hello world'
+*
+TERM    EQU    19          console device no. (19 = typewriter)
+        ORIG   1000        start address
+START   OUT    MSG(TERM)   output data at address MSG
+        HLT                halt execution
+MSG     ALF    "HELLO"
+        ALF    " WORL"
+        ALF    "D    "
+        END    START       end of program
