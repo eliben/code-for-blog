@@ -1,3 +1,8 @@
+// "Slice" approach to the lexer - returned tokens have references to input.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 // TokenValue holds the actual token; for some types of tokens there's
 // associated data, which is a reference to a str with the 'source
 // lifetime.

@@ -1,3 +1,8 @@
+// "Owning" approach to the lexer - returned tokens are new Strings.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 #[derive(Debug, PartialEq, Clone)]
 pub enum TokenValue {
     EOF,
