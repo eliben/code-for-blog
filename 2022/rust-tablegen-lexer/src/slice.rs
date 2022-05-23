@@ -61,7 +61,7 @@ pub struct Lexer<'source> {
     c: char,
     ci: usize,
 
-    // error is true iff the lexer encountered and error.
+    // error is true iff the lexer encountered an error.
     error: bool,
 }
 
@@ -249,7 +249,6 @@ impl<'source> Iterator for Lexer<'source> {
         }
 
         let tok = self.next_token();
-        // Fix error tok
         if tok.value == TokenValue::EOF {
             None
         } else {

@@ -258,7 +258,6 @@ impl<'source> Iterator for Lexer<'source> {
         }
 
         let tok = self.next_token();
-        // Fix error tok
         if tok.value == TokenValue::EOF {
             None
         } else {
