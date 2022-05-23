@@ -13,3 +13,7 @@ criterion = "0.3"
 [[bench]]
 name = "lexer_benchmark"
 harness = false
+
+[profile.release]
+debug = true
+
