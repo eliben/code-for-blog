@@ -33,8 +33,8 @@ var factorial_tag = func(recurse Func[int, int]) Func[int, int] {
 
 var fib_tag = func(recurse Func[int, int]) Func[int, int] {
 	return func(n int) int {
-		if n <= 2 {
-			return 1
+		if n <= 1 {
+			return n
 		}
 		return recurse(n-1) + recurse(n-2)
 	}
