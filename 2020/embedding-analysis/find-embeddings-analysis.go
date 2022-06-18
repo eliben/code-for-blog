@@ -2,7 +2,7 @@
 //
 // To use this tool, it's recommended to 'go build' it first and then invoke
 // it from the root directly of the module you want to analyze, with the package
-// patter as the sole argument; for example:
+// pattern as the sole argument; for example:
 //
 // $ find-embeddings-analysis ./...
 //
