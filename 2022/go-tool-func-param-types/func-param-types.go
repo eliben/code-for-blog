@@ -12,7 +12,8 @@ import (
 	"golang.org/x/tools/go/packages"
 )
 
-// This var is global for easier AST dumping.
+// This var is global for easier AST dumping without having to thread it
+// through all the functions.
 var fset = token.NewFileSet()
 
 func main() {
