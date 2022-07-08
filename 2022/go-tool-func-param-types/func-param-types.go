@@ -1,3 +1,7 @@
+// Tool to find information about the types of function parameters.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -73,6 +77,7 @@ func processTypeExpr(e ast.Expr, tinfo *types.Info) {
 		fmt.Println("  slice or array of...")
 		processTypeExpr(tyExpr.Elt, tinfo)
 	default:
+		// Otherwise, expect to find a type mapping in tinfo.
 		switch ty := tinfo.Types[e].Type.(type) {
 		case *types.Basic:
 			fmt.Println("  basic =", ty.Name())
