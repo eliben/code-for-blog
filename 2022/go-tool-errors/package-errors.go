@@ -41,11 +41,21 @@ func processPackage(pkg *packages.Package) {
 	}
 
 	if len(pkg.Errors) > 0 {
-		fmt.Printf("package %v has errors:\n", pkg.PkgPath)
+		fmt.Printf("package %v has %v errors\n", pkg.PkgPath, len(pkg.Errors))
 
 		for _, e := range pkg.Errors {
-			fmt.Println(e)
-			fmt.Println(e.Kind)
+			var errtype string
+			switch e.Kind {
+			case packages.ListError:
+				errtype = "listing/driver"
+			case packages.ParseError:
+				errtype = "parser"
+			case packages.TypeError:
+				errtype = "type cheker"
+			default:
+				errtype = "unknown"
+			}
+			fmt.Printf("Error [%v]: %s\n", errtype, e)
 		}
 	}
 
