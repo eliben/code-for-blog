@@ -1,9 +1,13 @@
 // Demonstrates how to display Go errors in packages loaded by XTGP.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
 	"flag"
 	"fmt"
+	"go/ast"
 	"go/token"
 	"log"
 
@@ -60,7 +64,7 @@ func processPackage(pkg *packages.Package) {
 	}
 
 	//	This will dump the AST regardless of errors.
-	//for _, fileAst := range pkg.Syntax {
-	//ast.Print(fset, fileAst)
-	//}
+	for _, fileAst := range pkg.Syntax {
+		ast.Print(fset, fileAst)
+	}
 }
