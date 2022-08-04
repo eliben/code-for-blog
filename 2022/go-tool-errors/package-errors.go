@@ -16,6 +16,8 @@ import (
 
 var fset = token.NewFileSet()
 
+// Standard tool setup -- see
+// https://eli.thegreenplace.net/2022/exploring-function-parameter-types-with-go-tooling/
 func main() {
 	const mode packages.LoadMode = packages.NeedName |
 		packages.NeedTypes |
@@ -41,7 +43,7 @@ func main() {
 func processPackage(pkg *packages.Package) {
 	if pkg.IllTyped {
 		// Note: IllTyped is set only if NeedTypes is set
-		fmt.Println("package or dependencies contain errors")
+		fmt.Println("IllTyped=true --> package or dependencies contain errors")
 	}
 
 	if len(pkg.Errors) > 0 {
