@@ -55,7 +55,7 @@ func processPackage(pkg *packages.Package) {
 			case packages.ParseError:
 				errtype = "parser"
 			case packages.TypeError:
-				errtype = "type cheker"
+				errtype = "type checker"
 			default:
 				errtype = "unknown"
 			}

@@ -1,5 +1,5 @@
-// This package has some type errors, so the tooling should report them somehow
-// when the package is loaded.
+// This code has some compilation errors, so the tooling should report them
+// somehow when the package is loaded.
 package main
 
 func util(x int) {
