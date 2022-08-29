@@ -5,9 +5,12 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
+	"math/rand"
 	"os"
+	"time"
 
 	"github.com/eliben/go-sudoku"
 	"github.com/eliben/go-sudoku/svg"
@@ -44,25 +47,27 @@ func DisplaySmallSVG(w io.Writer, values sudoku.Values) {
 	canvas.End()
 }
 
-func main() {
-	emptyF, err := os.Create("sudoku-empty.svg")
+func svgToFile(values sudoku.Values, filename string) {
+	rand.Seed(time.Now().UnixNano())
+	f, err := os.Create(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer emptyF.Close()
+	defer f.Close()
+	DisplaySmallSVG(f, values)
+}
 
+func main() {
 	empty := sudoku.EmptyBoard()
-	DisplaySmallSVG(emptyF, empty)
+	svgToFile(empty, "sudoku-empty.svg")
 
 	board, solved := sudoku.Solve(empty, sudoku.SolveOptions{Randomize: true})
 	if !solved {
 		log.Fatal("could not solve")
 	}
+	svgToFile(board, "sudoku-solved.svg")
 
-	solvedF, err := os.Create("sudoku-solved.svg")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer solvedF.Close()
-	DisplaySmallSVG(solvedF, board)
+	brd := sudoku.GenerateSymmetrical(22)
+	fmt.Println(sudoku.CountHints(brd))
+	svgToFile(brd, "sudoku-puzzle.svg")
 }
