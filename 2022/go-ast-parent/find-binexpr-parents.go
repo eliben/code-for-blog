@@ -50,10 +50,10 @@ func processPackage(pkg *packages.Package) {
 		os.Exit(1)
 	}
 
-	discoverNodeParentsAdhoc(pkg)
+	//discoverNodeParentsAdhoc(pkg)
 	//discoverNodeParentsManualStack(pkg)
 	//discoverNodeParentsPathInterval(pkg)
-	//discoverNodeParentsWithStack(pkg)
+	discoverNodeParentsWithStack(pkg)
 
 }
 
@@ -131,12 +131,8 @@ func discoverNodeParentsPathInterval(pkg *packages.Package) {
 
 func discoverNodeParentsWithStack(pkg *packages.Package) {
 	insp := inspector.New(pkg.Syntax)
-	nodeTypes := []ast.Node{
-		(*ast.BinaryExpr)(nil),
-	}
-	insp.WithStack(nodeTypes, func(n ast.Node, push bool, stack []ast.Node) bool {
-		bexpr := n.(*ast.BinaryExpr)
-		if push && bexpr.Op == token.MUL {
+	insp.WithStack(nil, func(n ast.Node, push bool, stack []ast.Node) bool {
+		if bexpr, ok := n.(*ast.BinaryExpr); push && ok && bexpr.Op == token.MUL {
 			for i := len(stack) - 2; i >= 0; i-- {
 				if _, ok := stack[i].(*ast.BinaryExpr); ok {
 					fmt.Printf("found BinaryExpr(*) as a child of another binary expr: %v\n",
