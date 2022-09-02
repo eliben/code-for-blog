@@ -1,8 +1,13 @@
+// Sample Go analysis tool that demonstrates how to access the parents or
+// ancestors of a node during traversal.
+//
 // Task: find whether a certain kind of a BinaryExpr node (with op '*') is
 // nested inside another BinaryExpr node or not. Use several techniques for
 // doing so.
 // Note: just keeping one parent won't work because func calls, etc.
-
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -50,11 +55,14 @@ func processPackage(pkg *packages.Package) {
 		os.Exit(1)
 	}
 
-	//discoverNodeParentsAdhoc(pkg)
-	//discoverNodeParentsManualStack(pkg)
-	//discoverNodeParentsPathInterval(pkg)
+	fmt.Println("ad-hoc:")
+	discoverNodeParentsAdhoc(pkg)
+	fmt.Println("manual stack:")
+	discoverNodeParentsManualStack(pkg)
+	fmt.Println("path interval:")
+	discoverNodeParentsPathInterval(pkg)
+	fmt.Println("inspector withstack:")
 	discoverNodeParentsWithStack(pkg)
-
 }
 
 // This "ad-hoc" approach sets state vars during traversal.
