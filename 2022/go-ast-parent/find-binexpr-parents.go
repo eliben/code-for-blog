@@ -65,7 +65,9 @@ func processPackage(pkg *packages.Package) {
 	discoverNodeParentsWithStack(pkg)
 }
 
-// This "ad-hoc" approach sets state vars during traversal.
+// discoverNodeParentsAdhoc uses an "ad-hoc" approach: any time a BinaryExpr
+// encountered in traversal, it launches another traversal on its children to
+// check whether these are *.
 func discoverNodeParentsAdhoc(pkg *packages.Package) {
 	for _, fileAst := range pkg.Syntax {
 		ast.Inspect(fileAst, func(n ast.Node) bool {
@@ -73,6 +75,8 @@ func discoverNodeParentsAdhoc(pkg *packages.Package) {
 				// not bexpr itself because it will be "found" by findBinMulChild
 				findBinMulChild(bexpr.X)
 				findBinMulChild(bexpr.Y)
+				// Return false to stop the main traversal here, since if this node has
+				// * children, the calls to findBinMulChild will find it already.
 				return false
 			}
 			return true
@@ -90,7 +94,8 @@ func findBinMulChild(ancestor ast.Node) {
 	})
 }
 
-// Keep a parents stack manually in the traversal code.
+// discoverNodeParentsManualStack shows how to maintain an ancestor chain while
+// recursively traversing the AST.
 func discoverNodeParentsManualStack(pkg *packages.Package) {
 	for _, fileAst := range pkg.Syntax {
 		var ancestors []ast.Node
@@ -119,6 +124,8 @@ func discoverNodeParentsManualStack(pkg *packages.Package) {
 	}
 }
 
+// discoverNodeParentsPathInterval demonstrates the use of the
+// astutil.PathEnclosingInterval function for our task.
 func discoverNodeParentsPathInterval(pkg *packages.Package) {
 	for _, fileAst := range pkg.Syntax {
 		ast.Inspect(fileAst, func(n ast.Node) bool {
@@ -137,6 +144,8 @@ func discoverNodeParentsPathInterval(pkg *packages.Package) {
 	}
 }
 
+// discoverNodeParentsWithStack demonstrates the use of inspector.Inspector
+// and its WithStack method for our task.
 func discoverNodeParentsWithStack(pkg *packages.Package) {
 	insp := inspector.New(pkg.Syntax)
 	insp.WithStack(nil, func(n ast.Node, push bool, stack []ast.Node) bool {
