@@ -1,3 +1,7 @@
+// Sample Go analysis tool that demonstrates how to find generic instantiations.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -37,13 +41,6 @@ func main() {
 	}
 }
 
-// From: https://github.com/golang/exp/tree/master/typeparams/example
-//
-//	We say that a type is instantiated if it is created from a generic type by
-//	substituting type arguments for type parameters. Instantiation can occur via
-//	explicitly provided type arguments, as in the expression T[A_1, ..., A_n],
-//	or implicitly, through type inference.
-
 func processPackage(pkg *packages.Package) {
 	if len(pkg.Errors) > 0 {
 		for _, e := range pkg.Errors {
@@ -53,7 +50,6 @@ func processPackage(pkg *packages.Package) {
 	}
 
 	//directQueryInstances(pkg)
-
 	walkAstAndJoinInstances(pkg)
 }
 
@@ -61,21 +57,11 @@ func directQueryInstances(pkg *packages.Package) {
 	// directly query Instances, and try to map it to the enclosing AST.
 	for k, v := range pkg.TypesInfo.Instances {
 		fmt.Println("ident", k)
-		fmt.Printf("instance: type=%v, args=%v\n", v.Type, getListOfTypes(v.TypeArgs))
-
-		// Print parent path.
-		// How do we know which ast.File to use?
-		// here using pkg.Syntax[1] since [0] didn't work. Not very scientific!
-		// Also note that this function walks the entire AST down starting from
-		// the root ast.File (DFS).
-		//parentPath, _ := astutil.PathEnclosingInterval(pkg.Syntax[1], k.Pos(), k.End())
-		//fmt.Println(parentPath)
-		//for _, p := range parentPath {
-		//fmt.Printf("%T %v\n", p, p)
-		//}
+		fmt.Printf("  instance: type=%v, args=%v\n", v.Type, getListOfTypes(v.TypeArgs))
 	}
 }
 
+// getListOfTypes extracts a slice of types.Type from a given TypeList.
 func getListOfTypes(tl *types.TypeList) []types.Type {
 	var sl []types.Type
 	for i := 0; i < tl.Len(); i++ {
@@ -83,6 +69,13 @@ func getListOfTypes(tl *types.TypeList) []types.Type {
 	}
 	return sl
 }
+
+// From: https://github.com/golang/exp/tree/master/typeparams/example
+//
+//	We say that a type is instantiated if it is created from a generic type by
+//	substituting type arguments for type parameters. Instantiation can occur via
+//	explicitly provided type arguments, as in the expression T[A_1, ..., A_n],
+//	or implicitly, through type inference.
 
 func walkAstAndJoinInstances(pkg *packages.Package) {
 	for _, fileAst := range pkg.Syntax {
