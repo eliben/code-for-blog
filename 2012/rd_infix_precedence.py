@@ -1,9 +1,10 @@
 #-----------------------------------------------
 # Precedence climbing expression parser.
 #
+# This code was update to run on Python 3.
+#
 # Eli Bendersky (eliben@gmail.com)
 # License: this code is in the public domain
-# Last modified: July 2012
 #-----------------------------------------------
 from collections import namedtuple
 import re
@@ -28,7 +29,7 @@ class Tokenizer(object):
         """ Advance to the next token, and return it.
         """
         try:
-            self.cur_token = self._tokgen.next()
+            self.cur_token = next(self._tokgen)
         except StopIteration:
             self.cur_token = None
         return self.cur_token
@@ -48,7 +49,6 @@ class Tokenizer(object):
         return 'Tokenizer(cur_token=%s)' % str(self.cur_token)
 
 
-
 # For each operator, a (precedence, associativity) pair.
 OpInfo = namedtuple('OpInfo', 'prec assoc')
 
@@ -64,10 +64,6 @@ OPINFO_MAP = {
 def parse_error(msg):
     raise RuntimeError(msg)
 
-
-from eblib.tracer import TraceCalls
-
-@TraceCalls(show_ret=True)
 def compute_atom(tokenizer):
     tok = tokenizer.cur_token
     if tok.name == 'LEFTPAREN':
@@ -87,7 +83,6 @@ def compute_atom(tokenizer):
         return int(tok.value)
 
 
-@TraceCalls(show_ret=True)
 def compute_expr(tokenizer, min_prec):
     atom_lhs = compute_atom(tokenizer)
 
@@ -148,9 +143,9 @@ def test():
 
 
 if __name__ == '__main__':
-    #test()
+    test()
 
     t = Tokenizer('2 + 3^2*3 + 4')
     t.get_next_token()
-    print compute_expr(t, min_prec=1)
+    print(compute_expr(t, min_prec=1))
 
