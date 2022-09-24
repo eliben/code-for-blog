@@ -13,10 +13,7 @@ func timeHandler(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/time", timeHandler)
-
-	http.Handle("/", http.FileServer(http.Dir("public/html")))
-	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("public/css"))))
-	http.Handle("/js/", http.StripPrefix("/js/", http.FileServer(http.Dir("public/js"))))
+	http.Handle("/", http.FileServer(http.Dir("public/")))
 
 	port := ":9999"
 	log.Fatal(http.ListenAndServe(port, nil))
