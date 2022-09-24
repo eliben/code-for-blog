@@ -1,0 +1,9 @@
+#output {
+  font-family: "Roboto";
+  font-size: 2em;
+  text-align: center;
+  width: 14em;
+  padding: 8px 8px; 
+  border: 2px solid #000000;
+  border-radius: 10px;
+}
