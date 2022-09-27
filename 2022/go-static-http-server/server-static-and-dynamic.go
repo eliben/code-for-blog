@@ -7,7 +7,7 @@ import (
 )
 
 func timeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, time.Now().Format("02 Jan 2006 15:04:05 MST"))
+	fmt.Fprint(w, time.Now().Format("02 Jan 2006 15:04:05 MST")+"\n")
 }
 
 func main() {
