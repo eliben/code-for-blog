@@ -1,3 +1,8 @@
+// Serve a full web application with a directory of "static" files (HTML, CSS,
+// JS) as well as dynamic routes the client-side code communicates with.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

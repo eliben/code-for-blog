@@ -1,3 +1,8 @@
+// Serve a full web application, streaming the HTML/CSS/JS directly from a Go
+// handler.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

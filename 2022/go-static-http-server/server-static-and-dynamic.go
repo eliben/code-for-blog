@@ -1,3 +1,8 @@
+// Static file server on the /static/ route, and dynamic serving on another
+// route.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
