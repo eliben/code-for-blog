@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	var addr = flag.String("addr", "127.0.0.1:8080", "listen address")
+	addr := flag.String("addr", "127.0.0.1:8080", "listen address")
 	flag.Parse()
 
 	http.HandleFunc("/",
