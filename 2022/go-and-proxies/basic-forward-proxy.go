@@ -71,10 +71,10 @@ func appendHostToXForwardHeader(header http.Header, host string) {
 	header.Set("X-Forwarded-For", host)
 }
 
-type proxy struct {
+type forwardProxy struct {
 }
 
-func (p *proxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
+func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	// The "Host:" header is promoted to Request.Host and is removed from
 	// request.Header by net/http, so we print it out explicitly.
 	log.Println(req.RemoteAddr, "\t\t", req.Method, "\t\t", req.URL, "\t\t Host:", req.Host)
@@ -120,10 +120,10 @@ func main() {
 	var addr = flag.String("addr", "127.0.0.1:9999", "proxy address")
 	flag.Parse()
 
-	handler := &proxy{}
+	proxy := &forwardProxy{}
 
 	log.Println("Starting proxy server on", *addr)
-	if err := http.ListenAndServe(*addr, handler); err != nil {
+	if err := http.ListenAndServe(*addr, proxy); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 }
