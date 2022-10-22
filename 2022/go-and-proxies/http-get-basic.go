@@ -9,10 +9,10 @@ import (
 )
 
 func main() {
-	url := flag.String("url", "http://example.com", "URL to get")
+	target := flag.String("target", "http://example.org", "URL to get")
 	flag.Parse()
 
-	resp, err := http.Get(*url)
+	resp, err := http.Get(*target)
 	if err != nil {
 		log.Fatal(err)
 	}
