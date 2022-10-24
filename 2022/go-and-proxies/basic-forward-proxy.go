@@ -81,7 +81,7 @@ func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	log.Println("\t\t\t\t\t", req.Header)
 
 	if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
-		msg := "unsupported protocal scheme " + req.URL.Scheme
+		msg := "unsupported protocol scheme " + req.URL.Scheme
 		http.Error(wr, msg, http.StatusBadRequest)
 		log.Println(msg)
 		return

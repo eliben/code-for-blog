@@ -55,7 +55,7 @@ func loadBalancingReverseProxy(target1, target2 *url.URL) *httputil.ReverseProxy
 		req.URL.Host = target.Host
 		req.URL.Path, req.URL.RawPath = joinURLPath(target, req.URL)
 		// For simplicity, we don't handle RawQuery or the User-Agent header here:
-		// see the full code of NewSingleHostReverseProxy for an example of doint
+		// see the full code of NewSingleHostReverseProxy for an example of doing
 		// that.
 	}
 	return &httputil.ReverseProxy{Director: director}
