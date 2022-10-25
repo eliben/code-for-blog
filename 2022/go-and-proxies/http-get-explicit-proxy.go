@@ -1,3 +1,7 @@
+// An HTTP client that specifies an explicit proxy to use, ignoring env vars.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

@@ -1,5 +1,8 @@
 // Server for debugging HTTP requests; answers all paths successfully and
 // dumps information about the request to the log.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

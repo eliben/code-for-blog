@@ -9,6 +9,9 @@
 // url> is on localhost, Go clients will ignore HTTP_PROXY; to force them to use
 // the proxy, either set up a proxy explicitly in the Transport, or set up an
 // alias in /etc/hosts and use that instead of localhost.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

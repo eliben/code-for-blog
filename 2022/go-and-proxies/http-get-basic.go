@@ -1,3 +1,9 @@
+// A basic HTTP client that issues a GET request to the address given with the
+// --target flag. Can be used to explore how the proxy-setting env vars
+// (like HTTP_PROXY) affect the default Go HTTP client.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

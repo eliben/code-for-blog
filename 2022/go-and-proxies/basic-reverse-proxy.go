@@ -1,3 +1,9 @@
+// A simple single-backend reverse proxy. Listens on the address given with the
+// --from flag and forwards all traffic to the server given with the --to
+// flag.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

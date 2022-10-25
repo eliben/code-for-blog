@@ -1,4 +1,7 @@
-// Basic proxy set up using httputil.ReverseProxy
+// Basic forward proxy set up using httputil.ReverseProxy
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
