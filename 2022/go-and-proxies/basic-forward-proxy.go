@@ -77,7 +77,7 @@ func appendHostToXForwardHeader(header http.Header, host string) {
 type forwardProxy struct {
 }
 
-func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
+func (p *forwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// The "Host:" header is promoted to Request.Host and is removed from
 	// request.Header by net/http, so we print it out explicitly.
 	log.Println(req.RemoteAddr, "\t\t", req.Method, "\t\t", req.URL, "\t\t Host:", req.Host)
@@ -85,7 +85,7 @@ func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 
 	if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
 		msg := "unsupported protocol scheme " + req.URL.Scheme
-		http.Error(wr, msg, http.StatusBadRequest)
+		http.Error(w, msg, http.StatusBadRequest)
 		log.Println(msg)
 		return
 	}
@@ -104,7 +104,7 @@ func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		http.Error(wr, "Server Error", http.StatusInternalServerError)
+		http.Error(w, "Server Error", http.StatusInternalServerError)
 		log.Fatal("ServeHTTP:", err)
 	}
 	defer resp.Body.Close()
@@ -114,9 +114,9 @@ func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
 	removeHopHeaders(resp.Header)
 	removeConnectionHeaders(resp.Header)
 
-	copyHeader(wr.Header(), resp.Header)
-	wr.WriteHeader(resp.StatusCode)
-	io.Copy(wr, resp.Body)
+	copyHeader(w.Header(), resp.Header)
+	w.WriteHeader(resp.StatusCode)
+	io.Copy(w, resp.Body)
 }
 
 func main() {

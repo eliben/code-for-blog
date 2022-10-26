@@ -11,26 +11,26 @@ import (
 type forwardProxy struct {
 }
 
-func (p *forwardProxy) ServeHTTP(wr http.ResponseWriter, req *http.Request) {
+func (p *forwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodConnect {
-		proxyConnect(wr, req)
+		proxyConnect(w, req)
 	} else {
 		log.Println("TODO: HTTP proxying not implemented")
-		http.Error(wr, "this proxy only supports CONNECT", http.StatusMethodNotAllowed)
+		http.Error(w, "this proxy only supports CONNECT", http.StatusMethodNotAllowed)
 	}
 }
 
-func proxyConnect(wr http.ResponseWriter, req *http.Request) {
+func proxyConnect(w http.ResponseWriter, req *http.Request) {
 	log.Printf("CONNECT requested to %v (from %v)", req.Host, req.RemoteAddr)
 	targetConn, err := net.Dial("tcp", req.Host)
 	if err != nil {
 		log.Println("failed to dial to target", req.Host)
-		http.Error(wr, err.Error(), http.StatusServiceUnavailable)
+		http.Error(w, err.Error(), http.StatusServiceUnavailable)
 		return
 	}
 
-	wr.WriteHeader(http.StatusOK)
-	hj, ok := wr.(http.Hijacker)
+	w.WriteHeader(http.StatusOK)
+	hj, ok := w.(http.Hijacker)
 	if !ok {
 		log.Fatal("http server doesn't support hijacking connection")
 	}
