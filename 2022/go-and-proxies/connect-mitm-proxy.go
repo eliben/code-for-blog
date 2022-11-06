@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/elliptic"
@@ -10,42 +11,17 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"math/big"
 	"net"
 	"net/http"
-	"sync"
+	"net/url"
+	"strings"
 	"time"
 )
-
-// TODO: comments
-type singleConnListener struct {
-	conn net.Conn
-	mu   sync.Mutex
-}
-
-func (l *singleConnListener) Accept() (net.Conn, error) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if l.conn == nil {
-		return nil, io.ErrClosedPipe
-	} else {
-		c := l.conn
-		l.conn = nil
-		return c, nil
-	}
-}
-
-func (l *singleConnListener) Addr() net.Addr {
-	return nil
-}
-
-func (l *singleConnListener) Close() error {
-	return nil
-}
 
 func createCert(dnsNames []string, parent *x509.Certificate, parentKey crypto.PrivateKey, hoursValid int) (cert []byte, priv []byte) {
 	log.Println("creating cert for domains:", dnsNames)
@@ -148,12 +124,6 @@ func (p *forwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 	log.Printf("CONNECT requested to %v (from %v)", req.Host, req.RemoteAddr)
-	targetConn, err := net.Dial("tcp", req.Host)
-	if err != nil {
-		log.Println("failed to dial to target", req.Host)
-		http.Error(w, err.Error(), http.StatusServiceUnavailable)
-		return
-	}
 
 	hj, ok := w.(http.Hijacker)
 	if !ok {
@@ -179,8 +149,6 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		log.Fatal("error writing status to client:", err)
 	}
 
-	//ln := &singleConnListener{conn: clientConn}
-
 	tlsConfig := &tls.Config{
 		PreferServerCipherSuites: true,
 		CurvePreferences:         []tls.CurveID{tls.X25519, tls.CurveP256},
@@ -191,31 +159,49 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		log.Fatal(err)
 	}
 
-	// TODO: explicit Handshake call makes progress -- TLS handshake succeeds -- can I serve HTTP on existing connection?
-
-	//mux := http.NewServeMux()
-	//mux.HandleFunc("/", func(w http.ResponseWriter, req *http.Request) {
-	//fmt.Println("got request:", req)
-	//})
-	//srv := &http.Server{
-	//Addr:         req.Host,
-	//Handler:      mux,
-	//TLSNextProto: make(map[string]func(*http.Server, *tls.Conn, http.Handler)),
-	//}
-
-	//tlsListener := tls.NewListener(ln, tlsConfig)
-	//if err = srv.Serve(tlsListener); err != nil {
-	//log.Fatal(err)
-	//}
-	raw := tls.Server(clientConn, tlsConfig)
-	if err := raw.Handshake(); err != nil {
+	tlsConn := tls.Server(clientConn, tlsConfig)
+	defer tlsConn.Close()
+	if err := tlsConn.Handshake(); err != nil {
 		log.Fatal("error handshake")
 	}
 
-	_ = targetConn
-	//log.Println("tunnel established")
-	//go tunnelConn(targetConn, clientConn)
-	//go tunnelConn(clientConn, targetConn)
+	connReader := bufio.NewReader(tlsConn)
+
+	for {
+		r, err := http.ReadRequest(connReader)
+		if err == io.EOF {
+			fmt.Println("at EOF")
+			break
+		} else if err != nil {
+			log.Fatal(err)
+		}
+
+		targetClient := &http.Client{}
+		r.RequestURI = ""
+		r.URL = parseToUrl(req.Host)
+		fmt.Printf("req: %+v\n", r)
+		resp, err := targetClient.Do(r)
+		if err != nil {
+			log.Fatal("error client response:", err)
+		}
+		fmt.Println(resp)
+		defer resp.Body.Close()
+
+		if err := resp.Write(tlsConn); err != nil {
+			log.Println("error writing response back:", err)
+		}
+	}
+}
+
+func parseToUrl(addr string) *url.URL {
+	if !strings.HasPrefix(addr, "https") {
+		addr = "https://" + addr
+	}
+	toUrl, err := url.Parse(addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return toUrl
 }
 
 func main() {
