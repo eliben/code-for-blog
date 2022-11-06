@@ -15,7 +15,6 @@ func (p *forwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	if req.Method == http.MethodConnect {
 		proxyConnect(w, req)
 	} else {
-		log.Println("TODO: HTTP proxying not implemented")
 		http.Error(w, "this proxy only supports CONNECT", http.StatusMethodNotAllowed)
 	}
 }
