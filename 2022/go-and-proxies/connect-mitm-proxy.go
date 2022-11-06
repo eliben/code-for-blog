@@ -177,14 +177,21 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		}
 
 		targetClient := &http.Client{}
+
+		// r will have a relative URL, but we need an absolute URL for the Client.
+		// The host part comes from req
+		// TODO: refactor this into a function to avoid confusion betwee req and r
+		url := parseToUrl(req.Host)
+		url.Path = r.URL.Path
+		r.URL = url
 		r.RequestURI = ""
-		r.URL = parseToUrl(req.Host)
 		fmt.Printf("req: %+v\n", r)
 		resp, err := targetClient.Do(r)
+		fmt.Println("response content length:", resp.ContentLength)
 		if err != nil {
 			log.Fatal("error client response:", err)
 		}
-		fmt.Println(resp)
+		fmt.Printf("resp: %+v\n", resp)
 		defer resp.Body.Close()
 
 		if err := resp.Write(tlsConn); err != nil {
