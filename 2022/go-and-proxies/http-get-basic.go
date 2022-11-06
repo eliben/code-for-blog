@@ -25,6 +25,7 @@ func main() {
 	defer resp.Body.Close()
 
 	fmt.Println("Response status:", resp.Status)
+	fmt.Println("Content length:", resp.ContentLength)
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err)

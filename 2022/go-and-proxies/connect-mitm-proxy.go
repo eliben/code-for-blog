@@ -155,14 +155,11 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		MinVersion:               tls.VersionTLS13,
 		Certificates:             []tls.Certificate{tlsCert},
 	}
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	tlsConn := tls.Server(clientConn, tlsConfig)
 	defer tlsConn.Close()
 	if err := tlsConn.Handshake(); err != nil {
-		log.Fatal("error handshake")
+		log.Fatal("TLS handshake error:", err)
 	}
 
 	connReader := bufio.NewReader(tlsConn)
@@ -170,23 +167,29 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 	for {
 		r, err := http.ReadRequest(connReader)
 		if err == io.EOF {
-			fmt.Println("at EOF")
 			break
 		} else if err != nil {
 			log.Fatal(err)
 		}
-
-		targetClient := &http.Client{}
+		// TODO: this seems to be working; one remaining issue is that when curl
+		// accesses some domains like example.org (or eliben.org), but not my
+		// localhost server - curl stays hanging after it's done. But my own
+		// http-get-basic doesn't, and seems to get the right content length back
+		// from the same server! Wget isn't stuck either... not sure what's the
+		// difference-- I can try to examine in detail the request sent by
+		// each client through the proxy -- is there a difference?
+		// (try to use httputil.DumpRequest/DumpResponse)?
 
 		// r will have a relative URL, but we need an absolute URL for the Client.
 		// The host part comes from req
 		// TODO: refactor this into a function to avoid confusion betwee req and r
-		url := parseToUrl(req.Host)
+		url := addrToUrl(req.Host)
 		url.Path = r.URL.Path
 		r.URL = url
 		r.RequestURI = ""
 		fmt.Printf("req: %+v\n", r)
-		resp, err := targetClient.Do(r)
+
+		resp, err := http.DefaultClient.Do(r)
 		fmt.Println("response content length:", resp.ContentLength)
 		if err != nil {
 			log.Fatal("error client response:", err)
@@ -200,15 +203,15 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func parseToUrl(addr string) *url.URL {
+func addrToUrl(addr string) *url.URL {
 	if !strings.HasPrefix(addr, "https") {
 		addr = "https://" + addr
 	}
-	toUrl, err := url.Parse(addr)
+	u, err := url.Parse(addr)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return toUrl
+	return u
 }
 
 func main() {
