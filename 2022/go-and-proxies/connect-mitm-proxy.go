@@ -18,6 +18,7 @@ import (
 	"math/big"
 	"net"
 	"net/http"
+	"net/http/httputil"
 	"net/url"
 	"strings"
 	"time"
@@ -179,6 +180,9 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		// difference-- I can try to examine in detail the request sent by
 		// each client through the proxy -- is there a difference?
 		// (try to use httputil.DumpRequest/DumpResponse)?
+		if b, err := httputil.DumpRequest(r, false); err == nil {
+			log.Printf("incoming request:\n%s\n", string(b))
+		}
 
 		// r will have a relative URL, but we need an absolute URL for the Client.
 		// The host part comes from req
@@ -188,8 +192,12 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		r.URL = url
 		r.RequestURI = ""
 		fmt.Printf("req: %+v\n", r)
+		b, _ = httputil.DumpRequestOut(r, false)
+		log.Printf("Outgoing request:\n%s\n", string(b))
 
 		resp, err := http.DefaultClient.Do(r)
+		b, _ = httputil.DumpResponse(resp, false)
+		log.Printf("Target response:\n%s\n", string(b))
 		fmt.Println("response content length:", resp.ContentLength)
 		if err != nil {
 			log.Fatal("error client response:", err)
