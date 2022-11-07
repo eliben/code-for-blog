@@ -11,7 +11,6 @@ import (
 	"crypto/x509/pkix"
 	"encoding/pem"
 	"flag"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -123,8 +122,8 @@ func (p *forwardProxy) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
-	log.Printf("CONNECT requested to %v (from %v)", req.Host, req.RemoteAddr)
+func (p *forwardProxy) proxyConnect(w http.ResponseWriter, proxyReq *http.Request) {
+	log.Printf("CONNECT requested to %v (from %v)", proxyReq.Host, proxyReq.RemoteAddr)
 
 	hj, ok := w.(http.Hijacker)
 	if !ok {
@@ -136,7 +135,7 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		log.Fatal("http hijacking failed")
 	}
 
-	host, _, err := net.SplitHostPort(req.Host)
+	host, _, err := net.SplitHostPort(proxyReq.Host)
 	if err != nil {
 		log.Fatal("error splitting host/port:", err)
 	}
@@ -162,7 +161,6 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 	if err := tlsConn.Handshake(); err != nil {
 		log.Fatal("TLS handshake error:", err)
 	}
-
 	connReader := bufio.NewReader(tlsConn)
 
 	for {
@@ -172,43 +170,36 @@ func (p *forwardProxy) proxyConnect(w http.ResponseWriter, req *http.Request) {
 		} else if err != nil {
 			log.Fatal(err)
 		}
-		// TODO: this seems to be working; one remaining issue is that when curl
-		// accesses some domains like example.org (or eliben.org), but not my
-		// localhost server - curl stays hanging after it's done. But my own
-		// http-get-basic doesn't, and seems to get the right content length back
-		// from the same server! Wget isn't stuck either... not sure what's the
-		// difference-- I can try to examine in detail the request sent by
-		// each client through the proxy -- is there a difference?
-		// (try to use httputil.DumpRequest/DumpResponse)?
+
 		if b, err := httputil.DumpRequest(r, false); err == nil {
 			log.Printf("incoming request:\n%s\n", string(b))
 		}
 
-		// r will have a relative URL, but we need an absolute URL for the Client.
-		// The host part comes from req
-		// TODO: refactor this into a function to avoid confusion betwee req and r
-		url := addrToUrl(req.Host)
-		url.Path = r.URL.Path
-		r.URL = url
-		r.RequestURI = ""
-		fmt.Printf("req: %+v\n", r)
-		b, _ = httputil.DumpRequestOut(r, false)
-		log.Printf("Outgoing request:\n%s\n", string(b))
-
+		changeRequestToTarget(r, proxyReq.Host)
 		resp, err := http.DefaultClient.Do(r)
-		b, _ = httputil.DumpResponse(resp, false)
-		log.Printf("Target response:\n%s\n", string(b))
-		fmt.Println("response content length:", resp.ContentLength)
 		if err != nil {
-			log.Fatal("error client response:", err)
+			log.Fatal("error sending request to target:", err)
 		}
-		fmt.Printf("resp: %+v\n", resp)
+		if b, err := httputil.DumpResponse(resp, false); err == nil {
+			log.Printf("target response:\n%s\n", string(b))
+		}
 		defer resp.Body.Close()
 
 		if err := resp.Write(tlsConn); err != nil {
 			log.Println("error writing response back:", err)
 		}
 	}
+}
+
+// changeRequestToTarget modifies req to be re-routed to the given target;
+// the target should be taken from the Host of the original tunnel (CONNECT)
+// request.
+func changeRequestToTarget(req *http.Request, targetHost string) {
+	targetUrl := addrToUrl(targetHost)
+	targetUrl.Path = req.URL.Path
+	req.URL = targetUrl
+	// Make sure this is unset for sending the request through a client
+	req.RequestURI = ""
 }
 
 func addrToUrl(addr string) *url.URL {
