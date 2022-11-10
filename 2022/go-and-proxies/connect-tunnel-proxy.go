@@ -1,3 +1,10 @@
+// Implements a tunneling forward proxy for CONNECT requests.
+//
+// This proxy serves over plain HTTP and only supports CONNECT requests to
+// arbitrary targets; it does not support regular HTTP proxying.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

@@ -1,3 +1,7 @@
+// Similar to http-server-debug-request-headers, but serves HTTPS.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

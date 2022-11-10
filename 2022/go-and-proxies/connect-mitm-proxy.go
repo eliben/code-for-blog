@@ -1,3 +1,12 @@
+// Implements a tunneling forward proxy for CONNECT requests, while also
+// MITM-ing the connection and dumping the HTTPs requests/responses that cross
+// the tunnel.
+//
+// Requires a certificate/key for a CA trusted by clients in order to generate
+// and sign fake TLS certificates.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -224,7 +233,7 @@ func (p *mitmProxy) proxyConnect(w http.ResponseWriter, proxyReq *http.Request) 
 		}
 		defer resp.Body.Close()
 
-		// Sent the target server's response back to the client.
+		// Send the target server's response back to the client.
 		if err := resp.Write(tlsConn); err != nil {
 			log.Println("error writing response back:", err)
 		}
