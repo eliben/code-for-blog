@@ -69,7 +69,7 @@ func main() {
 	// Once a Session is created, you can a single command on
 	// the remote side using the Run method.
 	session.Stdout = os.Stdout
-	if err := session.Run("/usr/bin/uname -a"); err != nil {
+	if err := session.Run("uname -a"); err != nil {
 		log.Fatal("Failed to run: " + err.Error())
 	}
 }
