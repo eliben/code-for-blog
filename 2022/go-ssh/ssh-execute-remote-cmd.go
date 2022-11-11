@@ -19,13 +19,15 @@ func sshConfigPath(filename string) string {
 func main() {
 	addr := flag.String("addr", "", "ssh server address to dial as <hostname>:<port>")
 	username := flag.String("user", "", "username for ssh")
+	keyFile := flag.String("keyfile", "", "file with private key for SSH authentication")
 	flag.Parse()
+
 	knownHostsCallback, err := knownhosts.New(sshConfigPath("known_hosts"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	key, err := os.ReadFile(sshConfigPath("id_ed25519"))
+	key, err := os.ReadFile(*keyFile)
 	if err != nil {
 		log.Fatalf("unable to read private key: %v", err)
 	}
