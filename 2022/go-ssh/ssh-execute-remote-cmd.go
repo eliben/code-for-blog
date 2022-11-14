@@ -16,18 +16,13 @@ func sshConfigPath(filename string) string {
 	return filepath.Join(os.Getenv("HOME"), ".ssh", filename)
 }
 
-func main() {
-	addr := flag.String("addr", "", "ssh server address to dial as <hostname>:<port>")
-	username := flag.String("user", "", "username for ssh")
-	keyFile := flag.String("keyfile", "", "file with private key for SSH authentication")
-	flag.Parse()
-
+func createSshConfig(username, keyFile string) *ssh.ClientConfig {
 	knownHostsCallback, err := knownhosts.New(sshConfigPath("known_hosts"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	key, err := os.ReadFile(*keyFile)
+	key, err := os.ReadFile(keyFile)
 	if err != nil {
 		log.Fatalf("unable to read private key: %v", err)
 	}
@@ -43,14 +38,23 @@ func main() {
 	// To authenticate with the remote server you must pass at least one
 	// implementation of AuthMethod via the Auth field in ClientConfig,
 	// and provide a HostKeyCallback.
-	config := &ssh.ClientConfig{
-		User: *username,
+	return &ssh.ClientConfig{
+		User: username,
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
 		},
 		HostKeyCallback:   knownHostsCallback,
 		HostKeyAlgorithms: []string{ssh.KeyAlgoED25519},
 	}
+}
+
+func main() {
+	addr := flag.String("addr", "", "ssh server address to dial as <hostname>:<port>")
+	username := flag.String("user", "", "username for ssh")
+	keyFile := flag.String("keyfile", "", "file with private key for SSH authentication")
+	flag.Parse()
+
+	config := createSshConfig(*username, *keyFile)
 
 	client, err := ssh.Dial("tcp", *addr, config)
 	if err != nil {
