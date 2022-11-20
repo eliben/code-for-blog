@@ -1,6 +1,7 @@
-// Instructions from https://codref.org/rated-d/go-implementation-of-a-reverse-ssh-tunnel
-// for reverse ssh tunnel
-
+// Remote tunnel (port forwarding) using x/crypto/ssh
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

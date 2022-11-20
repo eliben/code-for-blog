@@ -1,5 +1,8 @@
 // Example from ssh package's docs to execute simple remote command
 // Fixed to actually work with known_hosts callback, etc.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

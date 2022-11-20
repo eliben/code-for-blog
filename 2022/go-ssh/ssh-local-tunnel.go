@@ -1,7 +1,7 @@
-// Following instructions from https://sosedoff.com/2015/05/25/ssh-port-forwarding-with-go.html
-// significantly revamped for new Go versions, using knownhosts, etc.
-// Usage example: local psql for remote postgres DB
-
+// Local tunnel (port forwarding) using x/crypto/ssh
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
