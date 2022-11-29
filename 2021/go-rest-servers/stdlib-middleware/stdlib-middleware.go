@@ -67,9 +67,9 @@ func (ts *taskServer) taskHandler(w http.ResponseWriter, req *http.Request) {
 		}
 
 		if req.Method == http.MethodDelete {
-			ts.deleteTaskHandler(w, req, int(id))
+			ts.deleteTaskHandler(w, req, id)
 		} else if req.Method == http.MethodGet {
-			ts.getTaskHandler(w, req, int(id))
+			ts.getTaskHandler(w, req, id)
 		} else {
 			http.Error(w, fmt.Sprintf("expect method GET or DELETE at /task/<id>, got %v", req.Method), http.StatusMethodNotAllowed)
 			return
