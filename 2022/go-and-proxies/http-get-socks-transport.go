@@ -1,3 +1,9 @@
+// A HTTP client that dials through a SOCKS5 proxy using username/password
+// authentication. The auth is configured manually through a transport, without
+// relying on parsing http_proxy env vars.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
