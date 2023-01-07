@@ -246,6 +246,7 @@ func (p *mitmProxy) proxyConnect(w http.ResponseWriter, proxyReq *http.Request) 
 func changeRequestToTarget(req *http.Request, targetHost string) {
 	targetUrl := addrToUrl(targetHost)
 	targetUrl.Path = req.URL.Path
+	targetUrl.RawQuery = req.URL.RawQuery
 	req.URL = targetUrl
 	// Make sure this is unset for sending the request through a client
 	req.RequestURI = ""
