@@ -8,6 +8,8 @@
 // Will run the tool on the given module. Can optionally provide -pattern to
 // adjust the package pattern.
 //
+// To run it on the Go project itself, the module root dir is in src/
+//
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
