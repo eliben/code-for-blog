@@ -1,3 +1,7 @@
+// Sample of indirect calls in WASM, using Go with the wazero runtime.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -19,6 +23,9 @@ func main() {
 	r := wazero.NewRuntime(ctx)
 	defer r.Close(ctx)
 
+	// Create an environment exporting a Go function into the WASM. The function
+	// is named jstimes3 to match the main JS sample and what the WASM code
+	// expects.
 	_, err := r.NewHostModuleBuilder("env").
 		NewFunctionBuilder().
 		WithFunc(func(v int32) int32 {
@@ -34,8 +41,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// Invoke functions imported from WASM.
 	var n uint64 = 12
-
 	r2, err := tableWasm.ExportedFunction("times2").Call(ctx, n)
 	if err != nil {
 		log.Fatal(err)
