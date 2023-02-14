@@ -1,3 +1,8 @@
+;; Sample of indirect calls in WASM.
+;;
+;; Eli Bendersky [https://eli.thegreenplace.net]
+;; This code is in the public domain.
+
 (module
     ;; The common type we use throughout the sample.
     (type $int2int (func (param i32) (result i32)))

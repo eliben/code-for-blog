@@ -1,3 +1,8 @@
+// Sample of indirect calls in WASM.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 const fs = require('fs');
 const wasmfile = fs.readFileSync(__dirname + '/table.wasm');
 
