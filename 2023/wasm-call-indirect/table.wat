@@ -26,7 +26,8 @@
     ;; invoke functions from the table.
 
     (func (export "times2") (type $int2int)
-        ;; Place the value of the first parameter on the stack for call_indirect
+        ;; Place the value of the first parameter on the stack for the function
+        ;; call_indirect will invoke.
         local.get 0
 
         ;; This call_indirect invokes a function of the given type from table at
