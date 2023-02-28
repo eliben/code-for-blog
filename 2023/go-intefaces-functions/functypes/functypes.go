@@ -1,20 +1,23 @@
+// Chapter 6 of PAIP -- "searching tools" demonstrating higher-order functions.
 package functypes
 
 import "sort"
 
-// Chapter 6 of PAIP -- "searching tools" demonstrating higher-order functions.
-
-// This file just uses named function types, not interfaces
-
 type State int
 type States []State
 
+// GoalP takes a state and determines whether it's a goal state.
 type GoalP func(s State) bool
+
+// Successors returns the successors of a state.
 type Successors func(s State) States
+
+// Combiner determines the search strategy by combining successors of the
+// current state with all the other states into a single list of states.
 type Combiner func(succ States, others States) States
 
-// Returns the state if it's found in the tree; returns -1 if such a state
-// wasn't found.
+// treeSearch returns the state if it's found in the tree; returns -1 if such a
+// state wasn't found.
 func treeSearch(states States, goalp GoalP, succ Successors, combiner Combiner) State {
 	//log.Println("states:", states)
 	if len(states) == 0 {
@@ -89,7 +92,8 @@ func bestCostTreeSearch(start State, goalp GoalP, succ Successors, cost CostFunc
 	return treeSearch(States{start}, goalp, succ, sorter(cost))
 }
 
-// filter filters a slice based on a predicate.
+// filter filters a slice based on a predicate, returning a new slice whose
+// elements fulfill the predicate.
 func filter[T any](s []T, pred func(item T) bool) []T {
 	var result []T
 	for _, item := range s {
