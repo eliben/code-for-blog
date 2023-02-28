@@ -5,18 +5,27 @@ import "sort"
 type State int
 type States []State
 
+// GoalDetector is an interface that wraps a single IsGoal method. IsGoal
+// takes a state and determines whether it's a goal state.
 type GoalDetector interface {
 	IsGoal(s State) bool
 }
 
+// SuccessorGenerator is an interface that wraps a single Successors method.
+// Successors returns the successors of a state.
 type SuccessorGenerator interface {
 	Successors(s State) States
 }
 
+// Combiner is an interface that wrapes a single Combine method. Combine
+// determines the search strategy by combining successors of the current state
+// with all the other states into a single list of states.
 type Combiner interface {
 	Combine(succ States, others States) States
 }
 
+// treeSearch returns the state if it's found in the tree; returns -1 if such a
+// state wasn't found.
 func treeSearch(states States, gd GoalDetector, sg SuccessorGenerator, combiner Combiner) State {
 	//fmt.Println("states:", states)
 	if len(states) == 0 {
@@ -32,6 +41,7 @@ func treeSearch(states States, gd GoalDetector, sg SuccessorGenerator, combiner 
 }
 
 // Function --> interface adapters, similar to net/http.HandlerFunc
+
 type IsGoalFunc func(State) bool
 
 func (f IsGoalFunc) IsGoal(s State) bool {
