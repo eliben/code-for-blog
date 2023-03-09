@@ -1,3 +1,9 @@
+// Reproduces the "searching tools" samples from chapter 6 of PAIP using SMIs
+// (single-method interfaces).
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 package interfaces
 
 import "sort"
