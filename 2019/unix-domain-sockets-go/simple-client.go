@@ -1,7 +1,7 @@
 // Simple client that connects to a server via a Unix socket and sends
 // a message.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
 

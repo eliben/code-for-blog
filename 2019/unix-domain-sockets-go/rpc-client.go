@@ -1,6 +1,6 @@
 // Go RPC client connecting to a Unix socket.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
 

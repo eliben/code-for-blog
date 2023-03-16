@@ -4,7 +4,7 @@
 // main acting as client. Measure how long it took to do 2*N ping-pongs and find
 // the average latency.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
 
