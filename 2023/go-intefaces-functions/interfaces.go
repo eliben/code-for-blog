@@ -23,7 +23,7 @@ type SuccessorGenerator interface {
 	Successors(s State) States
 }
 
-// Combiner is an interface that wrapes a single Combine method. Combine
+// Combiner is an interface that wraps a single Combine method. Combine
 // determines the search strategy by combining successors of the current state
 // with all the other states into a single list of states.
 type Combiner interface {
