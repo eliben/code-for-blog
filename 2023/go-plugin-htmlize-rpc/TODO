@@ -1,0 +1,15 @@
+Client config needs Managed=true
+
+Need a single binaries dir for all build plugins (then we can use Discover)
+
+In go-plugin, a plugin binary (server) can register multiple plugins
+(interfaces), each with its own name. The Dispense RPC then provides these
+plugins based on their name.
+
+It's a bit of a different model from what we need for htmlize, where multiple
+plugins can be registered for each interface - e.g. different role plugins.
+We can encode it in the plugin name somehow: e.g. a content plugin registers
+under "content", while role plugins register under "role:<name>". But this
+means the plugin needs a way to tell the client which plugins are registered.
+It would be nice if go-plugin's dispenseServer had this functionality, but it
+doesn't. Maybe we should just add a special RPC for that.
