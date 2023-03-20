@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"fmt"
-	"log"
 	"os/exec"
 	"strings"
 
@@ -10,6 +9,11 @@ import (
 	goplugin "github.com/hashicorp/go-plugin"
 )
 
+// Manager loads and manages Htmlizer plugins for this application.
+//
+// After creating a Manager value, call LoadPlugins with a directory path to
+// discover and load plugins. At the end of the program call Close to kill and
+// clean up all plugin processes.
 type Manager struct {
 	roleHooks     map[string]Htmlizer
 	contentsHooks []Htmlizer
@@ -17,6 +21,10 @@ type Manager struct {
 	pluginClients []*goplugin.Client
 }
 
+// LoadPlugins takes a directory path and assumes that all files within it
+// are plugin binaries. It runs all these binaries in sub-processes,
+// establishes RPC communication with the plugins, and registers them for
+// the hooks they declare to support.
 func (m *Manager) LoadPlugins(path string) error {
 	m.contentsHooks = []Htmlizer{}
 	m.roleHooks = make(map[string]Htmlizer)
@@ -40,15 +48,19 @@ func (m *Manager) LoadPlugins(path string) error {
 
 		rpcClient, err := client.Client()
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		raw, err := rpcClient.Dispense("htmlize")
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 
 		impl := raw.(Htmlizer)
+
+		// Query the plugin for its capabilities -- the hooks it supports.
+		// Based on this information, register the plugin with the appropriate
+		// role or contents hooks.
 		capabilities := impl.Hooks()
 
 		for _, cap := range capabilities {
@@ -72,6 +84,9 @@ func (m *Manager) Close() {
 	}
 }
 
+// ApplyRoleHooks applies a registered plugin to the given role: name and text,
+// returning the transformed value. Only the last registered plugin is
+// applied.
 func (m *Manager) ApplyRoleHooks(rolename, roletext string, post *content.Post) (string, error) {
 	if hook, ok := m.roleHooks[rolename]; ok {
 		return hook.ProcessRole(rolename, roletext, *post), nil
@@ -80,6 +95,9 @@ func (m *Manager) ApplyRoleHooks(rolename, roletext string, post *content.Post) 
 	}
 }
 
+// ApplyContentsHooks applies registered plugins to the given post contents,
+// returning the transformed value. All registered plugins are applied in
+// sequence to the value.
 func (m *Manager) ApplyContentsHooks(contents string, post *content.Post) string {
 	for _, hook := range m.contentsHooks {
 		contents = hook.ProcessContents(contents, *post)

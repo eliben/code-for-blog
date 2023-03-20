@@ -13,17 +13,20 @@ import (
 )
 
 func main() {
+	// Load plugins from the plugin-binaries directory.
 	var pm plugin.Manager
 	if err := pm.LoadPlugins("./plugin-binaries/"); err != nil {
 		log.Fatal("loading plugins:", err)
 	}
 	defer pm.Close()
 
+	// Read contents from stdin.
 	contents, err := io.ReadAll(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Create a dummy post to wrap the contents with additional metadata.
 	post := &content.Post{
 		Id:       42,
 		Author:   "Joe",
@@ -32,14 +35,13 @@ func main() {
 
 	fmt.Printf("=== Text before htmlize:\n%s\n", post.Contents)
 	result := htmlize(&pm, post)
-
 	fmt.Printf("\n=== Text after htmlize:\n%s\n", result)
 }
 
 var rolePattern = regexp.MustCompile(":(\\w+):`([^`]*)`")
 
 // htmlize turns the text of post.Contents into HTML and returns it; it uses
-// the plugin manager to invoke registered plugins on the contents and the roles
+// the plugin manager to invoke loaded plugins on the contents and the roles
 // within it.
 func htmlize(pm *plugin.Manager, post *content.Post) string {
 	pcontents := insertParagraphs(post.Contents)
