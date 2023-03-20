@@ -37,7 +37,7 @@ func main() {
 	fmt.Printf("=== Text before htmlize:\n%s\n", post.Contents)
 	result := htmlize(pm, db, post)
 
-	fmt.Printf("\n=== Text afterhtmlize:\n%s\n", result)
+	fmt.Printf("\n=== Text after htmlize:\n%s\n", result)
 }
 
 var rolePattern = regexp.MustCompile(":(\\w+):`([^`]*)`")
