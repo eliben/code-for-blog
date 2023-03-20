@@ -1,20 +1,29 @@
 package main
 
 import (
+	"example.com/content"
 	"example.com/plugin"
 	goplugin "github.com/hashicorp/go-plugin"
 )
 
-type TtPluginInfo struct{}
+type TtHtmlizer struct{}
 
-func (TtPluginInfo) Hooks() []string {
+func (TtHtmlizer) Hooks() []string {
 	return []string{"role:tt"}
+}
+
+func (TtHtmlizer) ProcessContents(val string, post content.Post) string {
+	return ""
+}
+
+func (TtHtmlizer) ProcessRole(role string, val string, post content.Post) string {
+	return ""
 }
 
 func main() {
 	pluginMap := map[string]goplugin.Plugin{
 		"htmlize": &plugin.HtmlizePlugin{
-			InfoImpl: TtPluginInfo{},
+			Impl: TtHtmlizer{},
 		},
 	}
 

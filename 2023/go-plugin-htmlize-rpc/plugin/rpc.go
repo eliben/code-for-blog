@@ -4,13 +4,12 @@ import (
 	"log"
 	"net/rpc"
 
+	"example.com/content"
 	"github.com/hashicorp/go-plugin"
 )
 
 type PluginServerRPC struct {
-	InfoImpl     PluginInfo
-	RoleImpl     RoleHook
-	ContentsImpl ContentsHook
+	Impl Htmlizer
 }
 
 type Empty struct{}
@@ -20,7 +19,7 @@ type HooksReply struct {
 }
 
 func (s *PluginServerRPC) Hooks(Empty, reply *HooksReply) error {
-	reply.Hooks = s.InfoImpl.Hooks()
+	reply.Hooks = s.Impl.Hooks()
 	return nil
 }
 
@@ -36,17 +35,54 @@ func (c *PluginClientRPC) Hooks() []string {
 	return reply.Hooks
 }
 
+type ContentsArgs struct {
+	Value string
+	Post  content.Post
+}
+
+type ContentsReply struct {
+	Value string
+}
+
+func (c *PluginClientRPC) ProcessContents(val string, post content.Post) string {
+	var reply ContentsReply
+	if err := c.client.Call(
+		"Plugin.ProcessContents",
+		ContentsArgs{Value: val, Post: post},
+		&reply); err != nil {
+		log.Fatal(err)
+	}
+	return reply.Value
+}
+
+type RoleArgs struct {
+	Role  string
+	Value string
+	Post  content.Post
+}
+
+type RoleReply struct {
+	Value string
+}
+
+func (c *PluginClientRPC) ProcessRole(role string, val string, post content.Post) string {
+	var reply RoleReply
+	if err := c.client.Call(
+		"Plugin.ProcessRole",
+		RoleArgs{Role: role, Value: val, Post: post},
+		&reply); err != nil {
+		log.Fatal(err)
+	}
+	return reply.Value
+}
+
 type HtmlizePlugin struct {
-	InfoImpl     PluginInfo
-	RoleImpl     RoleHook
-	ContentsImpl ContentsHook
+	Impl Htmlizer
 }
 
 func (p *HtmlizePlugin) Server(*plugin.MuxBroker) (interface{}, error) {
 	return &PluginServerRPC{
-		InfoImpl:     p.InfoImpl,
-		RoleImpl:     p.RoleImpl,
-		ContentsImpl: p.ContentsImpl,
+		Impl: p.Impl,
 	}, nil
 }
 
