@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"example.com/content"
 	"example.com/plugin"
 	goplugin "github.com/hashicorp/go-plugin"
@@ -13,11 +15,11 @@ func (TtHtmlizer) Hooks() []string {
 }
 
 func (TtHtmlizer) ProcessContents(val string, post content.Post) string {
-	return ""
+	return val
 }
 
 func (TtHtmlizer) ProcessRole(role string, val string, post content.Post) string {
-	return ""
+	return fmt.Sprintf("<tt>%s</tt>", val)
 }
 
 func main() {

@@ -5,34 +5,14 @@ import (
 	"net/rpc"
 
 	"example.com/content"
-	"github.com/hashicorp/go-plugin"
 )
 
-type PluginServerRPC struct {
-	Impl Htmlizer
-}
+// Types for RPC args/reply messages.
 
-type Empty struct{}
+type HooksArgs struct{}
 
 type HooksReply struct {
 	Hooks []string
-}
-
-func (s *PluginServerRPC) Hooks(Empty, reply *HooksReply) error {
-	reply.Hooks = s.Impl.Hooks()
-	return nil
-}
-
-type PluginClientRPC struct {
-	client *rpc.Client
-}
-
-func (c *PluginClientRPC) Hooks() []string {
-	var reply HooksReply
-	if err := c.client.Call("Plugin.Hooks", Empty{}, &reply); err != nil {
-		log.Fatal(err)
-	}
-	return reply.Hooks
 }
 
 type ContentsArgs struct {
@@ -42,6 +22,51 @@ type ContentsArgs struct {
 
 type ContentsReply struct {
 	Value string
+}
+
+type RoleArgs struct {
+	Role  string
+	Value string
+	Post  content.Post
+}
+
+type RoleReply struct {
+	Value string
+}
+
+// PluginServerRPC is used by plugins to map RPC calls from the clients to
+// methods of the Htmlizer interface.
+type PluginServerRPC struct {
+	Impl Htmlizer
+}
+
+func (s *PluginServerRPC) Hooks(args HooksArgs, reply *HooksReply) error {
+	reply.Hooks = s.Impl.Hooks()
+	return nil
+}
+
+func (s *PluginServerRPC) ProcessContents(args ContentsArgs, reply *ContentsReply) error {
+	reply.Value = s.Impl.ProcessContents(args.Value, args.Post)
+	return nil
+}
+
+func (s *PluginServerRPC) ProcessRole(args RoleArgs, reply *RoleReply) error {
+	reply.Value = s.Impl.ProcessRole(args.Role, args.Value, args.Post)
+	return nil
+}
+
+// PluginClientRPC is used by clients (main application) to translate the
+// Htmlize interface of plugins to RPC calls.
+type PluginClientRPC struct {
+	client *rpc.Client
+}
+
+func (c *PluginClientRPC) Hooks() []string {
+	var reply HooksReply
+	if err := c.client.Call("Plugin.Hooks", HooksArgs{}, &reply); err != nil {
+		log.Fatal(err)
+	}
+	return reply.Hooks
 }
 
 func (c *PluginClientRPC) ProcessContents(val string, post content.Post) string {
@@ -55,16 +80,6 @@ func (c *PluginClientRPC) ProcessContents(val string, post content.Post) string 
 	return reply.Value
 }
 
-type RoleArgs struct {
-	Role  string
-	Value string
-	Post  content.Post
-}
-
-type RoleReply struct {
-	Value string
-}
-
 func (c *PluginClientRPC) ProcessRole(role string, val string, post content.Post) string {
 	var reply RoleReply
 	if err := c.client.Call(
@@ -74,20 +89,4 @@ func (c *PluginClientRPC) ProcessRole(role string, val string, post content.Post
 		log.Fatal(err)
 	}
 	return reply.Value
-}
-
-type HtmlizePlugin struct {
-	Impl Htmlizer
-}
-
-func (p *HtmlizePlugin) Server(*plugin.MuxBroker) (interface{}, error) {
-	return &PluginServerRPC{
-		Impl: p.Impl,
-	}, nil
-}
-
-func (p *HtmlizePlugin) Client(b *plugin.MuxBroker, c *rpc.Client) (interface{}, error) {
-	return &PluginClientRPC{
-		client: c,
-	}, nil
 }
