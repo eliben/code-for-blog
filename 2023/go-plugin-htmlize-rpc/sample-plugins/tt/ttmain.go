@@ -23,14 +23,12 @@ func (TtHtmlizer) ProcessRole(role string, val string, post content.Post) string
 }
 
 func main() {
-	pluginMap := map[string]goplugin.Plugin{
-		"htmlize": &plugin.HtmlizePlugin{
-			Impl: TtHtmlizer{},
-		},
-	}
-
 	goplugin.Serve(&goplugin.ServeConfig{
 		HandshakeConfig: plugin.Handshake,
-		Plugins:         pluginMap,
+		Plugins: map[string]goplugin.Plugin{
+			"htmlize": &plugin.HtmlizePlugin{
+				Impl: TtHtmlizer{},
+			},
+		},
 	})
 }
