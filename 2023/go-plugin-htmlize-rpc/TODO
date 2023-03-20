@@ -12,4 +12,5 @@ We can encode it in the plugin name somehow: e.g. a content plugin registers
 under "content", while role plugins register under "role:<name>". But this
 means the plugin needs a way to tell the client which plugins are registered.
 It would be nice if go-plugin's dispenseServer had this functionality, but it
-doesn't. Maybe we should just add a special RPC for that.
+doesn't. Maybe we should just add a special RPC for that - the client calls it
+first and it returns the list of roles supported.
