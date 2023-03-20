@@ -6,6 +6,10 @@ import (
 	"github.com/hashicorp/go-plugin"
 )
 
+// HtmlizePlugin implements the plugin.Plugin interface to provide the RPC
+// server or client back to the plugin machinery. The server side should
+// proved the Impl field with a concrete implementation of the Htmlizer
+// interface.
 type HtmlizePlugin struct {
 	Impl Htmlizer
 }
