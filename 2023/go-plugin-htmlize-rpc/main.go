@@ -1,3 +1,8 @@
+// Main "htmlize" application that can load and register plugins from the
+// plugin-binaries directory.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

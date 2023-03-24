@@ -1,3 +1,7 @@
+// Plugin manager used by the main application to load and invoke plugins.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package plugin
 
 import (

@@ -1,3 +1,7 @@
+// Defines the Handshake type for this plugin.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package plugin
 
 import goplugin "github.com/hashicorp/go-plugin"
