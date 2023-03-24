@@ -1,0 +1,5 @@
+# Ignore binaries
+plugin/greeter
+plugin/counter
+basic
+basic-bidir
