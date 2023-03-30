@@ -36,7 +36,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tableWasm, err := r.InstantiateModuleFromBinary(ctx, wasmObj)
+	tableWasm, err := r.Instantiate(ctx, wasmObj)
 	if err != nil {
 		log.Fatal(err)
 	}
