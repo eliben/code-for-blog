@@ -4,15 +4,39 @@
 // This code is in the public domain.
 const assert = require('node:assert');
 const fs = require('fs');
-const bytes = fs.readFileSync(__dirname + '/itoa.wasm');
 
-let importObject = {
-    env: {
-        log: function (n) {
-            console.log(`log: ${n}`);
+(async () => {
+    const n = parseInt(process.argv[2] || "42");
+    const bytes = fs.readFileSync(__dirname + '/itoa.wasm');
+
+    // This object is imported by the wasm module.
+    let importObject = {
+        env: {
+            log: function (n) {
+                console.log(`log: ${n}`);
+            }
         }
-    }
-};
+    };
+
+    let obj = await WebAssembly.instantiate(new Uint8Array(bytes), importObject);
+    let mem = obj.instance.exports.memory;
+
+    console.log(`invoking itoa(${n})`);
+    let [ptr, len] = obj.instance.exports.itoa(n);
+    console.log(`ptr=${ptr} len=${len}`);
+    let str = extract_string(mem, ptr, len);
+    console.log(`out=${str}`);
+
+    // Memory scan to detect all non-zero slots. Useful for debugging.
+    // let v = new Uint8Array(mem.buffer, 0, 10000);
+    // for (let i = 0; i < 10000; i++) {
+    //     if (v[i] !== 0) {
+    //         console.log(`mem[${i}]=${v[i]}`);
+    //     }
+    // }
+
+    do_test(mem, obj.instance.exports.itoa);
+})();
 
 function do_test(mem, itoa_func) {
     let to_string = (n) => {
@@ -41,30 +65,10 @@ function do_test(mem, itoa_func) {
     }
 }
 
+// extract_string extracts a string from a wasm memory buffer, given the
+// memory object, and offset and the length of the string. Returns a newly
+// allocated JS string.
 function extract_string(mem, offset, len) {
     const buf = new Uint8Array(mem.buffer, offset, len);
     return str = new TextDecoder('utf8').decode(buf);   
 }
-
-const n = parseInt(process.argv[2] || "42");
-
-(async () => {
-    let obj = await WebAssembly.instantiate(new Uint8Array(bytes), importObject);
-    let mem = obj.instance.exports.memory;
-    console.log(`invoking itoa(${n})`);
-
-    let [ptr, len] = obj.instance.exports.itoa(n);
-    console.log(`ptr=${ptr} len=${len}`);
-    let str = extract_string(mem, ptr, len);
-    console.log(`out=${str}`);
-
-    // Memory scan to detect all non-zero slots. Useful for debugging.
-    // let v = new Uint8Array(mem.buffer, 0, 10000);
-    // for (let i = 0; i < 10000; i++) {
-    //     if (v[i] !== 0) {
-    //         console.log(`mem[${i}]=${v[i]}`);
-    //     }
-    // }
-
-    do_test(mem, obj.instance.exports.itoa);
-})();
