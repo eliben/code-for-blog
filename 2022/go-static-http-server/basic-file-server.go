@@ -1,4 +1,4 @@
-// Basic local file server, serving the "static" directory on the root path.
+// Basic local file server, serving the "files" directory on the root path.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
