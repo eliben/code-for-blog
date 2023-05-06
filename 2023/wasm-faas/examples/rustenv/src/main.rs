@@ -1,3 +1,4 @@
+// Basic Rust example compiled to WASM.
 use std::env;
 
 fn main() {

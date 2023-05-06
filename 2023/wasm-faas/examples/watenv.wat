@@ -1,3 +1,7 @@
+;; Uses WASI to print out environment variables.
+;;
+;; Eli Bendersky [https://eli.thegreenplace.net]
+;; This code is in the public domain.
 (module
     (import "env" "log_i32" (func $log_i32 (param i32)))
     (import "env" "log_string" (func $log_string (param i32 i32)))
