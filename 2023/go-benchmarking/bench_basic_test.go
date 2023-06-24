@@ -14,4 +14,5 @@ func BenchmarkBasic(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		crc32.ChecksumIEEE(bs)
 	}
+	fmt.Println("... elapsed:", b.Elapsed())
 }
