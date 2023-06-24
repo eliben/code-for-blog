@@ -1,6 +1,9 @@
 package main
 
-import "testing"
+import (
+	"runtime"
+	"testing"
+)
 
 func isCond(b byte) bool {
 	if b%3 == 1 && b%7 == 2 && b%17 == 11 && b%31 == 9 {
@@ -37,7 +40,26 @@ func BenchmarkCountWrong(b *testing.B) {
 	}
 }
 
-//go:noinline
+var Sink int
+
+func BenchmarkCountSink(b *testing.B) {
+	inp := getInputContents()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Sink += countCond(inp)
+	}
+}
+
+func BenchmarkCountKeepAlive(b *testing.B) {
+	inp := getInputContents()
+	b.ResetTimer()
+	result := 0
+	for i := 0; i < b.N; i++ {
+		result += countCond(inp)
+	}
+	runtime.KeepAlive(result)
+}
+
 func getInputContents() []byte {
 	n := 400000
 	buf := make([]byte, n)
