@@ -12,4 +12,5 @@ func BenchmarkRandPrime(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		rand.Prime(rand.Reader, i)
 	}
+	fmt.Println("... elapsed:", b.Elapsed())
 }
