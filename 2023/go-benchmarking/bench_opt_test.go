@@ -12,12 +12,10 @@ func isCond(b byte) bool {
 	return false
 }
 
-var GlobalVal byte = 201
-
 // Wrong: the whole loop is optimized away
 func BenchmarkIsCondWrong(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		isCond(GlobalVal)
+		isCond(201)
 	}
 }
 
@@ -25,7 +23,7 @@ func countCond(b []byte) int {
 	result := 0
 	for i := 0; i < len(b); i++ {
 		if isCond(b[i]) {
-			result += 1
+			result++
 		}
 	}
 	return result
