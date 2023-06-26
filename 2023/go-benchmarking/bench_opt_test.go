@@ -19,6 +19,14 @@ func BenchmarkIsCondWrong(b *testing.B) {
 	}
 }
 
+func BenchmarkIsCondWrongNonConst(b *testing.B) {
+	nums := []byte{10, 11, 31, 201}
+
+	for i := 0; i < b.N; i++ {
+		isCond(nums[i&3])
+	}
+}
+
 func countCond(b []byte) int {
 	result := 0
 	for i := 0; i < len(b); i++ {
