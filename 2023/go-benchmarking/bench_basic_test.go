@@ -1,3 +1,7 @@
+// Benchmarking samples.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -14,5 +18,8 @@ func BenchmarkBasic(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		crc32.ChecksumIEEE(bs)
 	}
+
+	// Prints elapsed time to see how long each invocation of BenchmarkBasic by
+	// the harness takes.
 	fmt.Println("... elapsed:", b.Elapsed())
 }
