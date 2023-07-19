@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type AssocList[K comparable, V any] struct {
 	lst []pair[K, V]
@@ -33,6 +36,14 @@ func main() {
 	fmt.Println(al)
 
 	for k, v := range al.All {
+		fmt.Printf("key=%v, value=%v\n", k, v)
+	}
+
+	for k, v := range al.All {
+		if strings.HasPrefix(v, "fi") {
+			fmt.Println("found bad value, aborting!")
+			break
+		}
 		fmt.Printf("key=%v, value=%v\n", k, v)
 	}
 }
