@@ -19,11 +19,9 @@ func main() {
 		&Tree[int]{40, nil, nil},
 	}
 
-	sum := 0
-	for v := range tt.All {
-		sum += v
+	for v := range tt.Inorder {
+		fmt.Println(v)
 	}
-	fmt.Println(sum)
 }
 
 // Tree is a binary tree.
@@ -32,15 +30,10 @@ type Tree[E any] struct {
 	left, right *Tree[E]
 }
 
-// All may be used in a for/range loop to iterate
-// through all the values of the tree.
-// This implementation does an in-order traversal.
-func (t *Tree[E]) All(yield func(E) bool) bool {
+// Inorder iterates over the tree, in-order.
+func (t *Tree[E]) Inorder(yield func(E) bool) bool {
 	if t == nil {
 		return true
 	}
-
-	// As soon as a yield returns false, All returns false too, to avoid
-	// iterating more.
-	return t.left.All(yield) && yield(t.val) && t.right.All(yield)
+	return t.left.Inorder(yield) && yield(t.val) && t.right.Inorder(yield)
 }
