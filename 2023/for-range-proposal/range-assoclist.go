@@ -1,3 +1,7 @@
+// Example: creating an iterator over a custom data structure.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

@@ -5,4 +5,3 @@ has made it into upstream Go, use the `gotip` tool:
 $ gotip download 510541
 $ gotip run ...
 ```
-

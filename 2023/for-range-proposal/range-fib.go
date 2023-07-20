@@ -1,3 +1,7 @@
+// Example: iterating over "all" Fibonacci numbers.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"
