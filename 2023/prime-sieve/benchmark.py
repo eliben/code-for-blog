@@ -12,6 +12,12 @@ def bench():
     for i in range(9000):
         next(gp)
 
+def bench_opt():
+    gp = sieve.gen_primes_opt()
+    for i in range(9000):
+        next(gp)
+
+
 def bench_upto():
     # Note: for gen_primes_upto, we need to know ahead of time what limit to
     # set. We happen to know that the first 9000 primes are < 100000, but only
@@ -26,6 +32,9 @@ print("gen_primes_upto", t1.repeat(repeat=3, number=100))
 
 t2 = timeit.Timer("bench()", globals=locals())
 print("gen_primes", t2.repeat(repeat=3, number=100))
+
+t3 = timeit.Timer("bench_opt()", globals=locals())
+print("gen_primes_opt", t3.repeat(repeat=3, number=100))
 
 
 # print(timeit.timeit("bench_upto()", globals=locals(), number=100))

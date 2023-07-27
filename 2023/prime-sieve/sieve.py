@@ -1,4 +1,5 @@
 from math import sqrt
+import itertools
 
 
 def gen_primes_upto(n):
@@ -46,7 +47,7 @@ def gen_primes():
     # The running integer that's checked for primeness
     q = 2
 
-    while 1:
+    while True:
         # print(f"-- {q}")
         # print("len of D =", len(D))
         if q not in D:
@@ -72,8 +73,35 @@ def gen_primes():
         q += 1
 
 
+# combine martelli's, hochberg's and beinecke optimizations from
+# https://code.activestate.com/recipes/117119-sieve-of-eratosthenes/#c2
+#
+# See Will Neiss's comment: relevant to segmented sieve (wikipedia) ?
+# And this tim peters answer: https://stackoverflow.com/a/19391111/8206
+# a bit more algorithm details on the answer above it
+# ... also related to the wheels mentioned in the paper
+# https://research.cs.wisc.edu/techreports/1990/TR909.pdf
+
+def gen_primes_opt():
+    yield 2
+
+    D = {}
+
+    for q in itertools.count(3, step=2):
+        p = D.pop(q, None)
+        if not p:
+            D[q * q] = q
+            yield q
+            # print(D)
+        else:
+            x = q + p + p  # get odd multiples
+            while x in D:
+                x += p + p
+            D[x] = p
+
+
 if __name__ == "__main__":
-    gen = gen_primes()
-    for i in range(100000):
+    gen = gen_primes_opt()
+    for i in range(13):
         p = next(gen)
         print(p)
