@@ -1,4 +1,4 @@
-from itertools import islice
+from itertools import *
 from sieve import *
 
 import unittest
@@ -48,6 +48,17 @@ class TestSieve(unittest.TestCase):
         # to gen_primes_upto.
         # (12553 is the 1500th prime)
         self.assertEqual(sum(islice(gen_primes(), 1500)), sum(gen_primes_upto(12554)))
+
+        # Another sanity check, summing all primes up to 100,000
+        self.assertEqual(
+            sum(takewhile(lambda x: x < 100000, gen_primes())),
+            sum(gen_primes_upto(100000)),
+        )
+
+        gp = gen_primes_upto(100000)
+        for i in range(9000):
+            next(gp)
+        print(next(gp))
 
 
 if __name__ == "__main__":

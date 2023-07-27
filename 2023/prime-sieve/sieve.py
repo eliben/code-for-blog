@@ -29,7 +29,10 @@ def gen_primes_upto(n):
 # It makes sense because for a new number we have to check its divisibility
 # by all the primes before it, so we have to store them somehow!
 
+# Version of "incremental sieve" per the document
+
 # Uncommenting the prints clarifies how D propagates
+
 
 def gen_primes():
     """Generate an infinite sequence of prime numbers."""
@@ -44,8 +47,8 @@ def gen_primes():
     q = 2
 
     while 1:
-        print(f'-- {q}')
-        print('len of D =', len(D))
+        # print(f"-- {q}")
+        # print("len of D =", len(D))
         if q not in D:
             # q is a new prime.
             # Yield it and mark its first multiple that isn't
@@ -68,7 +71,8 @@ def gen_primes():
 
         q += 1
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     gen = gen_primes()
     for i in range(100000):
         p = next(gen)
