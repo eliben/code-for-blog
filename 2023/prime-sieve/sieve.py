@@ -43,8 +43,6 @@ def gen_primes_upto_segmented(n):
     # segment (its memory usage will be O(√n)). We'll use these primes to
     # sieve all subsequent segments.
     baseprimes = list(gen_primes_upto(segsize))
-    # print('bp', baseprimes)
-
     for bp in baseprimes:
         yield bp
 
@@ -54,9 +52,6 @@ def gen_primes_upto_segmented(n):
         # seg[i] represents the number segstart+i
         seg = [True] * segsize
 
-        segend = segstart + segsize
-
-        # print(f'seg start={segstart}, segend={segend}')
         for bp in baseprimes:
             # The first multiple of bp in this segment can be calculated using
             # modulo.
@@ -64,7 +59,7 @@ def gen_primes_upto_segmented(n):
                 segstart if segstart % bp == 0 else segstart + bp - segstart % bp
             )
             # Mark all multiples of bp in the segment as composite.
-            for q in range(first_multiple, segend, bp):
+            for q in range(first_multiple, segstart + segsize, bp):
                 seg[q % len(seg)] = False
 
         # Sieving is done; yield all composites in the segment (iterating only
