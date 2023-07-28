@@ -11,9 +11,9 @@ def gen_primes_upto(n):
         return
 
     table = [True] * n
-    sqrtn = int(math.sqrt(n))
+    sqrtn = int(math.ceil(math.sqrt(n)))
 
-    for i in range(2, sqrtn + 1):
+    for i in range(2, sqrtn):
         if table[i]:
             for j in range(i * i, n, i):
                 table[j] = False
@@ -27,19 +27,21 @@ def gen_primes_upto(n):
 def gen_primes_upto_segmented(n):
     """Generates a sequence of primes < n.
 
-    Uses the segmented sieve or Eratosthenes algorithm with O(sqrt(n)) memory.
+    Uses the segmented sieve or Eratosthenes algorithm with O(√n) memory.
     """
-    # Simplify boundary cases by hard-coding for small n.
-    if n < 10:
+    # Simplify boundary cases by hard-coding some small primes.
+    if n < 11:
         for p in [2, 3, 5, 7]:
             if p < n:
                 yield p
         return
 
-    # Segment size
+    # We break the range [0..n) into segments of size √n
     segsize = int(math.ceil(math.sqrt(n)))
 
-    # List of primes < sqrt(n) which we'll use to sieve all segments
+    # Find the primes in the first segment by calling the basic sieve on that
+    # segment (its memory usage will be O(√n)). We'll use these primes to
+    # sieve all subsequent segments.
     baseprimes = list(gen_primes_upto(segsize))
     # print('bp', baseprimes)
 
@@ -47,18 +49,26 @@ def gen_primes_upto_segmented(n):
         yield bp
 
     for segstart in range(segsize, n, segsize):
+        # Create a new table of size √n for each segment; the old table
+        # is thrown away, so the total memory use here is √n
+        # seg[i] represents the number segstart+i
         seg = [True] * segsize
 
         segend = segstart + segsize
 
         # print(f'seg start={segstart}, segend={segend}')
         for bp in baseprimes:
+            # The first multiple of bp in this segment can be calculated using
+            # modulo.
             first_multiple = (
                 segstart if segstart % bp == 0 else segstart + bp - segstart % bp
             )
+            # Mark all multiples of bp in the segment as composite.
             for q in range(first_multiple, segend, bp):
                 seg[q % len(seg)] = False
 
+        # Sieving is done; yield all composites in the segment (iterating only
+        # over the odd ones).
         start = 1 if segstart % 2 == 0 else 0
         for i in range(start, len(seg), 2):
             if seg[i]:

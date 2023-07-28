@@ -14,6 +14,8 @@ class TestSieve(unittest.TestCase):
         self.assertEqual(list(func(8)), [2, 3, 5, 7])
         self.assertEqual(list(func(9)), [2, 3, 5, 7])
         self.assertEqual(list(func(10)), [2, 3, 5, 7])
+        self.assertEqual(list(func(11)), [2, 3, 5, 7])
+        self.assertEqual(list(func(12)), [2, 3, 5, 7, 11])
         self.assertEqual(list(func(13)), [2, 3, 5, 7, 11])
         self.assertEqual(list(func(14)), [2, 3, 5, 7, 11, 13])
         self.assertEqual(list(func(15)), [2, 3, 5, 7, 11, 13])
