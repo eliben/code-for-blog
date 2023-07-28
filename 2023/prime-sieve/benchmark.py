@@ -28,8 +28,18 @@ def bench_upto():
     for i in range(9000):
         next(gp)
 
+
+def bench_upto_segmented():
+    gp = sieve.gen_primes_upto_segmented(100000)
+    for i in range(9000):
+        next(gp)
+
+
 t1 = timeit.Timer("bench_upto()", globals=locals())
 print("gen_primes_upto", t1.repeat(repeat=3, number=100))
+
+t11 = timeit.Timer("bench_upto_segmented()", globals=locals())
+print("gen_primes_upto_segmented", t11.repeat(repeat=3, number=100))
 
 t2 = timeit.Timer("bench()", globals=locals())
 print("gen_primes", t2.repeat(repeat=3, number=100))

@@ -25,32 +25,46 @@ def gen_primes_upto(n):
 
 
 def gen_primes_upto_segmented(n):
+    """Generates a sequence of primes < n.
+
+    Uses the segmented sieve or Eratosthenes algorithm with O(sqrt(n)) memory.
+    """
+    # Simplify boundary cases by hard-coding for small n.
+    if n < 10:
+        for p in [2, 3, 5, 7]:
+            if p < n:
+                yield p
+        return
+
     # Segment size
     segsize = int(math.ceil(math.sqrt(n)))
 
-    # List of primes <= sqrt(n) which we'll use to sieve all segments
+    # List of primes < sqrt(n) which we'll use to sieve all segments
     baseprimes = list(gen_primes_upto(segsize))
-
-    # print("base:", baseprimes)
+    # print('bp', baseprimes)
 
     for bp in baseprimes:
         yield bp
-    
+
     for segstart in range(segsize, n, segsize):
         seg = [True] * segsize
+
         segend = segstart + segsize
 
         # print(f'seg start={segstart}, segend={segend}')
         for bp in baseprimes:
-            first_multiple = segstart if segstart%bp==0 else segstart + bp - segstart%bp
+            first_multiple = (
+                segstart if segstart % bp == 0 else segstart + bp - segstart % bp
+            )
             for q in range(first_multiple, segend, bp):
                 seg[q % len(seg)] = False
 
-        for i in range(len(seg)):
+        start = 1 if segstart % 2 == 0 else 0
+        for i in range(start, len(seg), 2):
             if seg[i]:
-                if segstart+i >= n:
+                if segstart + i >= n:
                     break
-                yield segstart+i
+                yield segstart + i
 
 
 # TODO: measuring length of D -- insight:
