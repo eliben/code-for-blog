@@ -27,36 +27,31 @@ def gen_primes_upto(n):
 # TODO: measuring length of D -- insight:
 # it has all the primes in it, so its size is at least O(number of primes),
 # which is O(n / logn) per https://en.wikipedia.org/wiki/Prime-counting_function
-# It makes sense because for a new number we have to check its divisibility
-# by all the primes before it, so we have to store them somehow!
-
-# Version of "incremental sieve" per the document
-
-# Uncommenting the prints clarifies how D propagates
-
+# each prime appears only in one list (one value of D)
+# This makes sense because to check any number we need access to all primes
+# smaller than it, so they have to be *somewhere*.
+# An optimization would be only keep the primes below its square root, which
+# is what the segmentation optimizations are about
 
 def gen_primes():
     """Generate an infinite sequence of prime numbers."""
 
     # Maps composites to primes witnessing their compositeness.
-    # This is memory efficient, as the sieve is not "run forward"
-    # indefinitely, but only as long as required by the current
-    # number being tested.
     D = {}
 
     # The running integer that's checked for primeness
     q = 2
 
     while True:
-        # print(f"-- {q}")
+        print(f"-- {q}")
         # print("len of D =", len(D))
         if q not in D:
             # q is a new prime.
             # Yield it and mark its first multiple that isn't
             # already marked in previous iterations
             D[q * q] = [q]
-            # print(f'Setting D[{q*q}]=[{q}]')
-            # print(sorted(D.items()))
+            print(f'Setting D[{q*q}]=[{q}]')
+            print(sorted(D.items()))
             yield q
         else:
             # q is composite. D[q] is the list of primes that
@@ -67,10 +62,14 @@ def gen_primes():
             for p in D[q]:
                 D.setdefault(p + q, []).append(p)
             del D[q]
-            # print(f'Removing D[{q}]')
-            # print(sorted(D.items()))
+            # print(D)
+            # print('len =', len(D), 'total size', sum(map(len, D.values())))
+            print(f'Removing D[{q}]')
+            print(sorted(D.items()))
+            # print(sum(map(len, D.values())))
 
         q += 1
+    
 
 
 # combine martelli's, hochberg's and beinecke optimizations from
@@ -98,10 +97,11 @@ def gen_primes_opt():
             while x in D:
                 x += p + p
             D[x] = p
+            # print('total size', len(D))
 
 
 if __name__ == "__main__":
-    gen = gen_primes_opt()
-    for i in range(13):
+    gen = gen_primes()
+    for i in range(30):
         p = next(gen)
         print(p)

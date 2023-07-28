@@ -12,6 +12,7 @@ def bench():
     for i in range(9000):
         next(gp)
 
+
 def bench_opt():
     gp = sieve.gen_primes_opt()
     for i in range(9000):
