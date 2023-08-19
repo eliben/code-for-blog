@@ -1,3 +1,5 @@
+# TODO: clean up debug printouts, add comments
+
 import math
 import itertools
 
@@ -103,7 +105,7 @@ def gen_primes():
             # print(sorted(D.items()))
             yield q
         else:
-            # q is composite. D[q] is the list of primes that
+            # q is composite. D[q] holds some of the primes that
             # divide it. Since we've reached q, we no longer
             # need it in the map, but we'll mark the next
             # multiples of its witnesses to prepare for larger
@@ -149,10 +151,10 @@ def gen_primes_opt():
 
 
 if __name__ == "__main__":
-    # gen = gen_primes()
-    # for i in range(30):
-    #     p = next(gen)
-    #     print(p)
+    gen = gen_primes()
+    for i in range(30):
+        p = next(gen)
+        print(p)
 
-    gg = gen_primes_upto_segmented(3)
-    print(list(gg))
+    # gg = gen_primes_upto_segmented(3)
+    # print(list(gg))
