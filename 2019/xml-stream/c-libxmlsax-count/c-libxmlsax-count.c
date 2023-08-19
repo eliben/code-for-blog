@@ -37,17 +37,17 @@ void end_element_cb(void* ctx, const xmlChar* name) {
 void characters_cb(void* ctx, const xmlChar* ch, int len) {
   CountState* state = (CountState*)ctx;
 
-  // ch is not NULL-terminated, so we'll copy it to a temporary NULL-terminated
-  // buffer stored in 'state'.
-  if (len - 1 > sizeof(state->buf)) {
-    fprintf(stderr, "characters too long: %d\n", len);
-    exit(1);
-  }
-
-  memcpy(state->buf, ch, len);
-  state->buf[len] = 0;
-
   if (state->inLocation) {
+    // ch is not NULL-terminated, so we'll copy it to a temporary
+    // NULL-terminated buffer stored in 'state'.
+    if (len + 1 > sizeof(state->buf)) {
+      fprintf(stderr, "characters too long: %d\n", len);
+      exit(1);
+    }
+
+    memcpy(state->buf, ch, len);
+    state->buf[len] = 0;
+
     if (strstr(state->buf, "Africa")) {
       state->counter++;
     }
