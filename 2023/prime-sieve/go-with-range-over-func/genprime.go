@@ -38,3 +38,28 @@ func genPrimes(yield func(int) bool) bool {
 
 	return true
 }
+
+func genPrimesOpt(yield func(int) bool) bool {
+	if !yield(2) {
+		return false
+	}
+
+	d := make(map[int]int)
+
+	for q := 3; ; q += 2 {
+		if p, hasP := d[q]; !hasP {
+			d[q*q] = q
+			if !yield(q) {
+				return false
+			}
+		} else {
+			delete(d, q)
+			x := q + p + p
+			for d[x] != 0 {
+				x += p + p
+			}
+			d[x] = p
+		}
+	}
+	return true
+}

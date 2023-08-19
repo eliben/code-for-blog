@@ -17,8 +17,19 @@ func TestGenPrimes(t *testing.T) {
 		}
 	}
 
+	var gotOpt []int
+	for p := range genPrimesOpt {
+		gotOpt = append(gotOpt, p)
+		if len(gotOpt) >= 20 {
+			break
+		}
+	}
+
 	if !slices.Equal(got, primes20) {
 		t.Errorf("got %v, want %v", got, primes20)
+	}
+	if !slices.Equal(gotOpt, primes20) {
+		t.Errorf("opt got %v, want %v", gotOpt, primes20)
 	}
 }
 
@@ -27,6 +38,21 @@ func BenchmarkGenPrimes(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		n := 0
 		for p := range genPrimes {
+			result += p
+			n++
+			if n >= 9000 {
+				break
+			}
+		}
+	}
+	runtime.KeepAlive(result)
+}
+
+func BenchmarkGenPrimesOpt(b *testing.B) {
+	result := 0
+	for i := 0; i < b.N; i++ {
+		n := 0
+		for p := range genPrimesOpt {
 			result += p
 			n++
 			if n >= 9000 {
