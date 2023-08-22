@@ -1,3 +1,5 @@
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 import sieve
 import timeit
 
@@ -46,7 +48,3 @@ print("gen_primes", t2.repeat(repeat=3, number=100))
 
 t3 = timeit.Timer("bench_opt()", globals=locals())
 print("gen_primes_opt", t3.repeat(repeat=3, number=100))
-
-
-# print(timeit.timeit("bench_upto()", globals=locals(), number=100))
-

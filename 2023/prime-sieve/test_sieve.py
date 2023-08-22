@@ -1,4 +1,5 @@
-from itertools import *
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.from itertools import *
 from sieve import *
 
 import unittest
