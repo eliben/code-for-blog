@@ -6,9 +6,16 @@ set -o pipefail
 mkdir -p target
 wat2wasm examples/hello.wat -o target/hello.wasm
 wat2wasm examples/watenv.wat -o target/watenv.wasm
-tinygo build -o target/hellogo.wasm -target=wasi examples/hellogo/hellogo.go
-tinygo build -o target/goenv.wasm -target=wasi examples/goenv/goenv.go
-GOOS=wasip1 GOARCH=wasm gotip build -o target/goenvgc.wasm examples/goenv/goenv.go
+
+# Since Go 1.21 was released, the default go toolchain supports WASM/WASI
+# output!
+
+# TinyGo is commented out because the released version doesn't want to build
+# with a new Go (1.21) at the time of this experiment. This should work after
+# a new TinyGo is released.
+#tinygo build -o target/hellogo.wasm -target=wasi examples/hellogo/hellogo.go
+#tinygo build -o target/goenv.wasm -target=wasi examples/goenv/goenv.go
+GOOS=wasip1 GOARCH=wasm go build -o target/goenvgc.wasm examples/goenv/goenv.go
 
 (cd examples/rustenv; cargo build --target wasm32-wasi --release)
 cp examples/rustenv/target/wasm32-wasi/release/rustenv.wasm target/
