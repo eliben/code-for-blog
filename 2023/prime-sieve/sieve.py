@@ -1,3 +1,7 @@
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
+
 # TODO: clean up debug printouts, add comments
 
 import math

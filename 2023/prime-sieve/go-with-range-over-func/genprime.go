@@ -1,17 +1,13 @@
+// Go implementation of the unbounded prime sieve, using the
+// experimental "range over func" proposal.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import "fmt"
 
-func main() {
-	for p := range genPrimes {
-		fmt.Println(p)
-
-		if p > 100 {
-			break
-		}
-	}
-}
-
+// genPrimes is an iterator, yielding prime numbers until stopped.
 func genPrimes(yield func(int) bool) bool {
 	// maps composite numbers to primes that factor them
 	d := make(map[int][]int)
@@ -35,7 +31,6 @@ func genPrimes(yield func(int) bool) bool {
 		}
 
 	}
-
 	return true
 }
 
@@ -43,23 +38,32 @@ func genPrimesOpt(yield func(int) bool) bool {
 	if !yield(2) {
 		return false
 	}
-
 	d := make(map[int]int)
 
 	for q := 3; ; q += 2 {
-		if p, hasP := d[q]; !hasP {
-			d[q*q] = q
-			if !yield(q) {
-				return false
-			}
-		} else {
+		if p, hasP := d[q]; hasP {
 			delete(d, q)
 			x := q + p + p
 			for d[x] != 0 {
 				x += p + p
 			}
 			d[x] = p
+		} else {
+			d[q*q] = q
+			if !yield(q) {
+				return false
+			}
 		}
 	}
 	return true
+}
+
+func main() {
+	for p := range genPrimes {
+		fmt.Println(p)
+
+		if p > 100 {
+			break
+		}
+	}
 }
