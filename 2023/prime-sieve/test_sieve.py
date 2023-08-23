@@ -79,7 +79,7 @@ class TestSieve(unittest.TestCase):
 
     def test_gen_primes(self):
         self._test_gen_primes_variant(gen_primes)
-    
+
     def test_gen_primes_opt(self):
         self._test_gen_primes_variant(gen_primes_opt)
 

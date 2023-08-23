@@ -6,7 +6,7 @@ import timeit
 
 setup = '''
 from itertools import islice
-from sieve import gen_primes_upto, gen_primes   
+from sieve import gen_primes_upto, gen_primes
 '''
 
 def bench():
