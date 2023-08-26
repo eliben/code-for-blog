@@ -1,7 +1,7 @@
 // HTTP handler for providing a GeoIP service as a Google Cloud Function.
 // See README.rst for deployment instructions.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package geoip
 
