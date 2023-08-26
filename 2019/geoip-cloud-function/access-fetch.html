@@ -1,0 +1,30 @@
+<!--  Fetch GeoIP info from our cloud function.
+
+      Eli Bendersky [https://eli.thegreenplace.net]
+      This code is in the public domain.
+-->
+<html>
+<head>
+    <title>Access GeoIP from JS using fetch</title>
+</head>
+<body>
+  <script>
+    var url = 'https://us-central1-eliben-test-01.cloudfunctions.net/geoip'
+    fetch(url)
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch data');
+        }
+      })
+      .then(data => {
+        document.writeln(data.Country, " ", data.Region, " ", data.City)
+      })
+      .catch(error => {
+        document.writeln("ERROR: ", error);
+      });
+  </script>
+</body>
+</html>
+
