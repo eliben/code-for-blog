@@ -7,6 +7,7 @@ import (
 )
 
 // Show how to import functions from the host using go:wasmimport
+// This is portable between go and tinygo.
 
 //go:wasmimport env log_i32
 func logInt(i int32)
