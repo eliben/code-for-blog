@@ -3,24 +3,45 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"slices"
+	"strings"
 )
 
-var originAllowlist = map[string]bool{
-	"http://127.0.0.1:9999":    true,
-	"http://cats.com":          true,
-	"http://safe.frontend.net": true,
+var originAllowlist = []string{
+	"http://127.0.0.1:9999",
+	"http://cats.com",
+	"http://safe.frontend.net",
 }
+
+var methodAllowlist = []string{"GET", "POST", "DELETE", "OPTIONS"}
 
 func checkCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		origin := r.Header.Get("Origin")
-		if _, found := originAllowlist[origin]; found {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Add("Vary", "Origin")
+		if isPreflight(r) {
+			origin := r.Header.Get("Origin")
+			method := r.Header.Get("Access-Control-Request-Method")
+			if slices.Contains(originAllowlist, origin) && slices.Contains(methodAllowlist, method) {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Set("Access-Control-Allow-Methods", strings.Join(methodAllowlist, ", "))
+				w.Header().Add("Vary", "Origin")
+			}
+		} else {
+			// Not a preflight: regular request.
+			origin := r.Header.Get("Origin")
+			if slices.Contains(originAllowlist, origin) {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+				w.Header().Add("Vary", "Origin")
+			}
 		}
-
 		next.ServeHTTP(w, r)
 	})
+}
+
+// isPreflight reports whether r is a preflight requst.
+func isPreflight(r *http.Request) bool {
+	return r.Method == "OPTIONS" &&
+		r.Header.Get("Origin") != "" &&
+		r.Header.Get("Access-Control-Request-Method") != ""
 }
 
 func apiHandler(w http.ResponseWriter, r *http.Request) {
