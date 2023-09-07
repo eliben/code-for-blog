@@ -1,10 +1,10 @@
 <html>
 <head>
-    <title>Get cookie from server</title>
+    <title>CORS with credentials</title>
 </head>
 <body>
   <script>
-    var url = 'http://localhost:8080/getcookie'
+    var url = 'http://localhost:8080/api'
     fetch(url, {credentials: "include"})
       .then(response => {
         if (response.ok) {
