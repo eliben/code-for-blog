@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>Get cookie from server</title>
+</head>
+<body>
+  <script>
+    var url = 'http://localhost:8080/getcookie'
+    fetch(url, {credentials: "include"})
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to fetch data');
+        }
+      })
+      .then(data => {
+        document.writeln(data.message);
+      })
+      .catch(error => {
+        document.writeln("ERROR: ", error);
+      });
+  </script>
+</body>
+</html>

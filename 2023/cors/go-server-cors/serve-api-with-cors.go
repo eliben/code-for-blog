@@ -23,6 +23,7 @@ func checkCORS(next http.Handler) http.Handler {
 			if slices.Contains(originAllowlist, origin) && slices.Contains(methodAllowlist, method) {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
 				w.Header().Set("Access-Control-Allow-Methods", strings.Join(methodAllowlist, ", "))
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
 				w.Header().Add("Vary", "Origin")
 			}
 		} else {
@@ -31,6 +32,7 @@ func checkCORS(next http.Handler) http.Handler {
 			if slices.Contains(originAllowlist, origin) {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
 				w.Header().Add("Vary", "Origin")
+				w.Header().Set("Access-Control-Allow-Credentials", "true")
 			}
 		}
 		next.ServeHTTP(w, r)
@@ -49,9 +51,15 @@ func apiHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, `{"message": "hello"}`)
 }
 
+func getCookieHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Set-Cookie", "somekey=somevalue")
+	fmt.Fprintln(w, `{"message": "you're welcome"}`)
+}
+
 func main() {
 	port := ":8080"
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api", apiHandler)
+	mux.HandleFunc("/getcookie", getCookieHandler)
 	http.ListenAndServe(port, checkCORS(mux))
 }
