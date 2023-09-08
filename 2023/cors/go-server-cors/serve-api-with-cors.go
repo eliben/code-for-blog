@@ -1,3 +1,8 @@
+// Basic API server with CORS support, including preflight requests
+// and credentials.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
