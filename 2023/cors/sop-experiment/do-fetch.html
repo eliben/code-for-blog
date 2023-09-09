@@ -1,0 +1,17 @@
+<html>
+<head>
+    <title>Fetch another page</title>
+</head>
+<body>
+  <script>
+    var url = 'http://127.0.0.1:8080/page.html'
+    fetch(url)
+      .then(response => {
+        console.log(response.status);
+      })
+      .catch(error => {
+        console.log("ERROR:", error);
+      });
+  </script>
+</body>
+</html>
