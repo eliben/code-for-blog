@@ -2,7 +2,7 @@
 //
 // Runs some sanity checks against a server, and log.Fatal-s in case of errors.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
 
