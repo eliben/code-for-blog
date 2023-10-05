@@ -96,18 +96,16 @@ function swapRows(arr, i, j) {
 // This code follows the pseudocode from Wikipedia, with partial pivoting
 // (https://en.wikipedia.org/wiki/Gaussian_elimination). It selects the largest
 // possible absolute value for each column to improve numerical stability.
-// TODO: remove the debug printouts
+// TODO: more comments
 function gaussEliminate(arr) {
     let nrows = arr.length;
     let ncols = arr[0].length;
-    console.log(`${nrows} ${ncols}`);
 
     let h = 0;
     let k = 0;
 
     while (h < nrows && k < ncols) {
         let pivotRow = findPivotRow(arr, h, k);
-        console.log(`pivot row ${pivotRow}`);
         if (arr[pivotRow][k] == 0) {
             // No pivot in this column; move on to the next one.
             k++;
@@ -126,17 +124,5 @@ function gaussEliminate(arr) {
             h++;
             k++;
         }
-
-        console.log(`iter ${h} ${k}`);
     }
 }
-
-let arr = [
-    [1, 2, 3],
-    [4, 5, 6],
-    [1, 7, 9],
-];
-print2DArray(arr);
-
-let s = solve(arr, [2, 4, 8]);
-console.log(s);

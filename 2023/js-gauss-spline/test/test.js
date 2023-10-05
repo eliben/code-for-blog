@@ -14,9 +14,18 @@ let m1 = [
 ];
 assertArraysAlmostEqual(solve(m1, [3, 6]), [-1, 2]);
 
+// Example from Wikipedia
 let m2 = [
     [2, 1, -1],
     [-3, -1, 2],
     [-2, 1, 2],
 ];
-assertArraysAlmostEqual(solve(m2, [8, -11, -3]), [2, 3, -1.4]);
+assertArraysAlmostEqual(solve(m2, [8, -11, -3]), [2, 3, -1]);
+
+// Example from Wikipedia
+let m3 = [
+    [1, 3, 1],
+    [1, 1, -1],
+    [3, 11, 5],
+];
+assert.throws(() => solve(m3, [9, 1, 35], "no unique solution"));
