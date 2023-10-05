@@ -1,10 +1,22 @@
 import assert from 'node:assert/strict';
-import {solve} from '../eqsolve.js';
+import { solve } from '../eqsolve.js';
 
-let arr = [
+function assertArraysAlmostEqual(a, b) {
+    assert.equal(a.length, b.length);
+    for (let i = 0; i < a.length; i++) {
+        assert(Math.abs(a[i] - b[i]) < 1e-6, `a[${i}]=${a[i]}   !=   b[${i}]=${b[i]}`);
+    }
+}
+
+let m1 = [
     [1, 2],
     [4, 5],
-]; 
-assert.deepEqual(solve(arr, [3, 6]), [-1, 2]);
+];
+assertArraysAlmostEqual(solve(m1, [3, 6]), [-1, 2]);
 
-
+let m2 = [
+    [2, 1, -1],
+    [-3, -1, 2],
+    [-2, 1, 2],
+];
+assertArraysAlmostEqual(solve(m2, [8, -11, -3]), [2, 3, -1.4]);
