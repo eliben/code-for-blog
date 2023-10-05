@@ -61,3 +61,5 @@ function assertArraysAlmostEqual(a, b) {
     ];
     assert.throws(() => solve(m, [-1, -2, 9], "no unique solution"));
 }
+
+console.log('success');

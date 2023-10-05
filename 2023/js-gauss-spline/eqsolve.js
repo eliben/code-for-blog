@@ -35,7 +35,7 @@ export function solve(A, b) {
     gaussEliminate(A);
 
     // Step 3: back-substitution. This modifies A to be in reduced row
-    // echelon form.
+    // echelon form (Gauss-Jordan elimination).
     for (let i = R - 1; i >= 0; i--) {
         // For each row, take its pivot and divide the last column by it,
         // then eliminate the pivot from all rows above.
@@ -92,19 +92,18 @@ function swapRows(arr, i, j) {
 }
 
 // gaussEliminate performs Gaussian elimination on arr, in place. After running,
-// arr will be in row echelon form.
+// arr will be in row echelon form. It operates on arbitraryly sized matrices.
 // This code follows the pseudocode from Wikipedia, with partial pivoting
 // (https://en.wikipedia.org/wiki/Gaussian_elimination). It selects the largest
 // possible absolute value for each column to improve numerical stability.
-// TODO: more comments
 function gaussEliminate(arr) {
     let nrows = arr.length;
     let ncols = arr[0].length;
 
-    let h = 0;
-    let k = 0;
+    let h = 0, k = 0;
 
     while (h < nrows && k < ncols) {
+        // Find the pivot row for column k.
         let pivotRow = findPivotRow(arr, h, k);
         if (arr[pivotRow][k] == 0) {
             // No pivot in this column; move on to the next one.
