@@ -16,7 +16,7 @@
 // solution.
 // A is modified in place - it should be cloned outside this function if you
 // want to preserve the original.
-function solve(A, b) {
+export function solve(A, b) {
     // Step 1: create the augmented matrix [A|b], while making sure all
     // dimensions match. The resulting matrix has R rows and R+1 columns.
     let R = A.length;

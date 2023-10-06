@@ -5,7 +5,7 @@
 // Ax = b represents the system of linear equations to solve to determine the
 // coefficients of the cubic polynomials that interpolate the points.
 // There are N-1 polynomials, so A is NxN and b is an array of N values.
-function buildSplineEquations(xs, ys) {
+export function buildSplineEquations(xs, ys) {
     // Npolys is the number of (cubic) polynomials we interpolate between
     // the given points. Ncoeffs is the number of coefficients they all have
     // together (4 per poly: ax^3 + bx^2 + cx + d).
