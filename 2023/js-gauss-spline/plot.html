@@ -1,16 +1,108 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <title>Plot spline interpolation</title>
-</head>
-<body>
-    <div class="container">
-        <div class="plotcanvas">
-            <canvas id="plot" width="500" height="500"></canvas>
-        </div>
-    </div>
-    <script src="eqsolve.js"></script>
-    <script src="spline.js"></script>
-    <script src="plot.js"></script>
-</body>
-</html>
+<svg id="chart" width="500" height="300"></svg>
+<script src="eqsolve.js"></script>
+<script src="spline.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+
+<script>
+    const origXs = [0, 1, 2];
+    const origYs = [1, 3, 2];
+
+    let [pxs, pys] = doInterpolate(origXs, origYs, 200);
+ 
+    const xMin = d3.min([...origXs]);
+    const yMin = d3.min([...origYs]);
+    const xMax = d3.max([...origXs]);
+    const yMax = d3.max([...origYs]);
+
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+    const width = 500 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+
+    const svg = d3.select("#chart")
+        .append("g")
+        .attr("transform", `translate(${margin.left}, ${margin.top})`);
+
+    const xScale = d3.scaleLinear().domain([xMin - 1, xMax + 1]).range([0, width]);
+    const yScale = d3.scaleLinear().domain([yMin - 1, yMax + 1]).range([height, 0]);
+
+    const xAxis = d3.axisBottom(xScale);
+    const yAxis = d3.axisLeft(yScale);
+
+    svg.append("g")
+        .attr("transform", `translate(0, ${height})`)
+        .call(xAxis);
+
+    svg.append("g")
+        .call(yAxis);
+
+    const line = d3.line()
+        .x((d, i) => xScale(pxs[i]))
+        .y(d => yScale(d));
+
+    svg.append("path")
+        .attr("d", line(pys))
+        .attr("stroke", "blue")
+        .attr("stroke-width", "2")
+        .attr("fill", "none");
+
+    svg.selectAll(".dot")
+        .data(origYs)
+        .enter().append("circle")
+        .attr("stroke", "red")
+        .attr("fill", "red")
+        .attr("class", "dot")
+        .attr("cx", (d, i) => xScale(origXs[i]))
+        .attr("cy", d => yScale(d))
+        .attr("r", 5);
+
+    // doInterpolate uses cubic spline interpolation to create N new points between
+    // xs and calculates their ys, returning [pxs, pys] - the (x,y) coords of the
+    // interpolated points.
+    function doInterpolate(xs, ys, N) {
+        // Perform interpolation on xs, ys to get the coefficients of the splines.
+        let [A, b] = buildSplineEquations(xs, ys);
+        let coeffs = solve(A, b);
+
+        // Create N points linearly spaced between the min and max of xs, and
+        // calculate the corresponding py for each px using the appropriate curve.
+        let pxs = linspace(Math.min(...xs), Math.max(...xs), N);
+
+        let pys = Array(N).fill(0);
+        for (let i = 0; i < N; i++) {
+            let px = pxs[i];
+            // Find the number of the curve for px, based on which points from
+            // xs it's between. Can be done more efficiently with binary
+            // search, but this is good enough for a demo.
+            let curveIndex = -1;
+            for (let j = 0; j < xs.length - 1; j++) {
+                // is px between xs[j] and xs[j+1]? If yes, we found the curve!
+                if (px >= xs[j] && px <= xs[j + 1]) {
+                    curveIndex = j;
+                    break;
+                }
+            }
+            if (curveIndex < 0) {
+                alert(`curve index not found for xs[${i}]=${xs[i]}`);
+            }
+
+            // With the curve index in hand, we can calculate py based on the
+            // relevant curve coefficients from coeffs.
+            let [a, b, c, d] = coeffs.slice(curveIndex * 4, curveIndex * 4 + 4);
+            pys[i] = a * px ** 3 + b * px ** 2 + c * px + d;
+        }
+
+        return [pxs, pys];
+    }
+
+    // linspace returns an array of numPoints values distributed linearly in
+    // the (inclusive) range [start,end], just like Numpy's linspace.
+    function linspace(start, end, numPoints) {
+        if (numPoints === undefined || numPoints < 2) {
+            return [start, end];
+        }
+
+        const step = (end - start) / (numPoints - 1);
+        return new Array(numPoints).fill(null).map((_, i) => start + i * step);
+    }
+</script>
