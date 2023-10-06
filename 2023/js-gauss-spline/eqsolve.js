@@ -60,14 +60,6 @@ export function solve(A, b) {
     return x;
 }
 
-// Print the 2D array, with each row on a separate line.
-function print2DArray(arr) {
-    for (let i = 0; i < arr.length; i++) {
-        let rowstr = arr[i].map(e => e.toString().padStart(3, ' ')).join(" ");
-        console.log(rowstr);
-    }
-}
-
 // findPivotRow finds the "pivot" row in arr, for column col and beginning
 // with startRow. The pivot row is the row with the largest (in absolute value)
 // element in column col among rows [startRow:arr.length). The index of the

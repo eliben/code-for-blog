@@ -5,7 +5,7 @@
 // Ax = b represents the system of linear equations to solve to determine the
 // coefficients of the cubic polynomials that interpolate the points.
 // There are N-1 polynomials, so A is NxN and b is an array of N values.
-function buildSplineEquations(xs, ys) {
+export function buildSplineEquations(xs, ys) {
     // Npolys is the number of (cubic) polynomials we interpolate between
     // the given points. Ncoeffs is the number of coefficients they all have
     // together (4 per poly: ax^3 + bx^2 + cx + d).
@@ -81,19 +81,13 @@ function buildSplineEquations(xs, ys) {
     return [A, b];
 }
 
-// Print the 2D array, with each row on a separate line.
-function print2DArray(arr) {
-    for (let i = 0; i < arr.length; i++) {
-        let rowstr = arr[i].map(e => e.toString().padStart(5, ' ')).join(" ");
-        console.log(rowstr);
-    }
-}
+// TODO: clean up
+// let xs = [0, 1, 2];
+// let ys = [1, 3, 2];
 
-let xs = [0, 1, 2];
-let ys = [1, 3, 2];
+// let [A, b] = buildSplineEquations(xs, ys);
+// print2DArray(A);
+// console.log(`----\nb = ${b}`);
 
-let [A, b] = buildSplineEquations(xs, ys);
-print2DArray(A);
-console.log(`----\nb = ${b}`);
 
 
