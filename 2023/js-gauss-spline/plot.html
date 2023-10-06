@@ -1,16 +1,19 @@
 <!DOCTYPE html>
 <svg id="chart" width="500" height="300"></svg>
-<!-- <script src="eqsolve.js"e type="module"></script> -->
-<!-- <script src="spline.js" type="module"></script> -->
-<!-- <script src="https://d3js.org/d3.v7.min.js"></script> -->
 
 <script type="module">
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
     import { buildSplineEquations } from "./spline.js";
     import { solve } from "./eqsolve.js";
 
-    const origXs = [0, 1, 2];
-    const origYs = [1, 3, 2];
+    // const origXs = [0, 1, 2];
+    // const origYs = [1, 3, 2];
+
+    // const origXs = [0, 1, 2, 3, 4];
+    // const origYs = [21, 24, 24, 18, 16];
+
+    const origXs = linspace(-10, 10, 7);
+    const origYs = origXs.map(calcSinc);
 
     let [pxs, pys] = doInterpolate(origXs, origYs, 200);
 
@@ -28,7 +31,7 @@
         .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     const xScale = d3.scaleLinear().domain([xMin - 1, xMax + 1]).range([0, width]);
-    const yScale = d3.scaleLinear().domain([yMin - 1, yMax + 1]).range([height, 0]);
+    const yScale = d3.scaleLinear().domain([yMin, yMax]).range([height, 0]);
 
     const xAxis = d3.axisBottom(xScale);
     const yAxis = d3.axisLeft(yScale);
@@ -40,16 +43,27 @@
     svg.append("g")
         .call(yAxis);
 
-    const line = d3.line()
+    // Linear connections
+    const linear = d3.line()
+        .x((d, i) => xScale(origXs[i]))
+        .y(d => yScale(d));
+    svg.append("path")
+        .attr("d", linear(origYs))
+        .attr("stroke", "gray")
+        .attr("stroke-width", "1")
+        .attr("fill", "none");
+
+    // Interpolated line
+    const interp = d3.line()
         .x((d, i) => xScale(pxs[i]))
         .y(d => yScale(d));
-
     svg.append("path")
-        .attr("d", line(pys))
+        .attr("d", interp(pys))
         .attr("stroke", "blue")
         .attr("stroke-width", "2")
         .attr("fill", "none");
 
+    // Dots on the original points
     svg.selectAll(".dot")
         .data(origYs)
         .enter().append("circle")
@@ -108,5 +122,15 @@
 
         const step = (end - start) / (numPoints - 1);
         return new Array(numPoints).fill(null).map((_, i) => start + i * step);
+    }
+
+    // calcSinc calculates the sinc(x) function and returns a y value.
+    // https://en.wikipedia.org/wiki/Sinc_function
+    function calcSinc(x) {
+        if (x == 0) {
+            return 1
+        } else {
+            return Math.sin(Math.PI * x) / (Math.PI * x);
+        }
     }
 </script>
