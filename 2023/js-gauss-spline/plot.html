@@ -6,6 +6,9 @@
     import { buildSplineEquations } from "./spline.js";
     import { solve } from "./eqsolve.js";
 
+    // origXs, origYs is the original set of points we're going to be
+    // interpolating between.
+
     // const origXs = [0, 1, 2];
     // const origYs = [1, 3, 2];
 
@@ -23,8 +26,8 @@
     const yMax = d3.max([...origYs]);
 
     const margin = { top: 20, right: 20, bottom: 40, left: 40 };
-    const width = 500 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const width = document.querySelector('#chart').getAttribute('width') - margin.left - margin.right;
+    const height = document.querySelector('#chart').getAttribute('height') - margin.top - margin.bottom;
 
     const svg = d3.select("#chart")
         .append("g")
@@ -72,11 +75,11 @@
         .attr("class", "dot")
         .attr("cx", (d, i) => xScale(origXs[i]))
         .attr("cy", d => yScale(d))
-        .attr("r", 5);
+        .attr("r", 3);
 
-    // doInterpolate uses cubic spline interpolation to create N new points between
-    // xs and calculates their ys, returning [pxs, pys] - the (x,y) coords of the
-    // interpolated points.
+    // doInterpolate uses cubic spline interpolation to create N new points
+    // between xs and calculates their ys, returning [pxs, pys] - the (x,y)
+    // coords of the interpolated points.
     function doInterpolate(xs, ys, N) {
         // Perform interpolation on xs, ys to get the coefficients of the splines.
         let [A, b] = buildSplineEquations(xs, ys);
