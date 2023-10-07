@@ -79,7 +79,6 @@ function print2DArray(arr) {
     let ys = [2, 3, 9, 10];
     let [A, b] = buildSplineEquations(xs, ys);
     let coeffs = solve(A, b);
-    console.log(coeffs);
 
     assertArraysAlmostEqual(coeffs, [0.19956, -0.59868, 0.30043, 2.09868, -0.37280, 4.55263, -15.1535, 17.55263, 0.11549, -2.771929, 21.46929, -43.4853]);
 }

@@ -80,14 +80,3 @@ export function buildSplineEquations(xs, ys) {
 
     return [A, b];
 }
-
-// TODO: clean up
-// let xs = [0, 1, 2];
-// let ys = [1, 3, 2];
-
-// let [A, b] = buildSplineEquations(xs, ys);
-// print2DArray(A);
-// console.log(`----\nb = ${b}`);
-
-
-
