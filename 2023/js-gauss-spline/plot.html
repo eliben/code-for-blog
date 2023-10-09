@@ -84,6 +84,7 @@
         // Perform interpolation on xs, ys to get the coefficients of the splines.
         let [A, b] = buildSplineEquations(xs, ys);
         let coeffs = solve(A, b);
+        console.log(coeffs);
 
         // Create N points linearly spaced between the min and max of xs, and
         // calculate the corresponding py for each px using the appropriate curve.
