@@ -1,5 +1,8 @@
 // Code to solve a system of linear equations using Gauss-Jordan elimination.
 // The main entry point is the solve() function.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 'use strict';
 
 // This code uses an array-of-arrays representation of 2D matrices, e.g.:

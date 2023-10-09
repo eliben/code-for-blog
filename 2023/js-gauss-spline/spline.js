@@ -1,3 +1,11 @@
+// Cubic spline interpolation. Given a set of points, this code generates the
+// system of linear equations that needs to be solved to find the coefficients
+// of the cubic polynomials that interpolate the points. It uses the natural
+// boundary conditions to complete the set of equations.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 'use strict';
 
 // xs is an array of x coordinates (sorted from left to right), ys is an array
