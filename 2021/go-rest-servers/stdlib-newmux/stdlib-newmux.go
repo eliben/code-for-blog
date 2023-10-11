@@ -89,6 +89,7 @@ func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
 	id, err := strconv.Atoi(req.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
 	}
 
 	task, err := ts.store.GetTask(id)
@@ -106,11 +107,13 @@ func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request
 	id, err := strconv.Atoi(req.PathValue("id"))
 	if err != nil {
 		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
 	}
 	err = ts.store.DeleteTask(id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 }
 
