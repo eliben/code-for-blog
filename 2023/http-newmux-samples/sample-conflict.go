@@ -12,13 +12,13 @@ import (
 
 func main() {
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /path/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "got path\n")
-	})
-
-	mux.HandleFunc("/task/{id}/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/task/{id}/status/", func(w http.ResponseWriter, r *http.Request) {
 		id := r.PathValue("id")
-		fmt.Fprintf(w, "handling task with id=%v\n", id)
+		fmt.Fprintf(w, "handling task status with id=%v\n", id)
+	})
+	mux.HandleFunc("/task/0/{action}/", func(w http.ResponseWriter, r *http.Request) {
+		action := r.PathValue("action")
+		fmt.Fprintf(w, "handling task 0 with action=%v\n", action)
 	})
 
 	http.ListenAndServe("localhost:8090", mux)
