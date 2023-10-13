@@ -1,4 +1,5 @@
-// Basic example of a REST server with several routes, using TODO
+// Basic example of a REST server with several routes, using the new, enhanced
+// matching capabilities of net/http.ServeMux in Go 1.22
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
