@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
 <head>
     <title>Access API through CORS</title>
@@ -14,10 +15,10 @@
         }
       })
       .then(data => {
-        document.writeln(data.message);
+        document.body.innerHTML += data.message;
       })
       .catch(error => {
-        document.writeln("ERROR: ", error);
+        document.body.innerHTML += "ERROR: " + error;
       });
   </script>
 </body>
