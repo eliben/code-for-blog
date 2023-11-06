@@ -40,17 +40,19 @@ func main() {
 	}
 }
 
+// answerQuestion is a scripted interaction with the OpenAI API using RAG.
+// It takes a question (constant theQuestion), finds the most relevant
+// chunks of information to it and places them in the context for the question
+// to get a good answer from the LLM.
 func answerQuestion(dbPath string) {
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-
-	qEmb := getEmbedding(theQuestion)
 
 	// Connect to the SQLite database
 	db, err := sql.Open("sqlite3", dbPath)
 	checkErr(err)
 	defer db.Close()
 
-	// Prepare the SQL query
+	// SQL query to extract chunks' content along with embeddings.
 	stmt, err := db.Prepare(`
 		SELECT chunks.path, chunks.content, embeddings.embedding
 		FROM chunks
@@ -60,7 +62,6 @@ func answerQuestion(dbPath string) {
 	checkErr(err)
 	defer stmt.Close()
 
-	// Execute the query
 	rows, err := stmt.Query()
 	if err != nil {
 		log.Fatal(err)
@@ -74,7 +75,9 @@ func answerQuestion(dbPath string) {
 	}
 	var scores []scoreRecord
 
-	// Iterate through the rows
+	// Iterate through the rows, scoring each chunk with cosine similarity to
+	// the question's embedding.
+	qEmb := getEmbedding(theQuestion)
 	for rows.Next() {
 		var (
 			path      string
@@ -94,7 +97,6 @@ func answerQuestion(dbPath string) {
 		scores = append(scores, scoreRecord{path, score, content})
 		fmt.Println(path, score)
 	}
-
 	if err = rows.Err(); err != nil {
 		log.Fatal(err)
 	}
@@ -106,11 +108,14 @@ func answerQuestion(dbPath string) {
 		return int(100.0 * (a.Score - b.Score))
 	})
 
+	// Take the 3 best-scoring chunks as context and paste them together into
+	// contextInfo.
 	var contextInfo string
 	for i := len(scores) - 1; i > len(scores)-4; i-- {
 		contextInfo = contextInfo + "\n" + scores[i].Content
 	}
 
+	// Build the prompt and execute the LLM API.
 	query := fmt.Sprintf(`Use the below information to answer the subsequent question. If the answer cannot be found, write "I don't know."
 Information:
 \"\"\"
@@ -141,6 +146,9 @@ Question: %v`, contextInfo, theQuestion)
 	fmt.Println(string(b))
 }
 
+// calculateEmbeddings calculates embeddings for all chunks listed in the
+// given DB using the OpenAI API, and stores them back into the "embeddings"
+// table in the same DB.
 func calculateEmbeddings(dbPath string) {
 	db, err := sql.Open("sqlite3", dbPath)
 	checkErr(err)
@@ -162,6 +170,8 @@ func calculateEmbeddings(dbPath string) {
 	checkErr(err)
 	defer rows.Close()
 
+	// Step 1: calculate embeddings for all chunks in the DB, storing them in
+	// embs.
 	type embData struct {
 		id   int
 		data []byte
@@ -190,6 +200,7 @@ func calculateEmbeddings(dbPath string) {
 	}
 	rows.Close()
 
+	// Step 2: insert all embedding data into the embeddings table.
 	for _, emb := range embs {
 		fmt.Println("Inserting into embeddings, id", emb.id)
 		_, err = db.Exec("INSERT INTO embeddings VALUES (?, ?)", emb.id, emb.data)
@@ -237,7 +248,6 @@ func decodeEmbedding(b []byte) []float32 {
 		checkErr(err)
 		numbers = append(numbers, num)
 	}
-
 	return numbers
 }
 
