@@ -1,7 +1,6 @@
-// Takes a path to a directory that contains ".md" files (including in nested
-// subdirs), reads each .md file and splits it to chunks of approximately
-// chunkSize (constant setting) tokens, as counted by tiktoken.
-// Each chunk is stored in a SQLite DB in a table named chunks.
+// Command chunker processes a directory of MarkDown files, splitting all
+// content to chunks of roughly the same size, and stores each chunk along
+// with identifying information into a SQLite database.
 package main
 
 import (
@@ -107,7 +106,8 @@ func breakToChunks(path string) []string {
 	return chunks
 }
 
-// Custom split function for bufio.Scanner to split by paragraphs
+// splitByParagraph is a custom split function for bufio.Scanner to split by
+// paragraphs (text pieces separated by two newlines).
 func splitByParagraph(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	if i := bytes.Index(data, []byte("\n\n")); i >= 0 {
 		return i + 2, bytes.TrimSpace(data[:i]), nil

@@ -25,6 +25,8 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
+const theQuestion = "what does GOTOOLCHAIN mean in go"
+
 func main() {
 	dbPath := flag.String("db", "chunks.db", "path to DB with chunks")
 	doCalculate := flag.Bool("calculate", false, "calculate embeddings and update DB")
@@ -40,7 +42,6 @@ func main() {
 
 func answerQuestion(dbPath string) {
 	client := openai.NewClient(os.Getenv("OPENAI_API_KEY"))
-	const theQuestion = "what does GOTOOLCHAIN mean in go"
 
 	qEmb := getEmbedding(theQuestion)
 
