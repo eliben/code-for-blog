@@ -144,6 +144,9 @@ Question: %v`, contextInfo, theQuestion)
 		log.Fatal(err)
 	}
 	fmt.Println(string(b))
+
+	choice := resp.Choices[0]
+	fmt.Println(choice.Message.Content)
 }
 
 // calculateEmbeddings calculates embeddings for all chunks listed in the
