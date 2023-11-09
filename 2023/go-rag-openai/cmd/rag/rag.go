@@ -121,12 +121,11 @@ func answerQuestion(dbPath string) {
 	// Build the prompt and execute the LLM API.
 	query := fmt.Sprintf(`Use the below information to answer the subsequent question.
 Information:
-\"\"\"
 %v
-\"\"\"
 
 Question: %v`, contextInfo, theQuestion)
 
+	fmt.Println("Query:\n", query)
 	resp, err := client.CreateChatCompletion(
 		context.Background(),
 		openai.ChatCompletionRequest{
