@@ -6,6 +6,9 @@
 //
 // Run with --answer to augment the question with the most relevant information
 // found in the DB.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -25,7 +28,7 @@ import (
 	"github.com/sashabaranov/go-openai"
 )
 
-const theQuestion = "what does GOTOOLCHAIN mean in go"
+const theQuestion = "what does GOTOOLCHAIN mean in go?"
 
 func main() {
 	dbPath := flag.String("db", "chunks.db", "path to DB with chunks")

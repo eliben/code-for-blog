@@ -7,7 +7,7 @@ Then, run the embeddings calculation to store embeddings into the DB:
     export OPENAI_API_KEY=<key>
     go run ./cmd/rag --calculate --db chunks.db
 
-Caution! This can consume a bunch of OpenAI credit for embeddings. Now we
+Caution! This can consume a bunch of OpenAI credits for embeddings. Now we
 can answer the question using context:
 
     go run ./cmd/rag --answer --db chunks.db

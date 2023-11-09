@@ -1,6 +1,9 @@
-// Command chunker processes a directory of MarkDown files, splitting all
-// content to chunks of roughly the same size, and stores each chunk along
-// with identifying information into a SQLite database.
+// Command chunker processes a directory of Markdown files, splitting all
+// content to chunks of roughly the same size, and stores each chunk along with
+// identifying information into a SQLite database.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
