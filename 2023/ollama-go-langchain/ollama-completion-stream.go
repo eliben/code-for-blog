@@ -1,3 +1,7 @@
+// Sample of using Ollama's streaming completion API through LangChainGo.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
