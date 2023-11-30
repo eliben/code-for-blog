@@ -26,7 +26,7 @@ var GithubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 
 func main() {
 	http.HandleFunc("/", rootHandler)
-	http.HandleFunc("/login/github/", githubLoginHandler)
+	http.HandleFunc("/login/", githubLoginHandler)
 	http.HandleFunc("/github/callback/", githubCallbackHandler)
 
 	// Route where the authenticated user is redirected to
@@ -42,18 +42,20 @@ func main() {
 const rootHTML = `
 <h1>My web app</h1>
 <p>You can log into this app with your GitHub credentials:</p>
-<p><a href="/login/github/">Log in with GitHub</a></p>
+<p><a href="/login/">Log in with GitHub</a></p>
 `
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, rootHTML)
 }
 
+// TODO: generate state and set it in a cookie, then test it when
+// it comes back
 func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 1: Request a user's GitHub identity. We're not setting
 	// redirect_uri, leaving it to GitHub to use the default we set
 	// for this application: /github/callback
-	redirectURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s", GithubClientID)
+	redirectURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&state=%s", GithubClientID, "foobar")
 	http.Redirect(w, r, redirectURL, 301)
 }
 
