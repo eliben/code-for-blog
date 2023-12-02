@@ -13,18 +13,25 @@ package main
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 var GithubClientID = os.Getenv("GITHUB_CLIENT_ID")
 var GithubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 
 func main() {
+	if len(GithubClientID) == 0 || len(GithubClientSecret) == 0 {
+		log.Fatal("Set GITHUB_CLIENT_* env vars")
+	}
+
 	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/login/", githubLoginHandler)
 	http.HandleFunc("/github/callback/", githubCallbackHandler)
@@ -55,13 +62,34 @@ func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 1: Request a user's GitHub identity. We're not setting
 	// redirect_uri, leaving it to GitHub to use the default we set
 	// for this application: /github/callback
-	redirectURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&state=%s", GithubClientID, "foobar")
+	//
+	// We're setting a random state cookie for the client to return
+	// to us when the call comes back, to prevent CSRF.
+	state, err := randString(16)
+	if err != nil {
+		panic(err)
+	}
+	setShortCookie(w, r, "state", state)
+	redirectURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&state=%s", GithubClientID, state)
 	http.Redirect(w, r, redirectURL, 301)
 }
 
 func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 2: Users are redirected back to your site by GitHub
 	// The user is authenticated w/ GitHub by this point.
+	//
+	// Start by checking the state returned by GitHub matches what
+	// we've stored in the cookie.
+	state, err := r.Cookie("state")
+	if err != nil {
+		http.Error(w, "state not found", http.StatusBadRequest)
+		return
+	}
+	if r.URL.Query().Get("state") != state.Value {
+		http.Error(w, "state did not match", http.StatusBadRequest)
+		return
+	}
+
 	// GH provides us a code we can use to ask for information about the user.
 	code := r.URL.Query().Get("code")
 
@@ -86,7 +114,7 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		log.Panic("Request failed")
 	}
 
-	respbody, _ := ioutil.ReadAll(resp.Body)
+	respbody, _ := io.ReadAll(resp.Body)
 
 	// Represents the response received from Github
 	type githubAccessTokenResponse struct {
@@ -120,8 +148,7 @@ func getGithubData(accessToken string) string {
 		log.Panic("Request failed")
 	}
 
-	respbody, _ := ioutil.ReadAll(resp.Body)
-
+	respbody, _ := io.ReadAll(resp.Body)
 	return string(respbody)
 }
 
@@ -144,4 +171,26 @@ func loggedinHandler(w http.ResponseWriter, r *http.Request, githubData string) 
 
 	// Return the prettified JSON as a string
 	fmt.Fprintf(w, string(prettyJSON.Bytes()))
+}
+
+// randString generates a random string of length n and returns its
+// base64-encoded version.
+func randString(n int) (string, error) {
+	buf := make([]byte, n)
+	if _, err := rand.Read(buf); err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(buf), nil
+}
+
+func setShortCookie(w http.ResponseWriter, r *http.Request, name, value string) {
+	c := &http.Cookie{
+		Name:     name,
+		Value:    value,
+		Path:     "/",
+		MaxAge:   int(time.Hour.Seconds()),
+		Secure:   r.TLS != nil,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, c)
 }
