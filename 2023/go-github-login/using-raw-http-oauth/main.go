@@ -66,12 +66,21 @@ func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	// We're setting a random state cookie for the client to return
 	// to us when the call comes back, to prevent CSRF per
 	// section 10.12 of https://www.rfc-editor.org/rfc/rfc6749.html
-	//
 	state, err := randString(16)
 	if err != nil {
 		panic(err)
 	}
-	setShortCookie(w, r, "state", state)
+
+	c := &http.Cookie{
+		Name:     "state",
+		Value:    state,
+		Path:     "/",
+		MaxAge:   int(time.Hour.Seconds()),
+		Secure:   r.TLS != nil,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, c)
+
 	redirectURL := fmt.Sprintf("https://github.com/login/oauth/authorize?client_id=%s&state=%s", GithubClientID, state)
 	http.Redirect(w, r, redirectURL, 301)
 }
@@ -168,18 +177,4 @@ func randString(n int) (string, error) {
 		return "", err
 	}
 	return base64.RawURLEncoding.EncodeToString(buf), nil
-}
-
-// setShortCookie sets a short-duration cookie with the given name and value
-// in the response to the client.
-func setShortCookie(w http.ResponseWriter, r *http.Request, name, value string) {
-	c := &http.Cookie{
-		Name:     name,
-		Value:    value,
-		Path:     "/",
-		MaxAge:   int(time.Hour.Seconds()),
-		Secure:   r.TLS != nil,
-		HttpOnly: true,
-	}
-	http.SetCookie(w, c)
 }
