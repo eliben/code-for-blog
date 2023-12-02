@@ -7,8 +7,8 @@
 // There's also a GH tutorial for this on:
 // https://docs.github.com/en/apps/creating-github-apps/writing-code-for-a-github-app/building-a-login-with-github-button-with-a-github-app
 //
-// Originally taken from https://sharmarajdaksh.github.io/blog/github-oauth-with-go
-// but extensively rewritten.
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -24,6 +24,8 @@ import (
 	"time"
 )
 
+// These should be taken from your GitHub application settings
+// at https://github.com/settings/developers
 var GithubClientID = os.Getenv("GITHUB_CLIENT_ID")
 var GithubClientSecret = os.Getenv("GITHUB_CLIENT_SECRET")
 
@@ -52,9 +54,13 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
-	// Step 1: Request a user's GitHub identity. We're not setting
-	// redirect_uri, leaving it to GitHub to use the default we set
-	// for this application: /github/callback
+	// Step 1: Request a user's GitHub identity
+	//
+	// ... by redirecting the user's browser to a GitHub login endpoint. We're not
+	// setting redirect_uri, leaving it to GitHub to use the default we set for
+	// this application: /github/callback
+	// We're also not asking for any specific scope, because we only need access
+	// to the user's public information to know that the user is really logged in.
 	//
 	// We're setting a random state cookie for the client to return
 	// to us when the call comes back, to prevent CSRF.
@@ -69,7 +75,10 @@ func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 2: Users are redirected back to your site by GitHub
-	// The user is authenticated w/ GitHub by this point.
+	//
+	// The user is authenticated w/ GitHub by this point, and GH provides us
+	// a temporary code we can exchange for an access token using the app's
+	// full credentials.
 	//
 	// Start by checking the state returned by GitHub matches what
 	// we've stored in the cookie.
@@ -83,11 +92,9 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// GH provides us a code we can use to ask for information about the user.
-	code := r.URL.Query().Get("code")
-
 	// We use the code, alongside our client ID and secret to ask GH for an
 	// access token to the API.
+	code := r.URL.Query().Get("code")
 	requestBodyMap := map[string]string{
 		"client_id":     GithubClientID,
 		"client_secret": GithubClientSecret,
@@ -110,7 +117,6 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "unable to connect to access_token endpoint", http.StatusInternalServerError)
 		return
 	}
-
 	respbody, _ := io.ReadAll(resp.Body)
 
 	// Represents the response received from Github
@@ -121,8 +127,11 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	json.Unmarshal(respbody, &ghresp)
 
-	// Step 3: Use the access token to access the API and present
-	// information to the user.
+	// Step 3: Use the access token to access the API
+	//
+	// With the access token in hand, we can access the GitHub API on behalf
+	// of the user. Since we didn't provide a scope, we only get access to
+	// the user's public information.
 	userInfo := getGitHubUserInfo(ghresp.AccessToken)
 
 	w.Header().Set("Content-type", "application/json")
@@ -158,6 +167,8 @@ func randString(n int) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(buf), nil
 }
 
+// setShortCookie sets a short-duration cookie with the given name and value
+// in the response to the client.
 func setShortCookie(w http.ResponseWriter, r *http.Request, name, value string) {
 	c := &http.Cookie{
 		Name:     name,
