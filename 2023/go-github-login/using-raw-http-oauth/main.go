@@ -36,11 +36,6 @@ func main() {
 	http.HandleFunc("/login/", githubLoginHandler)
 	http.HandleFunc("/github/callback/", githubCallbackHandler)
 
-	// Route where the authenticated user is redirected to
-	http.HandleFunc("/loggedin", func(w http.ResponseWriter, r *http.Request) {
-		loggedinHandler(w, r, "")
-	})
-
 	addr := "localhost:8080"
 	fmt.Printf("Listening on: http://%s\n", addr)
 	log.Panic(http.ListenAndServe(addr, nil))
@@ -56,8 +51,6 @@ func rootHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, rootHTML)
 }
 
-// TODO: generate state and set it in a cookie, then test it when
-// it comes back
 func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	// Step 1: Request a user's GitHub identity. We're not setting
 	// redirect_uri, leaving it to GitHub to use the default we set
@@ -100,77 +93,59 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		"client_secret": GithubClientSecret,
 		"code":          code,
 	}
-	requestJSON, _ := json.Marshal(requestBodyMap)
+	requestJSON, err := json.Marshal(requestBodyMap)
+	if err != nil {
+		panic(err)
+	}
 
-	req, reqerr := http.NewRequest("POST", "https://github.com/login/oauth/access_token", bytes.NewBuffer(requestJSON))
-	if reqerr != nil {
-		log.Panic("Request creation failed")
+	req, err := http.NewRequest("POST", "https://github.com/login/oauth/access_token", bytes.NewBuffer(requestJSON))
+	if err != nil {
+		panic(err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "application/json")
 
-	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil {
-		log.Panic("Request failed")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		http.Error(w, "unable to connect to access_token endpoint", http.StatusInternalServerError)
+		return
 	}
 
 	respbody, _ := io.ReadAll(resp.Body)
 
 	// Represents the response received from Github
-	type githubAccessTokenResponse struct {
+	var ghresp struct {
 		AccessToken string `json:"access_token"`
 		TokenType   string `json:"token_type"`
 		Scope       string `json:"scope"`
 	}
-
-	var ghresp githubAccessTokenResponse
 	json.Unmarshal(respbody, &ghresp)
 
-	accessToken := ghresp.AccessToken
+	// Step 3: Use the access token to access the API and present
+	// information to the user.
+	userInfo := getGitHubUserInfo(ghresp.AccessToken)
 
-	// Step 3: Use the access token to access the API
-	githubData := getGithubData(accessToken)
-	loggedinHandler(w, r, githubData)
+	w.Header().Set("Content-type", "application/json")
+	fmt.Fprint(w, string(userInfo))
 }
 
-func getGithubData(accessToken string) string {
+// getGitHubUserInfo queries GitHub's user API for information about the
+// authorized user, given the access token received earlier.
+func getGitHubUserInfo(accessToken string) string {
 	// Query the GH API for user info
-	req, reqerr := http.NewRequest("GET", "https://api.github.com/user", nil)
-	if reqerr != nil {
-		log.Panic("API Request creation failed")
+	req, err := http.NewRequest("GET", "https://api.github.com/user", nil)
+	if err != nil {
+		panic(err)
 	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
 
-	authorizationHeaderValue := fmt.Sprintf("Bearer %s", accessToken)
-	req.Header.Set("Authorization", authorizationHeaderValue)
-
-	resp, resperr := http.DefaultClient.Do(req)
-	if resperr != nil {
-		log.Panic("Request failed")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		panic(err)
 	}
 
 	respbody, _ := io.ReadAll(resp.Body)
 	return string(respbody)
-}
-
-func loggedinHandler(w http.ResponseWriter, r *http.Request, githubData string) {
-	if githubData == "" {
-		// Unauthorized users get an unauthorized message
-		fmt.Fprintf(w, "UNAUTHORIZED!")
-		return
-	}
-
-	w.Header().Set("Content-type", "application/json")
-
-	// Prettifying the json
-	var prettyJSON bytes.Buffer
-	// json.indent is a library utility function to prettify JSON indentation
-	parserr := json.Indent(&prettyJSON, []byte(githubData), "", "\t")
-	if parserr != nil {
-		log.Panic("JSON parse error")
-	}
-
-	// Return the prettified JSON as a string
-	fmt.Fprintf(w, string(prettyJSON.Bytes()))
 }
 
 // randString generates a random string of length n and returns its
