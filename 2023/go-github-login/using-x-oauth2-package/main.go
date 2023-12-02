@@ -30,7 +30,8 @@ func main() {
 	addr := "localhost:8080"
 	callbackPath := "/github/callback/"
 
-	// Note: github auth doesn't support PKCE verification
+	// Note: github auth doesn't support PKCE verification, so we
+	// don't need oauth2.GenerateVerifier.
 	// See https://www.rfc-editor.org/rfc/rfc7636.html for what it is
 	conf := &oauth2.Config{
 		ClientID:     GithubClientID,
@@ -72,7 +73,7 @@ func (lf *loginFlow) githubLoginHandler(w http.ResponseWriter, r *http.Request) 
 	}
 	setShortCookie(w, r, "state", state)
 
-	redirectURL := lf.conf.AuthCodeURL(state, oauth2.AccessTypeOffline)
+	redirectURL := lf.conf.AuthCodeURL(state)
 	http.Redirect(w, r, redirectURL, 301)
 }
 
