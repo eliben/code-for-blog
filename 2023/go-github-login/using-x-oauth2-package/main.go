@@ -67,11 +67,21 @@ func (lf *loginFlow) rootHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (lf *loginFlow) githubLoginHandler(w http.ResponseWriter, r *http.Request) {
+	// Generate a random state for CSRF protection and set it in a cookie.
 	state, err := randString(16)
 	if err != nil {
 		panic(err)
 	}
-	setShortCookie(w, r, "state", state)
+
+	c := &http.Cookie{
+		Name:     "state",
+		Value:    state,
+		Path:     "/",
+		MaxAge:   int(time.Hour.Seconds()),
+		Secure:   r.TLS != nil,
+		HttpOnly: true,
+	}
+	http.SetCookie(w, c)
 
 	redirectURL := lf.conf.AuthCodeURL(state)
 	http.Redirect(w, r, redirectURL, 301)
@@ -116,18 +126,4 @@ func randString(n int) (string, error) {
 		return "", err
 	}
 	return base64.RawURLEncoding.EncodeToString(buf), nil
-}
-
-// setShortCookie sets a short-duration cookie with the given name and value
-// in the response to the client.
-func setShortCookie(w http.ResponseWriter, r *http.Request, name, value string) {
-	c := &http.Cookie{
-		Name:     name,
-		Value:    value,
-		Path:     "/",
-		MaxAge:   int(time.Hour.Seconds()),
-		Secure:   r.TLS != nil,
-		HttpOnly: true,
-	}
-	http.SetCookie(w, c)
 }
