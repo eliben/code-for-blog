@@ -64,7 +64,9 @@ func githubLoginHandler(w http.ResponseWriter, r *http.Request) {
 	// to the user's public information to know that the user is really logged in.
 	//
 	// We're setting a random state cookie for the client to return
-	// to us when the call comes back, to prevent CSRF.
+	// to us when the call comes back, to prevent CSRF per
+	// section 10.12 of https://www.rfc-editor.org/rfc/rfc6749.html
+	//
 	state, err := randString(16)
 	if err != nil {
 		panic(err)

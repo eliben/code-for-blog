@@ -3,16 +3,16 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/dghubble/gologin/v2"
 	"github.com/dghubble/gologin/v2/github"
 	"golang.org/x/oauth2"
-	githubOAuth2 "golang.org/x/oauth2/github"
+	oauth2github "golang.org/x/oauth2/github"
 )
 
 // These should be taken from your GitHub application settings
@@ -32,17 +32,11 @@ func main() {
 		ClientID:     GithubClientID,
 		ClientSecret: GithubClientSecret,
 		Scopes:       []string{},
-		Endpoint:     githubOAuth2.Endpoint,
+		Endpoint:     oauth2github.Endpoint,
 	}
 
-	cookieConf := gologin.CookieConfig{
-		Name:     "state",
-		Path:     "/",
-		MaxAge:   int(time.Hour.Seconds()),
-		Secure:   false, // set to true when serving TLS
-		HTTPOnly: true,
-	}
-
+	// gologin has a default cookie configuration for debug deployments (no TLS).
+	cookieConf := gologin.DebugOnlyCookieConfig
 	http.HandleFunc("/", rootHandler)
 
 	loginHandler := github.LoginHandler(conf, nil)
@@ -75,5 +69,6 @@ func githubCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-type", "application/json")
-	fmt.Fprint(w, githubUser.String())
+	buf, _ := json.Marshal(githubUser)
+	fmt.Fprint(w, string(buf))
 }
