@@ -1,5 +1,8 @@
 // Users github.com/dghubble/gologin to simplify the OAuth 2 flow for GitHub
 // auth.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

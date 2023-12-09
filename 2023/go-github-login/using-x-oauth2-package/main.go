@@ -1,5 +1,8 @@
 // Uses golang.org/x/oauth2/github to simplify the workflow of oauth2 with
 // GitHub.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
