@@ -1,4 +1,4 @@
-// Example of using the Google AI Gemini model for multi-modal content.
+// Example of using the Vertex AI Gemini model for multi-modal content.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -11,13 +11,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/google/generative-ai-go/genai"
-	"google.golang.org/api/option"
+	"cloud.google.com/go/vertexai/genai"
 )
 
 func main() {
 	ctx := context.Background()
-	client, err := genai.NewClient(ctx, option.WithAPIKey(os.Getenv("API_KEY")))
+	client, err := genai.NewClient(ctx, os.Getenv("GCP_PROJECT_ID"), "us-central1")
 	if err != nil {
 		log.Fatal(err)
 	}
