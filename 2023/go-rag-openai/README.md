@@ -15,6 +15,11 @@ can answer the question using context:
 Note: this may take several seconds because we're sending a large (> 3000
 tokens) prompt to the LLM.
 
+Alternatively, in `cmd/gemini-rag` we have a Google Gemini-based rag tool with
+the same CLI. Note that its embeddings are incompatible with OpenAI's
+embeddings, so `--calculate` needs to be run separately and stored in a separate
+DB file.
+
 ----
 
 Exploring the chunks DB from the command-line:
