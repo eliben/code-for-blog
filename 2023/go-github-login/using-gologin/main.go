@@ -1,4 +1,4 @@
-// Users github.com/dghubble/gologin to simplify the OAuth 2 flow for GitHub
+// Uses github.com/dghubble/gologin to simplify the OAuth 2 flow for GitHub
 // auth.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
