@@ -1,3 +1,8 @@
+// The flow here follows the documentation page at
+// https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -6,7 +11,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"os"
 
 	"google.golang.org/api/idtoken"
@@ -15,11 +19,11 @@ import (
 // This should be taken from https://console.cloud.google.com/apis/credentials
 var GoogleClientID = os.Getenv("GOOGLE_CLIENT_ID")
 
-const servingAddress = "localhost:8080"
 const servingSchema = "http://"
+const servingAddress = "localhost:8080"
 const callbackPath = "/google/callback"
 
-var homeHtmlTemplate = template.Must(template.New("home").Parse(`
+var rootHtmlTemplate = template.Must(template.New("root").Parse(`
 <!DOCTYPE html>
 <html>
 <body>
@@ -51,18 +55,15 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", homeHandler)
+	mux.HandleFunc("/", rootHandler)
 	mux.HandleFunc(callbackPath, callbackHandler)
 
-	log.Printf("Starting Server listening on %s%s\n", servingSchema, servingAddress)
-	err := http.ListenAndServe(servingAddress, mux)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
-	}
+	log.Printf("Listening on: %s%s\n", servingSchema, servingAddress)
+	log.Panic(http.ListenAndServe(servingAddress, mux))
 }
 
-func homeHandler(w http.ResponseWriter, req *http.Request) {
-	err := homeHtmlTemplate.Execute(w, map[string]string{
+func rootHandler(w http.ResponseWriter, req *http.Request) {
+	err := rootHtmlTemplate.Execute(w, map[string]string{
 		"CallbackUrl": servingSchema + servingAddress + callbackPath,
 		"ClientID":    GoogleClientID,
 	})
@@ -72,11 +73,6 @@ func homeHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func callbackHandler(w http.ResponseWriter, req *http.Request) {
-	b, err := httputil.DumpRequest(req, false)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(b))
 	defer req.Body.Close()
 
 	if err := req.ParseForm(); err != nil {
@@ -84,6 +80,11 @@ func callbackHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// The following steps follow
+	// https://developers.google.com/identity/gsi/web/guides/verify-google-id-token
+	//
+	// 1. Verify the CSRF token, which uses the double-submit-cookie pattern and
+	//    is added both as a cookie value and post body.
 	token, err := req.Cookie("g_csrf_token")
 	if err != nil {
 		http.Error(w, "token not found", http.StatusBadRequest)
@@ -95,18 +96,22 @@ func callbackHandler(w http.ResponseWriter, req *http.Request) {
 		http.Error(w, "token mismatch", http.StatusBadRequest)
 	}
 
+	// 2. Verify the ID token, which is returned in the `credential` field.
+	//    We use the idtoken package for this. `audience` is our client ID.
 	ctx := context.Background()
 	validator, err := idtoken.NewValidator(ctx)
 	if err != nil {
 		panic(err)
 	}
 	credential := req.FormValue("credential")
-	claims, err := validator.Validate(ctx, credential, GoogleClientID)
+	payload, err := validator.Validate(ctx, credential, GoogleClientID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 
-	for k, v := range claims.Claims {
+	// 3. Once the token's validity is confirmed, we can use the user identifying
+	//    information in the Google ID token.
+	for k, v := range payload.Claims {
 		fmt.Printf("%v: %v\n", k, v)
 	}
 }
