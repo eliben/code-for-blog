@@ -9,6 +9,7 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -63,9 +64,11 @@ type loginFlow struct {
 	provider *oidc.Provider
 }
 
-// rootHandler simply redirects the user to the Google log-in endpoint.
 func (lf *loginFlow) rootHandler(w http.ResponseWriter, req *http.Request) {
-	// Generate a random state CSRF token and safe it in a cookie.
+	// These steps (and the ones in callbackHandler) follow the flow outlined in
+	// https://developers.google.com/identity/openid-connect/openid-connect
+	//
+	// 1. Create an anti-forgery state token and save it in a cookie.
 	state, err := randString(16)
 	if err != nil {
 		http.Error(w, "Internal error", http.StatusInternalServerError)
@@ -80,11 +83,14 @@ func (lf *loginFlow) rootHandler(w http.ResponseWriter, req *http.Request) {
 		HttpOnly: true,
 	}
 	http.SetCookie(w, c)
+
+	// 2. Send an authentication request to Google by redirecting the user to
+	//    Google's auth endpoint.
 	http.Redirect(w, req, lf.conf.AuthCodeURL(state), http.StatusFound)
 }
 
 func (lf *loginFlow) callbackHandler(w http.ResponseWriter, req *http.Request) {
-	// Verify CSRF token.
+	// 3. Confirm anti-forgery state token.
 	state, err := req.Cookie("state")
 	if err != nil {
 		http.Error(w, "state not found", http.StatusBadRequest)
@@ -95,28 +101,26 @@ func (lf *loginFlow) callbackHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	// 4. Exchange code for access token and ID token.
 	oauth2Token, err := lf.conf.Exchange(context.Background(), req.URL.Query().Get("code"))
 	if err != nil {
 		http.Error(w, "Failed to exchange token: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// 5. Obtain user information from the ID token.
 	userInfo, err := lf.provider.UserInfo(context.Background(), oauth2.StaticTokenSource(oauth2Token))
 	if err != nil {
 		http.Error(w, "Failed to get userinfo: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	resp := struct {
-		OAuth2Token *oauth2.Token
-		UserInfo    *oidc.UserInfo
-	}{oauth2Token, userInfo}
-	data, err := json.MarshalIndent(resp, "", "    ")
+	b, err := json.MarshalIndent(userInfo, "", "    ")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write(data)
+	fmt.Println(string(b))
 }
 
 // randString generates a random string of length n and returns its
