@@ -7,8 +7,8 @@ package main
 import (
 	"fmt"
 	"go/ast"
+	"go/format"
 	"go/parser"
-	"go/printer"
 	"go/token"
 	"log"
 	"os"
@@ -61,5 +61,5 @@ func main() {
 	})
 
 	fmt.Println("Modified AST:")
-	printer.Fprint(os.Stdout, fset, file)
+	format.Node(os.Stdout, fset, file)
 }
