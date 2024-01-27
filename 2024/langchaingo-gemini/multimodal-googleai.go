@@ -34,17 +34,9 @@ func main() {
 	}
 
 	parts := []llms.ContentPart{
-		llms.BinaryContent{
-			MIMEType: "image/png",
-			Data:     imgData1,
-		},
-		llms.BinaryContent{
-			MIMEType: "image/png",
-			Data:     imgData2,
-		},
-		llms.TextContent{
-			Text: "Describe the difference between these two pictures, with scientific detail",
-		},
+		llms.BinaryPart("image/png", imgData1),
+		llms.BinaryPart("image/png", imgData2),
+		llms.TextPart("Describe the difference between these two pictures, with scientific detail"),
 	}
 
 	content := []llms.MessageContent{
