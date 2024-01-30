@@ -1,3 +1,7 @@
+// Basic example with a single text prompt using the Google AI provider.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
