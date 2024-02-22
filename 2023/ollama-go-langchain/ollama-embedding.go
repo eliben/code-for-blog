@@ -6,6 +6,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 
@@ -13,7 +14,10 @@ import (
 )
 
 func main() {
-	llm, err := ollama.New(ollama.WithModel("llama2"))
+	modelName := flag.String("model", "llama2", "ollama model name")
+	flag.Parse()
+
+	llm, err := ollama.New(ollama.WithModel(*modelName))
 	if err != nil {
 		log.Fatal(err)
 	}
