@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/tmc/langchaingo/llms"
 	"github.com/tmc/langchaingo/llms/ollama"
 )
 
@@ -21,7 +22,7 @@ func main() {
 	query := "very briefly, tell me the difference between a comet and a meteor"
 
 	ctx := context.Background()
-	completion, err := llm.Call(ctx, query)
+	completion, err := llms.GenerateFromSinglePrompt(ctx, llm, query)
 	if err != nil {
 		log.Fatal(err)
 	}
