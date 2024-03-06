@@ -1,3 +1,3 @@
 module example.com
 
-go 1.15
+go 1.22.1
