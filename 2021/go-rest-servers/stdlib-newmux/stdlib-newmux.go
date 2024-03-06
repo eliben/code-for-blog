@@ -1,6 +1,9 @@
 // Basic example of a REST server with several routes, using the new, enhanced
 // matching capabilities of net/http.ServeMux in Go 1.22
 //
+// The original examples have been later updated to use the new mux, so this
+// directory remains as a placeholder since there's a blog post pointing to it.
+//
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 package main
