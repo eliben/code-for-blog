@@ -1,6 +1,8 @@
-// Basic example of a REST server with several routes, using only the standard
-// library; same as stdlib-basic, but with JSON rendering refactored into
-// a helper function.
+// Basic example of a REST server with several routes, using the new, enhanced
+// matching capabilities of net/http.ServeMux in Go 1.22
+//
+// The original examples have been later updated to use the new mux, so this
+// directory remains as a placeholder since there's a blog post pointing to it.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -14,7 +16,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	"example.com/internal/taskstore"
@@ -38,44 +39,6 @@ func renderJSON(w http.ResponseWriter, v interface{}) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(js)
-}
-
-func (ts *taskServer) taskHandler(w http.ResponseWriter, req *http.Request) {
-	if req.URL.Path == "/task/" {
-		// Request is plain "/task/", without trailing ID.
-		if req.Method == http.MethodPost {
-			ts.createTaskHandler(w, req)
-		} else if req.Method == http.MethodGet {
-			ts.getAllTasksHandler(w, req)
-		} else if req.Method == http.MethodDelete {
-			ts.deleteAllTasksHandler(w, req)
-		} else {
-			http.Error(w, fmt.Sprintf("expect method GET, DELETE or POST at /task/, got %v", req.Method), http.StatusMethodNotAllowed)
-			return
-		}
-	} else {
-		// Request has an ID, as in "/task/<id>".
-		path := strings.Trim(req.URL.Path, "/")
-		pathParts := strings.Split(path, "/")
-		if len(pathParts) < 2 {
-			http.Error(w, "expect /task/<id> in task handler", http.StatusBadRequest)
-			return
-		}
-		id, err := strconv.Atoi(pathParts[1])
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-
-		if req.Method == http.MethodDelete {
-			ts.deleteTaskHandler(w, req, id)
-		} else if req.Method == http.MethodGet {
-			ts.getTaskHandler(w, req, id)
-		} else {
-			http.Error(w, fmt.Sprintf("expect method GET or DELETE at /task/<id>, got %v", req.Method), http.StatusMethodNotAllowed)
-			return
-		}
-	}
 }
 
 func (ts *taskServer) createTaskHandler(w http.ResponseWriter, req *http.Request) {
@@ -124,8 +87,14 @@ func (ts *taskServer) getAllTasksHandler(w http.ResponseWriter, req *http.Reques
 	renderJSON(w, allTasks)
 }
 
-func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
+func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling get task at %s\n", req.URL.Path)
+
+	id, err := strconv.Atoi(req.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
 
 	task, err := ts.store.GetTask(id)
 	if err != nil {
@@ -136,12 +105,19 @@ func (ts *taskServer) getTaskHandler(w http.ResponseWriter, req *http.Request, i
 	renderJSON(w, task)
 }
 
-func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request, id int) {
+func (ts *taskServer) deleteTaskHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling delete task at %s\n", req.URL.Path)
 
-	err := ts.store.DeleteTask(id)
+	id, err := strconv.Atoi(req.PathValue("id"))
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+	err = ts.store.DeleteTask(id)
+
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
+		return
 	}
 }
 
@@ -153,19 +129,7 @@ func (ts *taskServer) deleteAllTasksHandler(w http.ResponseWriter, req *http.Req
 func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling tasks by tag at %s\n", req.URL.Path)
 
-	if req.Method != http.MethodGet {
-		http.Error(w, fmt.Sprintf("expect method GET /tag/<tag>, got %v", req.Method), http.StatusMethodNotAllowed)
-		return
-	}
-
-	path := strings.Trim(req.URL.Path, "/")
-	pathParts := strings.Split(path, "/")
-	if len(pathParts) < 2 {
-		http.Error(w, "expect /tag/<tag> path", http.StatusBadRequest)
-		return
-	}
-	tag := pathParts[1]
-
+	tag := req.PathValue("tag")
 	tasks := ts.store.GetTasksByTag(tag)
 	renderJSON(w, tasks)
 }
@@ -173,34 +137,14 @@ func (ts *taskServer) tagHandler(w http.ResponseWriter, req *http.Request) {
 func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 	log.Printf("handling tasks by due at %s\n", req.URL.Path)
 
-	if req.Method != http.MethodGet {
-		http.Error(w, fmt.Sprintf("expect method GET /due/<date>, got %v", req.Method), http.StatusMethodNotAllowed)
-		return
-	}
-
-	path := strings.Trim(req.URL.Path, "/")
-	pathParts := strings.Split(path, "/")
-
 	badRequestError := func() {
 		http.Error(w, fmt.Sprintf("expect /due/<year>/<month>/<day>, got %v", req.URL.Path), http.StatusBadRequest)
 	}
-	if len(pathParts) != 4 {
-		badRequestError()
-		return
-	}
 
-	year, err := strconv.Atoi(pathParts[1])
-	if err != nil {
-		badRequestError()
-		return
-	}
-	month, err := strconv.Atoi(pathParts[2])
-	if err != nil || month < int(time.January) || month > int(time.December) {
-		badRequestError()
-		return
-	}
-	day, err := strconv.Atoi(pathParts[3])
-	if err != nil {
+	year, errYear := strconv.Atoi(req.PathValue("year"))
+	month, errMonth := strconv.Atoi(req.PathValue("month"))
+	day, errDay := strconv.Atoi(req.PathValue("day"))
+	if errYear != nil || errMonth != nil || errDay != nil || month < int(time.January) || month > int(time.December) {
 		badRequestError()
 		return
 	}
@@ -212,9 +156,14 @@ func (ts *taskServer) dueHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
 	mux := http.NewServeMux()
 	server := NewTaskServer()
-	mux.HandleFunc("/task/", server.taskHandler)
-	mux.HandleFunc("/tag/", server.tagHandler)
-	mux.HandleFunc("/due/", server.dueHandler)
+
+	mux.HandleFunc("POST /task/", server.createTaskHandler)
+	mux.HandleFunc("GET /task/", server.getAllTasksHandler)
+	mux.HandleFunc("DELETE /task/", server.deleteAllTasksHandler)
+	mux.HandleFunc("GET /task/{id}/", server.getTaskHandler)
+	mux.HandleFunc("DELETE /task/{id}/", server.deleteTaskHandler)
+	mux.HandleFunc("GET /tag/{tag}/", server.tagHandler)
+	mux.HandleFunc("GET /due/{year}/{month}/{day}/", server.dueHandler)
 
 	log.Fatal(http.ListenAndServe("localhost:"+os.Getenv("SERVERPORT"), mux))
 }
