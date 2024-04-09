@@ -1,9 +1,9 @@
 package bpe
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -19,6 +19,16 @@ func TestTiktokenTokenize(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	toks := encode(`Anything is possible!!`, vocab, gpt4splitPattern)
-	fmt.Println(toks)
+	text := "Anything is possible!!"
+	toks := encode(text, vocab, gpt4splitPattern)
+	if len(toks) != 4 {
+		t.Errorf("got len %v, want 4", len(toks))
+	}
+
+	d := NewDecoder(vocab)
+	parts := d.decode(toks)
+	whole := strings.Join(parts, "")
+	if whole != text {
+		t.Errorf("got whole = %q, not = text", whole)
+	}
 }
