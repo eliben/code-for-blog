@@ -69,6 +69,13 @@ func train(text string, vocabSize int, splitPattern string) map[string]int {
 				}
 			}
 		}
+		if debugTrain {
+			fmt.Println("pair count")
+			for k, c := range count {
+				fmt.Printf("%v --> %d\n", k, c)
+			}
+		}
+
 		if maxCount < 1 {
 			break
 		}
