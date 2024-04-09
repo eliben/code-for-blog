@@ -7,7 +7,7 @@ import (
 const gpt2splitPattern = `'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+`
 
 func TestTrainBasic(t *testing.T) {
-	debugTrain = true // TODO
+	debugTrain = false // TODO
 
 	txt := "i'm blue dabadee dabadam 999999"
 	vocab := train(txt, 258, gpt2splitPattern)
