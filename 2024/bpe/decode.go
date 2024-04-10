@@ -14,7 +14,7 @@ func NewDecoder(vocab map[string]int) *Decoder {
 	}
 }
 
-func (d *Decoder) decode(tokens []int) []string {
+func (d *Decoder) Decode(tokens []int) []string {
 	var s []string
 	for _, t := range tokens {
 		s = append(s, d.token2str[t])

@@ -40,5 +40,6 @@ var jsItsAlive = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 })
 
 func itsAlive() string {
+	fmt.Printf("vocabulary loaded, len=%v\n", len(vocab))
 	return "go is alive"
 }

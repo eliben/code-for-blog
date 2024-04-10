@@ -10,12 +10,12 @@ var debugTrain = false
 
 type stringPair [2]string
 
-// train trains a BPE tokenizer from the given text. vocabSize is the target
+// Train trains a BPE tokenizer from the given text. vocabSize is the target
 // vocabulary size to learn (total number of tokens the encoder will use,
 // including 256 initial tokens for single-byte letters. splitPattern is
 // the regexp pattern to use for the initial splitting of text to words.
 // Returns a vocabulary: mapping tokens to unique integer IDs.
-func train(text string, vocabSize int, splitPattern string) map[string]int {
+func Train(text string, vocabSize int, splitPattern string) map[string]int {
 	// Initially populate the vocabulary with all single-byte tokens.
 	if vocabSize < 256 {
 		panic("vocabSize must be at least 256, to represent all bytes")
