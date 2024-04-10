@@ -7,8 +7,8 @@ import (
 func TestEncodeBasic(t *testing.T) {
 	txt := "i'm blue dabadee dabadam 999999"
 
-	vocab1 := train(txt, 256, gpt2splitPattern)
-	toks1 := encode(txt, vocab1, gpt2splitPattern)
+	vocab1 := Train(txt, 256, gpt2splitPattern)
+	toks1 := Encode(txt, vocab1, gpt2splitPattern)
 
 	for _, tok := range toks1 {
 		if tok >= 256 {
@@ -16,8 +16,8 @@ func TestEncodeBasic(t *testing.T) {
 		}
 	}
 
-	vocab2 := train(txt, 258, gpt2splitPattern)
-	toks2 := encode(txt, vocab2, gpt2splitPattern)
+	vocab2 := Train(txt, 258, gpt2splitPattern)
+	toks2 := Encode(txt, vocab2, gpt2splitPattern)
 
 	// should have encoded the '99's and 'da'
 	tl := len(toks2)

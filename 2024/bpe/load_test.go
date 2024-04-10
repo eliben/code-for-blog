@@ -11,7 +11,7 @@ func TestLoadCl100kBase(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	vocab, err := loadTiktokenVocab(r)
+	vocab, err := LoadTiktokenVocab(r)
 	if err != nil {
 		t.Fatal(err)
 	}

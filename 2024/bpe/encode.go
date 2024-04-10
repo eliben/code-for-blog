@@ -9,13 +9,13 @@ import (
 
 const debugEncode = false
 
-// encode runs a trained BPE tokenizer over the given text. vocab is the learned
+// Encode runs a trained BPE tokenizer over the given text. vocab is the learned
 // map of tokens (mapping token strings to their numeric IDs). splitPattern is
 // the regexp pattern to use for the initial splitting of text to words. Returns
 // a list of tokens representing the text.
 // Note: expects all tokens in text - including any single byte value - to
 // appear in vocab; if an unknown token is found, this function panics.
-func encode(text string, vocab map[string]int, splitPattern string) []int {
+func Encode(text string, vocab map[string]int, splitPattern string) []int {
 	// Split the input into words using the given splitPattern.
 	// Each word is split further into a list of single bytes.
 	var words [][]string

@@ -10,7 +10,7 @@ func TestTrainBasic(t *testing.T) {
 	debugTrain = false // TODO
 
 	txt := "i'm blue dabadee dabadam 999999"
-	vocab := train(txt, 258, gpt2splitPattern)
+	vocab := Train(txt, 258, gpt2splitPattern)
 
 	if len(vocab) != 258 {
 		t.Errorf("got len(vocab)=%d, want 258", len(vocab))

@@ -14,26 +14,26 @@ func TestTiktokenTokenize(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	vocab, err := loadTiktokenVocab(r)
+	vocab, err := LoadTiktokenVocab(r)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	text := "Anything is possible!!"
-	toks := encode(text, vocab, gpt4splitPattern)
+	toks := Encode(text, vocab, gpt4splitPattern)
 	if len(toks) != 4 {
 		t.Errorf("got len %v, want 4", len(toks))
 	}
 
 	d := NewDecoder(vocab)
-	parts := d.decode(toks)
+	parts := d.Decode(toks)
 	whole := strings.Join(parts, "")
 	if whole != text {
 		t.Errorf("got whole = %q, not = text", whole)
 	}
 
 	text2 := "You can use the tool below to understand how a piece of text might be tokenized by a language model, and the total count of tokens in that piece of text."
-	toks2 := encode(text2, vocab, gpt4splitPattern)
+	toks2 := Encode(text2, vocab, gpt4splitPattern)
 	if len(toks2) != 34 {
 		t.Errorf("got len %v, want 34", len(toks2))
 	}
