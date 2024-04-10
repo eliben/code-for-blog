@@ -1,4 +1,4 @@
-module example.com
+module example.com/bpe
 
 go 1.22.2
 

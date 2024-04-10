@@ -9,10 +9,10 @@ import (
 	"strings"
 )
 
-// loadTiktokenVocab loads a BPE vocabulary from a publicly-hosted tiktoken
+// LoadTiktokenVocab loads a BPE vocabulary from a publicly-hosted tiktoken
 // vocabulary file.
 // e.g. https://openaipublic.blob.core.windows.net/encodings/cl100k_base.tiktoken
-func loadTiktokenVocab(r io.Reader) (map[string]int, error) {
+func LoadTiktokenVocab(r io.Reader) (map[string]int, error) {
 	vocab := make(map[string]int)
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
