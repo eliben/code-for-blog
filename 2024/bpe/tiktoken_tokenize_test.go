@@ -31,4 +31,10 @@ func TestTiktokenTokenize(t *testing.T) {
 	if whole != text {
 		t.Errorf("got whole = %q, not = text", whole)
 	}
+
+	text2 := "You can use the tool below to understand how a piece of text might be tokenized by a language model, and the total count of tokens in that piece of text."
+	toks2 := encode(text2, vocab, gpt4splitPattern)
+	if len(toks2) != 34 {
+		t.Errorf("got len %v, want 34", len(toks2))
+	}
 }
