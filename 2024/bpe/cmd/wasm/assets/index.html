@@ -58,6 +58,31 @@
   .sidebar-list {
     padding-left: 1em;
   }
+
+  .toggle-switch {
+    display: flex;
+    border: 2px solid #656865;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .option {
+    flex: 1;
+    text-align: center;
+    padding: 6px 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+
+  input[type="radio"] {
+    display: none;
+  }
+
+  input[type="radio"]:checked+label {
+    background-color: #4c6faf;
+    color: white;
+  }
 </style>
 
 <script src="wasm_exec.js"></script>
@@ -82,8 +107,13 @@
       <textarea id="tokens" name="tokens" rows="12" cols="80" spellcheck="false" readonly></textarea>
     </div>
     <div class="flipbox">
-      <input type="checkbox" id="flipx"><label for="flipx">Flip X</label></input>
-      <input type="checkbox" id="flipy"><label for="flipy">Flip Y</label></input>
+      <div class="toggle-switch">
+        <input type="radio" id="showText" name="toggle" value="showText" checked>
+        <label for="showText" class="option">Text</label>
+
+        <input type="radio" id="showTokens" name="toggle" value="showTokens">
+        <label for="showTokens" class="option">Tokens</label>
+      </div>
     </div>
     <div class="sidebar">
       BPE tokenizer
