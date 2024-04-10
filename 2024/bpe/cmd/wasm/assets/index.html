@@ -1,0 +1,22 @@
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <!-- This file is copied from `$(go env GOROOT)/misc/wasm`-->
+  <script src="wasm_exec.js"></script>
+  <script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("gobpe.wasm"), go.importObject).then(
+      (result) => {
+        go.run(result.instance);
+        console.log(itsAlive());
+      });
+  </script>
+<style>
+  .spacerheader {
+    width: 10px;
+  }
+</style>
+</head>
+<body>
+</body>
+</html>
