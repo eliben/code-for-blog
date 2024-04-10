@@ -30,22 +30,11 @@ func main() {
 		fmt.Printf("vocabulary loaded, len=%v; decoder initialized\n", len(vocab))
 	})
 
-	js.Global().Set("itsAlive", jsItsAlive)
 	js.Global().Set("textToBPETokens", jsTextToBPETokens)
 	js.Global().Set("textToBPEFragments", jsTextToBPEFragments)
 
 	// For the Go code to be usable from JS, the main function has to run forever.
 	<-make(chan bool)
-}
-
-var jsItsAlive = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
-	result := itsAlive()
-	return result
-})
-
-func itsAlive() string {
-	fmt.Printf("vocabulary loaded, len=%v\n", len(vocab))
-	return "go is alive"
 }
 
 // textToBPETokens takes text, tokenizes it with BPE using the loaded vocabulary

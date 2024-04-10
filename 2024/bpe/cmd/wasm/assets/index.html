@@ -38,8 +38,8 @@
     padding: 10px;
     max-height: 500px;
     min-height: 200px;
-    width: 500px;
-    background: #cbcbcb;
+    width: 550px;
+    background: #dbdbdb;
     overflow: auto;
     font-family: Verdana, monospace;
   }
@@ -97,7 +97,6 @@
   WebAssembly.instantiateStreaming(fetch("gobpe.wasm"), go.importObject).then(
     (result) => {
       go.run(result.instance);
-      console.log(itsAlive());
       init();
     });
 </script>

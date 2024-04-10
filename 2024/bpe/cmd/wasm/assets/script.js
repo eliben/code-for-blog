@@ -18,7 +18,6 @@ function init() {
 //------------------
 
 function onStateChange() {
-    console.log("state changed");
     const text = TextBox.value;
 
     if (radioTokens.checked) {
@@ -32,14 +31,19 @@ function onStateChange() {
         let fragments = textToBPEFragments(text);
         const end = performance.now();
         console.log("textToBPEFragments elapsed (ms): ", end - start);
-        // set output text as a list of integers
-        // OutBox.textContent = fragments.join('');
+
         OutBox.innerHTML = '';
+        // To have different background colors for each fragment, we need to
+        // wrap each fragment in a span. The color is cycled between 8 different
+        // colors, in jumps of 135 degrees to make them sufficiently far apart
+        // and not repeat for 8 cycles (since 360/8 = 45, we could use any
+        // multiple of 45 that's not also a multiple of 180).
         for (let i = 0; i < fragments.length; i++) {
-            let color = i % 10;
+            let color = i % 8;
             let span = document.createElement('span');
             span.textContent = fragments[i];
-            span.style.backgroundColor = `hsl(${color * 36}, 100%, 80%)`;
+            span.style.lineHeight = 1.5;
+            span.style.backgroundColor = `hsl(${color * 135}, 40%, 70%)`;
             OutBox.appendChild(span);
         }
     }
