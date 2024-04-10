@@ -36,6 +36,12 @@
     grid-area: outBox;
     justify-self: center;
     padding: 10px;
+    max-height: 500px;
+    min-height: 200px;
+    width: 500px;
+    background: #cbcbcb;
+    overflow: auto;
+    font-family: Verdana, monospace;
   }
 
   .flipbox {
@@ -104,7 +110,7 @@
     </div>
     <div class="outTitle">Tokens</div>
     <div class="outBox">
-      <textarea id="tokens" name="tokens" rows="12" cols="80" spellcheck="false" readonly></textarea>
+      <div id="tokens" name="tokens"></div>
     </div>
     <div class="flipbox">
       <div class="toggle-switch">

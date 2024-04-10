@@ -26,13 +26,21 @@ function onStateChange() {
         let tokens = textToBPETokens(text);
         const end = performance.now();
         console.log("textToBPEToken elapsed (ms): ", end - start);
-        OutBox.textContent = JSON.stringify(tokens);
+        OutBox.textContent = "[" + tokens.join(", ") + "]";
     } else {
         const start = performance.now();
         let fragments = textToBPEFragments(text);
         const end = performance.now();
         console.log("textToBPEFragments elapsed (ms): ", end - start);
         // set output text as a list of integers
-        OutBox.textContent = fragments.join('');
+        // OutBox.textContent = fragments.join('');
+        OutBox.innerHTML = '';
+        for (let i = 0; i < fragments.length; i++) {
+            let color = i % 10;
+            let span = document.createElement('span');
+            span.textContent = fragments[i];
+            span.style.backgroundColor = `hsl(${color * 36}, 100%, 80%)`;
+            OutBox.appendChild(span);
+        }
     }
 }
