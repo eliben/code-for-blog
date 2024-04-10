@@ -1,2 +1,4 @@
 *.wasm
+embed_data
+
 
