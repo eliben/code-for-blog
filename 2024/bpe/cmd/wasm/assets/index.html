@@ -1,22 +1,92 @@
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <!-- This file is copied from `$(go env GOROOT)/misc/wasm`-->
-  <script src="wasm_exec.js"></script>
-  <script>
-    const go = new Go();
-    WebAssembly.instantiateStreaming(fetch("gobpe.wasm"), go.importObject).then(
-      (result) => {
-        go.run(result.instance);
-        console.log(itsAlive());
-      });
-  </script>
+<!doctype html>
 <style>
-  .spacerheader {
-    width: 10px;
+  .container {
+    margin: 0 auto;
+    display: grid;
+    max-width: 900px;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: repeat(5, fit-content());
+    grid-template-areas:
+      "textTitle  sidebar"
+      "textBox    sidebar"
+      "outTitle   sidebar"
+      "outBox     sidebar"
+      "flipbox    sidebar"
+  }
+
+  .textTitle {
+    grid-area: textTitle;
+    justify-self: center;
+    font-weight: bold;
+  }
+
+  .textBox {
+    grid-area: textBox;
+    justify-self: center;
+  }
+
+  .outTitle {
+    grid-area: outTitle;
+    justify-self: center;
+    font-weight: bold;
+    padding-top: 40px;
+  }
+
+  .outBox {
+    grid-area: outBox;
+    justify-self: center;
+    padding: 10px;
+  }
+
+  .flipbox {
+    grid-area: flipbox;
+    justify-self: center;
+    text-align: center;
+    padding-top: 6px;
+    padding-right: 10px;
+  }
+
+  .sidebar {
+    grid-area: sidebar;
+    font-family: Verdana, sans-serif;
+    font-size: 14px;
+    border: solid 1px;
+    border-color: darkgray;
+    padding: 5px;
+  }
+
+  .sidebar-list {
+    padding-left: 1em;
   }
 </style>
-</head>
+
+<script src="wasm_exec.js"></script>
+<script>
+  const go = new Go();
+  WebAssembly.instantiateStreaming(fetch("gobpe.wasm"), go.importObject).then(
+    (result) => {
+      go.run(result.instance);
+      console.log(itsAlive());
+    });
+</script>
+
 <body>
+  <div class="container">
+    <div class="textTitle">Text</div>
+    <div class="textBox">
+      <textarea id="text" name="text" rows="12" cols="80" spellcheck="false"></textarea>
+    </div>
+    <div class="outTitle">Tokens</div>
+    <div class="outBox">
+      <textarea id="tokens" name="tokens" rows="12" cols="80" spellcheck="false" readonly></textarea>
+    </div>
+    <div class="flipbox">
+      <input type="checkbox" id="flipx"><label for="flipx">Flip X</label></input>
+      <input type="checkbox" id="flipy"><label for="flipy">Flip Y</label></input>
+    </div>
+    <div class="sidebar">
+      BPE tokenizer
+    </div>
+  </div>
+  <script src="script.js"></script>
 </body>
-</html>
