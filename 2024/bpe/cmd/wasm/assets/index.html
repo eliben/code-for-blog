@@ -1,6 +1,7 @@
 <!doctype html>
 <style>
   .container {
+    font-family: Verdana, sans-serif;
     margin: 0 auto;
     display: grid;
     max-width: 900px;
@@ -117,11 +118,15 @@
         <label for="showText" class="option">Text</label>
 
         <input type="radio" id="showTokens" name="toggle" value="showTokens">
-        <label for="showTokens" class="option">Tokens</label>
+        <label for="showTokens" class="option">IDs</label>
       </div>
     </div>
     <div class="sidebar">
-      BPE tokenizer
+      <p><b>BPE tokenizer</b></p>
+      <p>
+        Enter text in the box - tokenization is done as you type.
+      </p>
+
     </div>
   </div>
   <script src="script.js"></script>
