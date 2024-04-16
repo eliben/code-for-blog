@@ -5,7 +5,7 @@ import (
 )
 
 func TestTrainBasic(t *testing.T) {
-	debugTrain = false // TODO
+	debugTrain = false
 
 	txt := "i'm blue dabadee dabadam 999999"
 	vocab := Train(txt, 258, CL100KBaseSplitPattern)
