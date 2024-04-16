@@ -17,4 +17,6 @@ func TestTrainBasic(t *testing.T) {
 	if vocab["99"] != 256 || vocab["da"] != 257 {
 		t.Errorf(`vocab["99"]=%v, vocab["da"]=%v`, vocab["99"], vocab["da"])
 	}
+
+	PrintVocab(vocab)
 }
