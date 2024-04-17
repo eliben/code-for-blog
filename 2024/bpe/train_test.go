@@ -18,7 +18,7 @@ func TestTrainBasic(t *testing.T) {
 		t.Errorf(`vocab["99"]=%v, vocab["da"]=%v`, vocab["99"], vocab["da"])
 	}
 
-	PrintVocab(vocab)
+	//PrintVocab(vocab)
 }
 
 func TestTrainPlease(t *testing.T) {
@@ -32,6 +32,17 @@ func TestTrainPlease(t *testing.T) {
 
 	if vocab["ee"] != 256 || vocab["eeee"] != 257 || vocab["ug"] != 258 {
 		t.Errorf(`vocab["ee"]=%v, vocab["eeee"]=%v, vocab["ug"]=%v`, vocab["ee"], vocab["eeee"], vocab["ug"])
+	}
+
+	//PrintVocab(vocab)
+}
+
+func TestTrainArtificialForBlogPost(t *testing.T) {
+	txt := "abcdede zdede tXOXO vXO"
+	vocab := Train(txt, 260, CL100KBaseSplitPattern)
+
+	if vocab["de"] != 256 || vocab["XO"] != 257 || vocab["dede"] != 258 {
+		t.Errorf(`vocab["de"]=%v, vocab["XO"]=%v, vocab["dede"]=%v`, vocab["ee"], vocab["eeee"], vocab["ug"])
 	}
 
 	PrintVocab(vocab)
