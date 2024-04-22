@@ -31,6 +31,7 @@ function onStateChange() {
         let fragments = textToBPEFragments(text);
         const end = performance.now();
         console.log("textToBPEFragments elapsed (ms): ", end - start);
+        console.log(fragments);
 
         OutBox.innerHTML = '';
         // To have different background colors for each fragment, we need to
@@ -44,6 +45,7 @@ function onStateChange() {
             span.textContent = fragments[i];
             span.style.lineHeight = 1.5;
             span.style.backgroundColor = `hsl(${color * 135}, 40%, 70%)`;
+            span.style.whiteSpace = 'pre';
             OutBox.appendChild(span);
         }
     }
