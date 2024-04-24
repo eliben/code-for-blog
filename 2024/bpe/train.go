@@ -2,6 +2,7 @@ package bpe
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dlclark/regexp2"
 )
@@ -9,6 +10,16 @@ import (
 var debugTrain = false
 
 type stringPair [2]string
+
+// showWithUnderscores returns a textual representation of ss, replacing
+// spaces with underscores.
+func showWithUnderscores(ss []string) string {
+	var outs []string
+	for _, s := range ss {
+		outs = append(outs, strings.ReplaceAll(s, " ", "_"))
+	}
+	return "[" + strings.Join(outs, " ") + "]"
+}
 
 // Train trains a BPE tokenizer from the given text. vocabSize is the target
 // vocabulary size to learn (total number of tokens the encoder will use,
@@ -47,7 +58,7 @@ func Train(text string, vocabSize int, splitPattern string) map[string]int {
 	if debugTrain {
 		fmt.Println("first 20 words")
 		for _, word := range words {
-			fmt.Printf("%q\n", word)
+			fmt.Printf("%v\n", showWithUnderscores(word))
 		}
 	}
 
@@ -72,7 +83,7 @@ func Train(text string, vocabSize int, splitPattern string) map[string]int {
 		if debugTrain {
 			fmt.Println("pair count")
 			for k, c := range count {
-				fmt.Printf("%v --> %d\n", k, c)
+				fmt.Printf("%v --> %d\n", showWithUnderscores(k[:]), c)
 			}
 		}
 
@@ -111,7 +122,7 @@ func Train(text string, vocabSize int, splitPattern string) map[string]int {
 			fmt.Printf("found maxPair = %q,%q\n", maxPair[0], maxPair[1])
 			fmt.Println("first 20 words")
 			for _, word := range words {
-				fmt.Printf("%q\n", word)
+				fmt.Printf("%v\n", showWithUnderscores(word))
 			}
 		}
 	}
