@@ -5,6 +5,15 @@ import (
 )
 
 func TestTrainBasic(t *testing.T) {
+	debugTrain = true
+
+	txt := "i'm blue dabadee dabadam"
+	vocab := Train(txt, 264, CL100KBaseSplitPattern)
+
+	PrintVocab(vocab)
+}
+
+func TestTrainBasicWithNums(t *testing.T) {
 	debugTrain = false
 
 	txt := "i'm blue dabadee dabadam 999999"
