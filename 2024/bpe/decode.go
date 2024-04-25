@@ -1,3 +1,7 @@
+// BPE: decoding a list of tokens into the original text, given a vocabulary.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package bpe
 
 // Decoder decodes a list of token IDs into a list of text elements that can

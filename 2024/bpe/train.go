@@ -1,3 +1,7 @@
+// BPE: training a tokenizer.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package bpe
 
 import (
