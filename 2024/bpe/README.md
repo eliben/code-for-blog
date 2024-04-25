@@ -1,4 +1,4 @@
-= BPE in Go
+# BPE in Go
 
 Implementation of Byte Pair Encoding in Go, with a web UI playground.
 
