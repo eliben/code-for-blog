@@ -46,6 +46,7 @@ function onStateChange() {
             span.style.lineHeight = 1.5;
             span.style.backgroundColor = `hsl(${color * 135}, 40%, 70%)`;
             span.style.whiteSpace = 'pre';
+            span.style.display = 'inline-block';
             OutBox.appendChild(span);
         }
     }
