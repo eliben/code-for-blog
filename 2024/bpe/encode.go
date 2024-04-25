@@ -1,3 +1,7 @@
+// BPE: encoding text using a trained BPE tokenizer.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package bpe
 
 import (

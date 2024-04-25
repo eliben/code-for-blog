@@ -1,3 +1,7 @@
+// BPE: loading a BPE vocabulary from a file obtained from OpenAI.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package bpe
 
 import (
