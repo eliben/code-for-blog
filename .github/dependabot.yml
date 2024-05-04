@@ -1,3 +1,4 @@
+# test 1
 version: 2
 updates:
   - package-ecosystem: gomod
