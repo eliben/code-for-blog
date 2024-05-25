@@ -1,3 +1,7 @@
+// Create a new service account at https://console.cloud.google.com/iam-admin/serviceaccounts
+// in your project, and add a new key in "Manage keys" for it.
+// Copy the resulting JSON file locally, and provide its path with the
+// -credfile flag.
 package main
 
 import (
@@ -32,24 +36,27 @@ func main() {
 
 	srv, err := sheets.NewService(ctx, option.WithHTTPClient(config.Client(ctx)))
 	if err != nil {
-		log.Fatalf("Unable to retrieve sheets service: %v", err)
+		log.Fatalf("unable to retrieve sheets service: %v", err)
 	}
 
 	// Full doc link (to my "testsheet2" sheet)
 	// https://docs.google.com/spreadsheets/d/1qsNWsZuw98r9HEl01vwxCO5O1sIsI-fr0bJ4KGVvWsU/
+	// Note: if access is restricted, the service account's email address should
+	// be given explicit view access to the sheet. The email is taken from the
+	// service account's GCP IAM page (Details tab).
 	docId := "1qsNWsZuw98r9HEl01vwxCO5O1sIsI-fr0bJ4KGVvWsU"
 	doc, err := srv.Spreadsheets.Get(docId).Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve data from document: %v", err)
+		log.Fatalf("unable to retrieve data from document: %v", err)
 	}
 	fmt.Printf("The title of the doc is: %s\n", doc.Properties.Title)
 
 	val, err := srv.Spreadsheets.Values.Get(docId, "Sheet1!A:B").Do()
 	if err != nil {
-		log.Fatalf("Unable to retrieve range from document: %v", err)
+		log.Fatalf("unable to retrieve range from document: %v", err)
 	}
 
-	fmt.Println(val.MajorDimension, val.Range)
+	fmt.Printf("Selected major dimension=%v, range=%v\n", val.MajorDimension, val.Range)
 	for _, row := range val.Values {
 		fmt.Println(row)
 	}
