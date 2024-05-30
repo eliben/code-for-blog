@@ -1,7 +1,7 @@
 // Create a new service account at https://console.cloud.google.com/iam-admin/serviceaccounts
 // in your project, and add a new key in "Manage keys" for it.
 // Copy the resulting JSON file locally, and provide its path with the
-// -credfile flag.
+// -keyfile flag.
 package main
 
 import (
@@ -17,13 +17,13 @@ import (
 )
 
 func main() {
-	credFilePath := flag.String("credfile", "", "path to the credentials file")
+	keyFilePath := flag.String("keyfile", "", "path to the credentials file")
 	flag.Parse()
 
 	ctx := context.Background()
-	credentials, err := ioutil.ReadFile(*credFilePath)
+	credentials, err := ioutil.ReadFile(*keyFilePath)
 	if err != nil {
-		log.Fatal("unable to read credentials file:", err)
+		log.Fatal("unable to read key file:", err)
 	}
 
 	scopes := []string{
