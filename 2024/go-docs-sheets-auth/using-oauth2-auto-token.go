@@ -1,3 +1,11 @@
+// Example of accessing the Google Sheets API from Go using OAuth 2 for auth.
+//
+// Follow the steps in the GCP Go quickstart
+// (https://developers.google.com/docs/api/quickstart/go) for obtaining a
+// credentials file.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

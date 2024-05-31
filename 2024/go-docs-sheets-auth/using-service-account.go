@@ -1,7 +1,13 @@
+// Example of accessing the Google Sheets API from Go using a service account
+// for auth.
+//
 // Create a new service account at https://console.cloud.google.com/iam-admin/serviceaccounts
 // in your project, and add a new key in "Manage keys" for it.
 // Copy the resulting JSON file locally, and provide its path with the
 // -keyfile flag.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
