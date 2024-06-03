@@ -3,7 +3,7 @@
 //
 // This assumes that you ran:
 //
-//	gcloud auth application-default login
+//	$ gcloud auth application-default login
 //
 // Also, the sheets API has to be enabled for your project:
 //
