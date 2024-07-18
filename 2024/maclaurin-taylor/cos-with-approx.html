@@ -1,0 +1,120 @@
+<!--
+// Plotting cos(x) with its approximations using the Maclaurin series.
+// The plotting is done with Plotly.js.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>cos with approximations</title>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+    <div id="plot"></div>
+    <script>
+        function factorial(n) {
+            if (n === 0) {
+                return 1;
+            } else {
+                return n * factorial(n - 1);
+            }
+        }
+
+        function series(n, x) {
+            let sum = 1;
+            let sign = -1;
+            for (let i = 1; i < n; i++) {
+                sum += sign * (Math.pow(x, 2 * i) / factorial(2 * i));
+                sign *= -1;
+            }
+            return sum;
+        }
+
+        let N = 10;
+        let xValues = [];
+        let ys = [];
+
+        // Create an array of N empty arrays in ys
+        // ys[0] is the cos function
+        // ys[1] to ys[N-1] are the approximations
+        for (let i = 0; i < N; i++) {
+            ys.push([]);
+        }
+
+        // Populate data for xs and ys
+        for (let x = 0; x <= 9; x += 0.01) {
+            xValues.push(x);
+            ys[0].push(Math.cos(x));
+
+            for (let n = 1; n < N; n++) {
+                let v = series(n, x);
+                if (v > -2 && v < 2) {
+                    // Clip the approximation to a small range for plotting;
+                    // we don't care about these polyinomials' behavior outside
+                    // this range (they "blow up" quickly).
+                    ys[n].push(series(n, x));
+                }
+            }
+        }
+
+        // Define the traces for the functions. First go the approximations,
+        // then the cos function (so it gets drawn on top).
+        let traces = [];
+        for (let n = 1; n < N; n++) {
+            traces.push({
+                x: xValues,
+                y: ys[n],
+                type: 'scatter',
+                mode: 'lines',
+                line: { color: `lightblue` },
+            });
+        }
+
+        traces.push({
+            x: xValues,
+            y: ys[0],
+            type: 'scatter',
+            mode: 'lines',
+            line: { color: `blue` },
+            name: `cos(x)`
+        })
+
+        // Define annotations for the plot
+        let annotations = [
+            { x: 1.3, y: 1.2, showarrow: false, text: 'k=1' },
+            { x: 2.1, y: -1.8, showarrow: false, text: 'k=2' },
+            { x: 3.4, y: 1.8, showarrow: false, text: 'k=3' },
+            { x: 3.6, y: -1.8, showarrow: false, text: 'k=4' },
+            { x: 4.5, y: 1.8, showarrow: false, text: 'k=5' },
+            { x: 5.6, y: -1.8, showarrow: false, text: 'k=6' },
+            { x: 5.7, y: 1.8, showarrow: false, text: 'k=7' },
+            { x: 7.0, y: -1.8, showarrow: false, text: 'k=8' },
+            { x: 7.6, y: 1.8, showarrow: false, text: 'k=9' },
+        ];
+
+        // Define the layout for the plot
+        let layout = {
+            title: 'cos with approximations',
+            xaxis: {
+                title: 'x'
+            },
+            yaxis: {
+                title: 'y'
+            },
+            showlegend: false,
+            width: 700,
+            annotations: annotations
+        };
+
+        // Plot the data
+        Plotly.newPlot('plot', traces, layout);
+    </script>
+</body>
+
+</html>
