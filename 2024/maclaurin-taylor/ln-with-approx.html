@@ -1,5 +1,5 @@
 <!--
-// Plotting cos(x) with its approximations using Maclaurin series.
+// Plotting ln(x) with its approximations using Taylor series.
 // The plotting is done with Plotly.js.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
@@ -10,7 +10,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>cos with approximations</title>
+    <title>ln with approximations</title>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
@@ -18,39 +18,31 @@
 <body>
     <div id="plot"></div>
     <script>
-        function factorial(n) {
-            if (n === 0) {
-                return 1;
-            } else {
-                return n * factorial(n - 1);
-            }
-        }
-
         function series(n, x) {
-            let sum = 1;
-            let sign = -1;
+            let sum = 0;
+            let sign = 1;
             for (let i = 1; i < n; i++) {
-                sum += sign * (Math.pow(x, 2 * i) / factorial(2 * i));
+                sum += sign * Math.pow(x - 1, i) / i;
                 sign *= -1;
             }
             return sum;
         }
 
-        let N = 10;
+        let N = 6;
         let xValues = [];
         let ys = [];
 
         // Create an array of N empty arrays in ys
-        // ys[0] is the cos function
+        // ys[0] is the ln function
         // ys[1] to ys[N-1] are the approximations
         for (let i = 0; i < N; i++) {
             ys.push([]);
         }
 
         // Populate data for xs and ys
-        for (let x = 0; x <= 9; x += 0.01) {
+        for (let x = 0.2; x <= 9; x += 0.01) {
             xValues.push(x);
-            ys[0].push(Math.cos(x));
+            ys[0].push(Math.log(x));
 
             for (let n = 1; n < N; n++) {
                 let v = series(n, x);
@@ -64,7 +56,7 @@
         }
 
         // Define the traces for the functions. First go the approximations,
-        // then the cos function (so it gets drawn on top).
+        // then the ln function (so it gets drawn on top).
         let traces = [];
         for (let n = 1; n < N; n++) {
             traces.push({
@@ -82,7 +74,7 @@
             type: 'scatter',
             mode: 'lines',
             line: { color: `blue` },
-            name: `cos(x)`
+            name: `ln(x)`
         })
 
         // Define annotations for the plot
@@ -100,8 +92,9 @@
 
         // Define the layout for the plot
         let layout = {
-            title: 'cos with approximations',
+            title: 'ln with approximations',
             xaxis: {
+                range: [0, 3],
                 title: 'x'
             },
             yaxis: {
