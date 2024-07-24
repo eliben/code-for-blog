@@ -40,13 +40,13 @@
         }
 
         // Populate data for xs and ys
-        for (let x = 0.2; x <= 9; x += 0.01) {
+        for (let x = 0.1; x <= 9; x += 0.01) {
             xValues.push(x);
             ys[0].push(Math.log(x));
 
             for (let n = 1; n < N; n++) {
                 let v = series(n, x);
-                if (v > -2 && v < 2) {
+                if (v > -3 && v < 3) {
                     // Clip the approximation to a small range for plotting;
                     // we don't care about these polyinomials' behavior outside
                     // this range (they "blow up" quickly).
@@ -79,22 +79,18 @@
 
         // Define annotations for the plot
         let annotations = [
-            { x: 1.3, y: 1.2, showarrow: false, text: 'k=1' },
-            { x: 2.1, y: -1.8, showarrow: false, text: 'k=2' },
-            { x: 3.4, y: 1.8, showarrow: false, text: 'k=3' },
-            { x: 3.6, y: -1.8, showarrow: false, text: 'k=4' },
-            { x: 4.5, y: 1.8, showarrow: false, text: 'k=5' },
-            { x: 5.6, y: -1.8, showarrow: false, text: 'k=6' },
-            { x: 5.7, y: 1.8, showarrow: false, text: 'k=7' },
-            { x: 7.0, y: -1.8, showarrow: false, text: 'k=8' },
-            { x: 7.6, y: 1.8, showarrow: false, text: 'k=9' },
+            { x: 0.2, y: 0.2, showarrow: false, text: 'k=1' },
+            { x: 3.8, y: 2.4, showarrow: false, text: 'k=2' },
+            { x: 3.8, y: -0.8, showarrow: false, text: 'k=3' },
+            { x: 2.7, y: 2.5, showarrow: false, text: 'k=4' },
+            { x: 2.7, y: -0.7, showarrow: false, text: 'k=5' },
         ];
 
         // Define the layout for the plot
         let layout = {
             title: 'ln with approximations',
             xaxis: {
-                range: [0, 3],
+                range: [0, 4],
                 title: 'x'
             },
             yaxis: {
