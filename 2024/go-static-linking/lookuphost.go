@@ -6,5 +6,5 @@ import (
 )
 
 func main() {
-	fmt.Println(net.LookupHost("google.com"))
+	fmt.Println(net.LookupHost("go.dev"))
 }
