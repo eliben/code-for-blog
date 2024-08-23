@@ -1,0 +1,72 @@
+<!--
+// Plotting Euler's formula in 3D.
+// The plotting is done with Plotly.js.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='https://cdn.plot.ly/plotly-2.34.0.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+</head>
+
+<body>
+    <div id="plot"></div>
+
+    <script>
+        var phis = [];
+        let re = [];
+        let im = [];
+
+        for (let phi = 0; phi <= 6 * Math.PI; phi += 0.01) {
+            phis.push(phi);
+            re.push(Math.cos(phi));
+            im.push(Math.sin(phi));
+        }
+
+        let trace = {
+            x: phis,
+            y: re,
+            z: im,
+            type: 'scatter3d',
+            mode: 'lines',
+            line: {
+                width: 6,
+                color: 'orange',
+            },
+        };
+
+        let layout = {
+            title: `$$e^{i\\phi}$$`,
+            width: 700,
+            height: 700,
+            scene: {
+                xaxis: {
+                    title: {
+                        text: `ϕ`,
+                        font: { size: 18 }
+                    },
+                },
+                yaxis: {
+                    title: {
+                        text: 're',
+                        font: { size: 18 }
+                    },
+                },
+                zaxis: {
+                    title: {
+                        text: 'im',
+                        font: { size: 18 }
+                    },
+                },
+            },
+        };
+
+        Plotly.newPlot("plot", [trace], layout);
+    </script>
+</body>
+
+</html>
