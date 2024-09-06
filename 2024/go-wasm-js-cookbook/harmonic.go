@@ -26,7 +26,7 @@ func calcHarmonic(nsecs int) string {
 			break
 		}
 	}
-	return r1.FloatString(50)
+	return r1.FloatString(30)
 }
 
 var jsCalcHarmonic = js.FuncOf(func(this js.Value, args []js.Value) any {
