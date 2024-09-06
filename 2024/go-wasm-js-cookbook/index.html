@@ -1,0 +1,22 @@
+<html>
+<script src="wasm_exec.js"></script>
+
+<body>
+
+</body>
+
+<script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("harmonic.wasm"), go.importObject).then(
+        (result) => {
+            go.run(result.instance);
+            init();
+        });
+
+    function init() {
+        let s = calcHarmonic(1);
+        console.log(s);
+    }
+</script>
+
+</html>
