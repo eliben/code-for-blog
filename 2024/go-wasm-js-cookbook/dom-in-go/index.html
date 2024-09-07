@@ -1,0 +1,76 @@
+<html>
+<script src="wasm_exec.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Example</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        #container {
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        #timeInput {
+            width: 200px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        #submitButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #submitButton:hover {
+            background-color: #2980b9;
+        }
+
+        #outputDiv {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #8f2d2d;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        Time to calculate (sec):
+        <input type="text" id="timeInput" maxlength="5" placeholder="Enter text">
+        <button id="submitButton">Submit</button>
+        <div id="outputDiv">output will appear here...</div>
+    </div>
+</body>
+
+<script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("harmonic.wasm"), go.importObject).then(
+        (result) => {
+            go.run(result.instance);
+        });
+</script>
+
+</html>
