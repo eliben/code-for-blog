@@ -1,0 +1,129 @@
+<html>
+<script src="wasm_exec.js"></script>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Example</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        #container {
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        #timeInput {
+            width: 200px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        #submitButton {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #submitButton:hover {
+            background-color: #2980b9;
+        }
+
+        #outputDiv {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #8f2d2d;
+        }
+
+        #spinner {
+            width: 20px;
+            height: 20px;
+            border: 5px solid #f3f3f3;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            margin: auto;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+        Time to calculate (sec):
+        <input type="text" id="timeInput" maxlength="5" placeholder="Enter text">
+        <button id="submitButton">Submit</button>
+        <div id="spinner" style="display: none"></div>
+        <div id="outputDiv">output will appear here...</div>
+    </div>
+</body>
+
+<script>
+    const worker = new Worker("worker.js");
+    worker.onmessage = ({ data }) => {
+        let { action, payload } = data;
+        switch (action) {
+            case "log":
+                console.log(`worker.onmessdata: ${payload}`);
+                break;
+            case "result":
+                resultReady(payload);
+                break;
+            default:
+                console.error(`Unknown action: ${action}`);
+        }
+    };
+    let buttonElement = document.getElementById("submitButton");
+    let spinnerElement = document.getElementById("spinner");
+
+    document.getElementById("submitButton").addEventListener("click", () => {
+        buttonElement.style.display = "none";
+        spinnerElement.style.display = "inline-block";
+        rotateSpinner();
+        worker.postMessage({
+            action: "calculate",
+            payload: parseFloat(document.getElementById("timeInput").value)
+        });
+    });
+
+    function resultReady(result) {
+        document.getElementById("outputDiv").innerText = result;
+
+        buttonElement.style.display = "inline-block";
+        spinnerElement.style.display = "none";
+    }
+
+    function rotateSpinner() {
+        let angle = 0;
+        function animate() {
+            if (spinnerElement.style.display === "none") {
+                return;
+            }
+            angle += 6; // Rotate 6 degrees each frame
+            console.log(angle);
+            spinner.style.transform = 'rotate(' + angle + 'deg)';
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+</script>
+
+</html>
