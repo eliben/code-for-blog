@@ -12,7 +12,7 @@
             align-items: center;
             height: 100vh;
             margin: 0;
-            font-family: Arial, sans-serif;
+            font-family: Verdana, sans-serif;
             background-color: #f4f4f4;
         }
 
@@ -24,7 +24,7 @@
             border-radius: 8px;
         }
 
-        #shortInput {
+        #timeInput {
             width: 200px;
             padding: 10px;
             font-size: 16px;
@@ -50,7 +50,7 @@
 
         #outputDiv {
             margin-top: 20px;
-            font-size: 18px;
+            font-size: 16px;
             color: #8f2d2d;
         }
     </style>
@@ -59,7 +59,7 @@
 <body>
     <div id="container">
         Time to calculate (sec):
-        <input type="text" id="shortInput" maxlength="5" placeholder="Enter text">
+        <input type="text" id="timeInput" maxlength="5" placeholder="Enter text">
         <button id="submitButton">Submit</button>
         <div id="outputDiv">output will appear here...</div>
     </div>
@@ -72,9 +72,10 @@
             go.run(result.instance);
         });
 
-    document.getElementById("submitButton").addEventListener("click", function () {
-        let input = document.getElementById("shortInput").value;
-        let s = calcHarmonic(parseInt(input));
+    let buttonElement = document.getElementById("submitButton");
+    document.getElementById("submitButton").addEventListener("click", () => {
+        let input = document.getElementById("timeInput").value;
+        let s = calcHarmonic(parseFloat(input));
         document.getElementById("outputDiv").innerText = s;
     });
 </script>
