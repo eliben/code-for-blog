@@ -12,11 +12,12 @@ WebAssembly.instantiateStreaming(fetch("harmonic.wasm"), go.importObject).then(
         console.error("Worker failed to load WASM module: ", err)
     });
 
-// The worker's logic is very simple: it waits for a "calculate" message with
-// the parameter, runs calculate and returns a "result" message.
 onmessage = ({ data }) => {
     let { action, payload } = data;
-    console.log("Worker received message: ", action, payload);
+    postMessage({
+        action: "log",
+        payload: `Worker received message ${action}: ${payload}`,
+    });
     switch (action) {
         case "calculate":
             let result = calcHarmonic(payload);

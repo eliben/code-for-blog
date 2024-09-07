@@ -42,6 +42,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease;
+            height: 40px;
         }
 
         #submitButton:hover {
@@ -55,8 +56,8 @@
         }
 
         #spinner {
-            width: 20px;
-            height: 20px;
+            width: 25px;
+            height: 25px;
             border: 5px solid #f3f3f3;
             border-top-color: #3498db;
             border-radius: 50%;
@@ -82,7 +83,7 @@
         let { action, payload } = data;
         switch (action) {
             case "log":
-                console.log(`worker.onmessdata: ${payload}`);
+                console.log(`worker.log: ${payload}`);
                 break;
             case "result":
                 resultReady(payload);
@@ -118,7 +119,6 @@
                 return;
             }
             angle += 6; // Rotate 6 degrees each frame
-            console.log(angle);
             spinner.style.transform = 'rotate(' + angle + 'deg)';
             requestAnimationFrame(animate);
         }
