@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="wasm_exec.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game of Life</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Verdana, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        #gridContainer {
+            display: grid;
+            grid-template-rows: 500px auto;
+            gap: 20px;
+            text-align: center;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+        }
+
+        #buttonRow {
+            display: flex;
+            justify-content: space-around;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div id="gridContainer">
+        <canvas id="gameCanvas" width="500" height="500"></canvas>
+        <div id="buttonRow">
+            <button id="runButton">Run</button>
+            <button id="stepButton">Step</button>
+        </div>
+    </div>
+
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("life.wasm"), go.importObject).then(
+            (result) => {
+                go.run(result.instance);
+            });
+    </script>    
+</body>
+</html>
