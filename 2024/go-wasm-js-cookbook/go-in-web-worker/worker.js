@@ -1,4 +1,3 @@
-// Web worker for invoking generateBoard from Go in a separate thread.
 importScripts("wasm_exec.js");
 console.log("Worker is running");
 
