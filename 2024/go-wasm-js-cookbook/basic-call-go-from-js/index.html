@@ -66,6 +66,7 @@
 </body>
 
 <script>
+    // Instantiate a new Go object (defined in from wasm_exec.js)
     const go = new Go();
     WebAssembly.instantiateStreaming(fetch("harmonic.wasm"), go.importObject).then(
         (result) => {
