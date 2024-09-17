@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"sync"
 	"time"
 )
@@ -28,6 +29,15 @@ func (ps *Pubsub) Subscribe(topic string, ch chan string) {
 	defer ps.mu.Unlock()
 
 	ps.subs[topic] = append(ps.subs[topic], ch)
+}
+
+func (ps *Pubsub) Unsubscribe(topic string, ch chan string) {
+	ps.mu.Lock()
+	defer ps.mu.Unlock()
+
+	ps.subs[topic] = slices.DeleteFunc(ps.subs[topic], func(c chan string) bool {
+		return c == ch
+	})
 }
 
 func (ps *Pubsub) Publish(topic string, msg string) {
@@ -94,6 +104,14 @@ func main() {
 	pub("tech", "drones")
 
 	time.Sleep(50 * time.Millisecond)
+
+	ps.Unsubscribe("travel", ch2)
+	pub("travel", "hiking")
+	time.Sleep(50 * time.Millisecond)
+	ps.Unsubscribe("travel", ch3)
+	pub("travel", "hiking")
+	time.Sleep(50 * time.Millisecond)
+
 	ps.Close()
 	time.Sleep(50 * time.Millisecond)
 }
