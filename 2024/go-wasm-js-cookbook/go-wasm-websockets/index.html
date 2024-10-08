@@ -1,15 +1,4 @@
 <!DOCTYPE html>
-
-<!--
-Client-side part of the Go websocket sample.
-
-Simple HTML page with some JS that records mouse movement events and sends them
-into a websocket. On receiving messages from this websocket, reports them as
-text in a <p> beneath the box.
-
-Eli Bendersky [https://eli.thegreenplace.net]
-This code is in the public domain.
--->
 <html>
 <head>
 <style>
@@ -27,60 +16,69 @@ This code is in the public domain.
 <body>
 <p id="timeticker">Waiting for time...</p>
 <p>Move mouse inside this box to get coordinates echoed throgh the server:</p>
-<div id="box" onmousemove="onMouseMoved(event)" onmouseout="onMouseOut()"></div>
+<div id="box"></div>
 <p id="output"></p>
 
-<script type="text/javascript">
-  // WebSocket objects - created when window is loaded.
-  var sockEcho = null;
-  var sockTime = null;
+<!--<script type="text/javascript">-->
+  <!--// WebSocket objects - created when window is loaded.-->
+  <!--var sockEcho = null;-->
+  <!--var sockTime = null;-->
 
-  // Websocket server address.
-  var wsServerAddress = "ws://127.0.0.1:4050";
+  <!--// Websocket server address.-->
+  <!--var wsServerAddress = "ws://127.0.0.1:4050";-->
 
-  window.onload = function() {
-    // Connect the WebSocket to the server and register callbacks on it.
-    sockEcho = new WebSocket(wsServerAddress + "/wsecho");
+  <!--window.onload = function() {-->
+    <!--// Connect the WebSocket to the server and register callbacks on it.-->
+    <!--sockEcho = new WebSocket(wsServerAddress + "/wsecho");-->
 
-    sockEcho.onopen = function() {
-      console.log("connected");
-    }
+    <!--sockEcho.onopen = function() {-->
+      <!--console.log("connected");-->
+    <!--}-->
 
-    sockEcho.onclose = function(e) {
-      console.log("connection closed (" + e.code + ")");
-    }
+    <!--sockEcho.onclose = function(e) {-->
+      <!--console.log("connection closed (" + e.code + ")");-->
+    <!--}-->
 
-    sockEcho.onmessage = function(e) {
-      var msg = JSON.parse(e.data);
-      var coordMsg = "Coordinates: (" + msg.x + "," + msg.y + ")";
-      document.getElementById("output").innerHTML = coordMsg;
-    }
+    <!--sockEcho.onmessage = function(e) {-->
+      <!--var msg = JSON.parse(e.data);-->
+      <!--var coordMsg = "Coordinates: (" + msg.x + "," + msg.y + ")";-->
+      <!--document.getElementById("output").innerHTML = coordMsg;-->
+    <!--}-->
 
-    // This is a pure push notification from the server: register onmessage
-    // to update the time when the server sends new timestamps.
-    sockTime = new WebSocket(wsServerAddress + "/wstime");
-    sockTime.onmessage = function(e) {
-      document.getElementById("timeticker").innerHTML = e.data;
-    }
-  };
+    <!--// This is a pure push notification from the server: register onmessage-->
+    <!--// to update the time when the server sends new timestamps.-->
+    <!--sockTime = new WebSocket(wsServerAddress + "/wstime");-->
+    <!--sockTime.onmessage = function(e) {-->
+      <!--document.getElementById("timeticker").innerHTML = e.data;-->
+    <!--}-->
+  <!--};-->
 
-  // Send the msg object, encoded with JSON, on the websocket if it's open.
-  function socketSend(msg) {
-    if (sockEcho != null && sockEcho.readyState == WebSocket.OPEN) {
-      sockEcho.send(JSON.stringify(msg));
-    } else {
-      console.log("Socket isn't OPEN");
-    }
-  }
+  <!--// Send the msg object, encoded with JSON, on the websocket if it's open.-->
+  <!--function socketSend(msg) {-->
+    <!--if (sockEcho != null && sockEcho.readyState == WebSocket.OPEN) {-->
+      <!--sockEcho.send(JSON.stringify(msg));-->
+    <!--} else {-->
+      <!--console.log("Socket isn't OPEN");-->
+    <!--}-->
+  <!--}-->
 
-  function onMouseMoved(e) {
-    // When a "mouse moved" event is invoked, send it on the socket.
-    socketSend({x: e.clientX, y: e.clientY});
-  }
+  <!--function onMouseMoved(e) {-->
+    <!--// When a "mouse moved" event is invoked, send it on the socket.-->
+    <!--socketSend({x: e.clientX, y: e.clientY});-->
+  <!--}-->
 
-  function onMouseOut() {
-    document.getElementById("output").innerHTML = "";
-  }
+  <!--function onMouseOut() {-->
+    <!--document.getElementById("output").innerHTML = "";-->
+  <!--}-->
+<!--</script>-->
+
+<script src="wasm_exec.js"></script>
+<script>
+    const go = new Go();
+    WebAssembly.instantiateStreaming(fetch("wsclient.wasm"), go.importObject).then(
+        (result) => {
+            go.run(result.instance);
+        });
 </script>
 
 </body>

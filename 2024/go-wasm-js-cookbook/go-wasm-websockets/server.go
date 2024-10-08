@@ -25,6 +25,7 @@ type Event struct {
 // handleWebsocketEchoMessage handles the message e arriving on connection ws
 // from the client.
 func handleWebsocketEchoMessage(ws *websocket.Conn, e Event) error {
+	log.Println("echoing", e)
 	// Echo the event back as JSON
 	err := websocket.JSON.Send(ws, e)
 	if err != nil {
@@ -56,7 +57,9 @@ func websocketEchoConnection(ws *websocket.Conn) {
 
 // websocketTimeConnection handles a single websocket time connection - ws.
 func websocketTimeConnection(ws *websocket.Conn) {
+	log.Println("time connection")
 	for range time.Tick(1 * time.Second) {
+		log.Println("sending time...")
 		// Once a second, send a message (as a string) with the current time.
 		websocket.Message.Send(ws, time.Now().Format("Mon, 02 Jan 2006 15:04:05 PST"))
 	}
