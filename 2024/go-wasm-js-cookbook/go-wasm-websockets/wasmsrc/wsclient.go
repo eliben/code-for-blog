@@ -11,14 +11,13 @@ import (
 
 const wsServerAddress = "ws://127.0.0.1:4050"
 
+// This should match the struct on the server side.
 type Event struct {
 	X int `json:"x"`
 	Y int `json:"y"`
 }
 
 func main() {
-	log.Println("wasm loaded")
-
 	doc := js.Global().Get("document")
 	tickerElement := doc.Call("getElementById", "timeticker")
 	boxElement := doc.Call("getElementById", "box")
@@ -28,13 +27,6 @@ func main() {
 	wsEcho := wsCtor.New(wsServerAddress + "/wsecho")
 	wsTime := wsCtor.New(wsServerAddress + "/wstime")
 
-	wsTime.Call("addEventListener", "message", js.FuncOf(
-		func(this js.Value, args []js.Value) any {
-			msg := args[0].Get("data").String()
-			tickerElement.Set("innerText", msg)
-			return nil
-		}))
-
 	boxElement.Call("addEventListener", "mousemove", js.FuncOf(
 		func(this js.Value, args []js.Value) any {
 			event := args[0]
@@ -42,6 +34,12 @@ func main() {
 				X: event.Get("clientX").Int(),
 				Y: event.Get("clientY").Int(),
 			})
+			return nil
+		}))
+
+	boxElement.Call("addEventListener", "mouseout", js.FuncOf(
+		func(this js.Value, args []js.Value) any {
+			outputElement.Set("innerText", "")
 			return nil
 		}))
 
@@ -57,9 +55,19 @@ func main() {
 			return nil
 		}))
 
+	wsTime.Call("addEventListener", "message", js.FuncOf(
+		func(this js.Value, args []js.Value) any {
+			msg := args[0].Get("data").String()
+			tickerElement.Set("innerText", msg)
+			return nil
+		}))
+
 	select {}
 }
 
+// wsSend sends a message on a web socket; the web socket must be active and
+// open (otherwise wsSends logs an error and doesn't send anything).
+// The message will be serialized to JSON prior to sending.
 func wsSend(sock js.Value, msg any) {
 	if !sock.IsNull() || sock.Get("readyState").Equal(js.Global().Get("WebSocket").Get("OPEN")) {
 		b, err := json.Marshal(msg)
