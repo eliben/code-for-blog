@@ -23,6 +23,10 @@ func main() {
 	boxElement := doc.Call("getElementById", "box")
 	outputElement := doc.Call("getElementById", "output")
 
+	// These are equivalent to the following in JS:
+	//
+	//   ws = new WebSocket(addr) ...
+	//
 	wsCtor := js.Global().Get("WebSocket")
 	wsEcho := wsCtor.New(wsServerAddress + "/wsecho")
 	wsTime := wsCtor.New(wsServerAddress + "/wstime")
@@ -45,9 +49,9 @@ func main() {
 
 	wsEcho.Call("addEventListener", "message", js.FuncOf(
 		func(this js.Value, args []js.Value) any {
-			msg := []byte(args[0].Get("data").String())
+			event := args[0]
 			var ev Event
-			if err := json.Unmarshal(msg, &ev); err != nil {
+			if err := json.Unmarshal([]byte(event.Get("data").String()), &ev); err != nil {
 				log.Fatal(err)
 			}
 			coordMsg := fmt.Sprintf("Coordinates: (%v, %v)", ev.X, ev.Y)
@@ -57,8 +61,8 @@ func main() {
 
 	wsTime.Call("addEventListener", "message", js.FuncOf(
 		func(this js.Value, args []js.Value) any {
-			msg := args[0].Get("data").String()
-			tickerElement.Set("innerText", msg)
+			event := args[0]
+			tickerElement.Set("innerText", event.Get("data").String())
 			return nil
 		}))
 
