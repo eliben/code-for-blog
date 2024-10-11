@@ -1,0 +1,57 @@
+<!--
+// Plotting Euler's formula in as two separate 2D functions of phi.
+// The plotting is done with Plotly.js.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='https://cdn.plot.ly/plotly-2.34.0.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+</head>
+
+<body>
+    <div id="plot"></div>
+
+    <script>
+        var phis = [];
+        let re = [];
+        let im = [];
+        for (let phi = 0; phi <= 6 * Math.PI; phi += 0.01) {
+            phis.push(phi);
+            re.push(Math.cos(phi));
+            im.push(Math.sin(phi));
+        }
+
+        let traceRe = {
+            x: phis,
+            y: re,
+            type: 'scatter',
+            mode: 'lines',
+            name: '$$Re(e^{i\\phi})$$'
+        };
+
+        let traceIm = {
+            x: phis,
+            y: im,
+            type: 'scatter',
+            mode: 'lines',
+            name: '$$Im(e^{i\\phi})$$',
+            xaxis: 'x2',
+            yaxis: 'y2',
+        };
+
+        let data = [traceRe, traceIm];
+        var layout = {
+            width: 600,
+            grid: { rows: 2, columns: 1, pattern: 'independent' },
+        };
+
+        Plotly.newPlot("plot", data, layout);
+    </script>
+</body>
+
+</html>

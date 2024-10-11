@@ -1,0 +1,62 @@
+<!--
+// Plotting Euler's formula projected on the Re+Im plane as a unit circle.
+// The plotting is done with Plotly.js.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src='https://cdn.plot.ly/plotly-2.34.0.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+</head>
+
+<body>
+    <div id="plot"></div>
+
+    <script>
+        var phis = [];
+        let re = [];
+        let im = [];
+        for (let phi = 0; phi <= 6 * Math.PI; phi += 0.01) {
+            phis.push(phi);
+            re.push(Math.cos(phi));
+            im.push(Math.sin(phi));
+        }
+
+        let traceReIm = {
+            x: re,
+            y: im,
+            type: 'scatter',
+            mode: 'lines',
+        };
+
+        let data = [traceReIm];
+        var layout = {
+            width: 500,
+            height: 500,
+
+            xaxis: {
+                range: [-1.1, 1.1],
+                title: {
+                    text: 'Re',
+                    font: { size: 18 }
+                },
+            },
+
+            yaxis: {
+                range: [-1.1, 1.1],
+                title: {
+                    text: 'Im',
+                    font: { size: 18 }
+                },
+            },
+        };
+
+        Plotly.newPlot("plot", data, layout);
+    </script>
+</body>
+
+</html>
