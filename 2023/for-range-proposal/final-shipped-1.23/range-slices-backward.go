@@ -1,4 +1,5 @@
 // Example: iterating over a slice backwards.
+// This essentially re-implements the standard library function slices.Backward
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
