@@ -10,29 +10,20 @@ from gemma import transformer as transformer_lib
 import sentencepiece as spm
 
 
-@dataclass
-class GemmaConfig:
-    path_checkpoint: str
-    path_tokenizer: str
-    total_sampling_steps: int
-
-
-gemma_config = None
+# Once initialized, this will hold a sampler_lib.Sampler instance that
+# can be used to generate text.
 gemma_sampler = None
 
 
 def initialize_gemma():
-    global gemma_config
-    gemma_config = GemmaConfig(
-        path_checkpoint=os.getenv("MODEL_CHECKPOINT"),
-        path_tokenizer=os.getenv("MODEL_TOKENIZER"),
-        total_sampling_steps=128,
-    )
+    """Initialize Gemma sampler, loading the model into the GPU."""
+    model_checkpoint = os.getenv("MODEL_CHECKPOINT")
+    model_tokenizer = os.getenv("MODEL_TOKENIZER")
 
-    parameters = params_lib.load_and_format_params(gemma_config.path_checkpoint)
-    print("Parameters loaded.")
+    parameters = params_lib.load_and_format_params(model_checkpoint)
+    print("Parameters loaded")
     vocab = spm.SentencePieceProcessor()
-    vocab.Load(gemma_config.path_tokenizer)
+    vocab.Load(model_tokenizer)
     transformer_config = transformer_lib.TransformerConfig.from_params(
         parameters,
         cache_size=1024,
@@ -45,6 +36,10 @@ def initialize_gemma():
         vocab=vocab,
         params=parameters["transformer"],
     )
+    print("Sampler ready")
+
+
+# Flask app setup
 
 
 def create_app():

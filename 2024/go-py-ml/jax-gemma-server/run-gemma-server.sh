@@ -11,4 +11,5 @@ export XLA_PYTHON_CLIENT_PREALLOCATE=false
 export MODEL_CHECKPOINT=/home/eliben/Downloads/2b-it/
 export MODEL_TOKENIZER=/home/eliben/Downloads/tokenizer.model
 
-gunicorn 'gemmaserver:app' -b $PORT
+gunicorn 'gemmaserver:app' -b $PORT -w 1
+
