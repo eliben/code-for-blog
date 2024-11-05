@@ -13,4 +13,8 @@ virtualenv and sets up what's needed for the Python server. You'll have to
 [download the Gemma model weights and tokenizer](https://github.com/google-deepmind/gemma/?tab=readme-ov-file#downloading-the-models) and
 place them where the script can find them.
 
+----
 
+Sending `curl` requests to the service (assuming port 20200):
+
+    curl -i --json '{"prompt": "are bees dangerous?"}' http://localhost:20200/prompt

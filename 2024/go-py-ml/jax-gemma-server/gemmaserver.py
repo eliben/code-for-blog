@@ -55,15 +55,16 @@ app = create_app()
 
 @app.route("/echo", methods=["POST"])
 def echo():
-    request_data = request.json
-    prompt = request_data["prompt"]
+    prompt = request.json["prompt"]
     return {"echo_prompt": prompt}
 
 
 @app.route("/prompt", methods=["POST"])
 def prompt():
+    prompt = request.json["prompt"]
     return {
         "username": "bonki",
         "theme": "moondark",
         "image": "someone.png",
+        "prompt": prompt,
     }
