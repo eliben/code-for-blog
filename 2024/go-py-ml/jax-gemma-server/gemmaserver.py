@@ -62,8 +62,14 @@ def echo():
 @app.route("/prompt", methods=["POST"])
 def prompt():
     prompt = request.json["prompt"]
+
+    # For total_generation_steps, 128 is a default taken from the Gemma
+    # sample. It's a tradeoff between speed and quality (higher values mean
+    # better quality but slower generation).
+    sampling_steps = request.json.get("sampling_steps", 128)
+
     sampled_str = gemma_sampler(
         input_strings=[prompt],
-        total_generation_steps=128,
+        total_generation_steps=int(sampling_steps),
     ).text
     return {"response": sampled_str}
