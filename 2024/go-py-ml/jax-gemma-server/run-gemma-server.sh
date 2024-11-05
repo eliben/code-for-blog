@@ -8,6 +8,8 @@ PORT=:20200
 source $HOME/bin/venv/gemma-jax-gpu/bin/activate
 
 export XLA_PYTHON_CLIENT_PREALLOCATE=false
+export XLA_PYTHON_CLIENT_ALLOCATOR=platform
+
 export MODEL_CHECKPOINT=/home/eliben/Downloads/2b-it/
 export MODEL_TOKENIZER=/home/eliben/Downloads/tokenizer.model
 

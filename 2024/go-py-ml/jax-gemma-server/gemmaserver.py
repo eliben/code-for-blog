@@ -62,9 +62,8 @@ def echo():
 @app.route("/prompt", methods=["POST"])
 def prompt():
     prompt = request.json["prompt"]
-    return {
-        "username": "bonki",
-        "theme": "moondark",
-        "image": "someone.png",
-        "prompt": prompt,
-    }
+    sampled_str = gemma_sampler(
+        input_strings=[prompt],
+        total_generation_steps=128,
+    ).text
+    return {"response": sampled_str}
