@@ -1,14 +1,16 @@
+// This is a REST client that measures the average roundtrip latency of
+// sending a request (and getting a response) to a prompt server in the parent
+// directory, using its /echo endpoint.
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
 	"time"
 )
-
-var port = 20200
 
 var prompts = []string{
 	"How do I make a classic French omelette?",
@@ -29,14 +31,14 @@ var prompts = []string{
 }
 
 func main() {
-	// Create a new HTTP client, connect it to localhost:port
-	// and send a POST request to /process
-	url := fmt.Sprintf("http://localhost:%d/echo", port)
+	port := flag.Int("port", 20200, "Port where the prompt server listens")
+	n := flag.Int("n", 10000, "Number of requests to send")
+	flag.Parse()
 
-	numSends := 10000
+	url := fmt.Sprintf("http://localhost:%d/echo", *port)
+
 	t1 := time.Now()
-
-	for i := range numSends {
+	for i := range *n {
 		msgBody := strings.NewReader(fmt.Sprintf("{\"prompt\": \"%s\"}", prompts[i%len(prompts)]))
 
 		resp, err := http.Post(url, "application/json", msgBody)
@@ -56,6 +58,6 @@ func main() {
 	}
 
 	elapsed := time.Since(t1)
-	fmt.Printf("Num sends: %d;   Elapsed time: %s\n", numSends, elapsed)
-	fmt.Printf("Average time per request: %d ns\n", int(elapsed.Nanoseconds())/numSends)
+	fmt.Printf("Num sends: %d;   Elapsed time: %s\n", *n, elapsed)
+	fmt.Printf("Average time per request: %d ns\n", int(elapsed.Nanoseconds()) / *n)
 }
