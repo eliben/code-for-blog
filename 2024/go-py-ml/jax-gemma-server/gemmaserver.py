@@ -1,3 +1,10 @@
+# A simple Flask server that initializes a Gemma model and provides an API
+# endpoint for generating text based on a prompt.
+# Also includes an echo endpoint for testing and latency measurement.
+#
+# Should be run with gunicorn; see the accompanying shell script for the
+# precise invocation.
+#
 from dataclasses import dataclass
 import os
 
@@ -43,6 +50,7 @@ def initialize_gemma():
 
 
 def create_app():
+    # Create an app and perform one-time initialization of Gemma.
     app = Flask(__name__)
 
     with app.app_context():
@@ -53,12 +61,14 @@ def create_app():
 app = create_app()
 
 
+# Route for simple echoing / smoke test.
 @app.route("/echo", methods=["POST"])
 def echo():
     prompt = request.json["prompt"]
     return {"echo_prompt": prompt}
 
 
+# The real route for generating text.
 @app.route("/prompt", methods=["POST"])
 def prompt():
     prompt = request.json["prompt"]
@@ -66,6 +76,8 @@ def prompt():
     # For total_generation_steps, 128 is a default taken from the Gemma
     # sample. It's a tradeoff between speed and quality (higher values mean
     # better quality but slower generation).
+    # The user can override this value by passing a "sampling_steps" key in
+    # the request JSON.
     sampling_steps = request.json.get("sampling_steps", 128)
 
     sampled_str = gemma_sampler(

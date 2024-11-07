@@ -18,3 +18,12 @@ place them where the script can find them.
 Sending `curl` requests to the service (assuming port 20200):
 
     curl -i --json '{"prompt": "are bees dangerous?"}' http://localhost:20200/prompt
+
+----
+
+To measure the server's average latency, run the Go client in
+`measure-request-latency` in a separate terminal. With the server running in
+the background, run:
+
+    cd measure-request-latency
+    go run . -port 20200 -n 10000
