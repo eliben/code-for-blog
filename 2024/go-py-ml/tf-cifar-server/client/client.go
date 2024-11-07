@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/binary"
+	"fmt"
 	"log"
 	"net"
-	"time"
 )
 
 func createPacket(ty int, msg string) []byte {
@@ -16,6 +16,20 @@ func createPacket(ty int, msg string) []byte {
 	return buf
 }
 
+func readPacket(c net.Conn) (int, string) {
+	var msglen uint32
+	err := binary.Read(c, binary.BigEndian, &msglen)
+	if err != nil {
+		log.Fatal("binary.Read failed:", err)
+	}
+	buf := make([]byte, msglen)
+	_, err = c.Read(buf)
+	if err != nil {
+		log.Fatal("read error:", err)
+	}
+	return int(buf[0]), string(buf[1:])
+}
+
 func main() {
 	c, err := net.Dial("unix", "/tmp/imageserver.sock")
 	if err != nil {
@@ -23,10 +37,13 @@ func main() {
 	}
 	defer c.Close()
 
-	pc := createPacket(17, "hi there")
+	pc := createPacket(0, "hi there")
 	_, err = c.Write(pc)
 	if err != nil {
 		log.Fatal("write error:", err)
 	}
-	time.Sleep(100 * time.Millisecond)
+
+	// TODO: for benchmarking, send 3072 random bytes and read them back.
+
+	fmt.Println(readPacket(c))
 }

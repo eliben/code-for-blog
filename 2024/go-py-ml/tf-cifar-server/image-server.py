@@ -5,6 +5,16 @@ import socket
 import struct
 from tensorflow.keras import models
 
+MSGTYPE_ECHO = 0
+MSGTYPE_CLASSIFY = 1
+
+
+def send_msg(sock, msgtype, msgbody):
+    """Send a message over a socket, prepending it with a 4-byte length (network byte order)"""
+    msglen = len(msgbody) + 1
+    msg = struct.pack(">I", msglen) + struct.pack("B", msgtype) + msgbody
+    sock.sendall(msg)
+
 
 def recv_msg(sock):
     """Receive a length-prefixed message from a socket.
@@ -65,7 +75,11 @@ def server_main():
                 print("Connection established:", connection, client_address)
 
                 msgtype, msgbody = recv_msg(connection)
+
                 print(f"Received message type={msgtype}, body={msgbody.decode()}")
+
+                if msgtype == MSGTYPE_ECHO:
+                    send_msg(connection, MSGTYPE_ECHO, msgbody)
 
             finally:
                 connection.close()
