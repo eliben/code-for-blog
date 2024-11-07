@@ -37,6 +37,6 @@ history = model.fit(
     train_images, train_labels, epochs=50, validation_data=(test_images, test_labels)
 )
 
-savefile = "trained-weights.keras"
+savefile = "trained-model.keras"
 model.save(savefile)
 print(f"Model saved to {savefile}")
