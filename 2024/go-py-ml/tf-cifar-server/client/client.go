@@ -9,13 +9,16 @@ import (
 	"time"
 )
 
-func createPacket(ty int, body []byte) []byte {
+func sendPacket(c net.Conn, ty int, body []byte) {
 	msglen := uint32(len(body)) + 1
 	buf := make([]byte, msglen+4)
 	binary.BigEndian.PutUint32(buf[0:], msglen)
 	buf[4] = byte(ty)
 	copy(buf[5:], body)
-	return buf
+
+	if _, err := c.Write(buf); err != nil {
+		log.Fatal("write error:", err)
+	}
 }
 
 func readPacket(c net.Conn) (int, []byte) {
@@ -56,11 +59,7 @@ func main() {
 
 		t1 := time.Now()
 		for range *measureFlag {
-			pc := createPacket(0, body)
-			_, err = c.Write(pc)
-			if err != nil {
-				log.Fatal("write error:", err)
-			}
+			sendPacket(c, 0, body)
 			cmd, resp := readPacket(c)
 			if cmd != 0 || len(resp) != len(body) {
 				log.Fatal("bad response")

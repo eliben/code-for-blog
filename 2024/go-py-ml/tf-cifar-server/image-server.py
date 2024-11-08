@@ -5,12 +5,19 @@ import socket
 import struct
 from tensorflow.keras import models
 
+# TODO: move this comment to the README?
+# Uses a simple length-prefix protocol over a Unix domain socket.
+# Message structure:
+# - 4 bytes: message length (not including these 4 bytes), in network byte order
+# - 1 byte: message type (one of MSGTYPE_*)
+# - N bytes: message body
+
 MSGTYPE_ECHO = 0
 MSGTYPE_CLASSIFY = 1
 
 
 def send_msg(sock, msgtype, msgbody):
-    """Send a message over a socket, prepending it with a 4-byte length (network byte order)"""
+    """Send a message over a socket, using our protocol."""
     msglen = len(msgbody) + 1
     msg = struct.pack(">I", msglen) + struct.pack("B", msgtype) + msgbody
     sock.sendall(msg)
@@ -19,7 +26,8 @@ def send_msg(sock, msgtype, msgbody):
 def recv_msg(sock):
     """Receive a length-prefixed message from a socket.
 
-    Returns a tuple (type, body) where type is a single-byte number.
+    Returns a tuple (type, body) where type is one of the MSGTYPE_* constants.
+    In case of errors (including closed connection), returns (None, None).
     """
     raw_msglen = recvall(sock, 4)
     if raw_msglen is None:
@@ -32,7 +40,7 @@ def recv_msg(sock):
 
 
 def recvall(sock, n):
-    """Receive exactly n bytes or return None if EOF is hit earlier."""
+    """Receive and return exactly n bytes; return None if EOF is hit earlier."""
     data = bytearray()
     while len(data) < n:
         packet = sock.recv(n - len(data))
@@ -53,39 +61,35 @@ def server_main():
     parser.add_argument("--model", type=str, help="The model file (*.keras) to load.")
     args = parser.parse_args()
 
-    print(args.socketfile)
-
+    print(f"Loading model from {args.model}")
     model = models.load_model(args.model)
 
     # Ensure the socket does not already exist
-
     if os.path.exists(args.socketfile):
         os.remove(args.socketfile)
 
-    # Listn on a Unix domain socket
+    # Listen on a Unix domain socket
+    print(f"Listening on {args.socketfile}")
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     sock.bind(args.socketfile)
     sock.listen(1)
 
-    print(f"Server ready on {args.socketfile}")
-
     try:
         while True:
             # Wait for a connection
-            connection, client_address = sock.accept()
+            conn = sock.accept()[0]
+            print("Connection established:", conn)
 
-            try:
-                print("Connection established:", connection, client_address)
+            while True:
+                # Receive messages until None is returned (connection closed)
+                msgtype, msgbody = recv_msg(conn)
+                if msgtype is None:
+                    break
+                elif msgtype == MSGTYPE_ECHO:
+                    # Echo: send the message back to the client
+                    send_msg(conn, MSGTYPE_ECHO, msgbody)
 
-                while True:
-                    msgtype, msgbody = recv_msg(connection)
-                    if msgtype is None:
-                        break
-                    elif msgtype == MSGTYPE_ECHO:
-                        send_msg(connection, MSGTYPE_ECHO, msgbody)
-
-            finally:
-                connection.close()
+            conn.close()
     except KeyboardInterrupt:
         print("Server shutting down")
     finally:
