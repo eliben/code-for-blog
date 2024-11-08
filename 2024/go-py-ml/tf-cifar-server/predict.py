@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # * https://keras.io/api/datasets/cifar10/
 # * https://www.cs.toronto.edu/~kriz/cifar.html
 
-model = models.load_model("trained-weights.keras")
+model = models.load_model("trained-model.keras")
 
 (train_images, train_labels), (test_images, test_labels) = datasets.cifar10.load_data()
 
@@ -36,12 +36,15 @@ label_classes = [
 
 # Predict the first num images; softmax converts them into probabilities,
 # and we use argmax to find the most likely class for each one.
-num = 20
+num = 2
 
 # Do it in the loop one by one because we want to measure the prediction
 # latency for a single image after warmump (model cachedi in GPU, etc.)
 for i in range(num):
     time_start = time.time()
+    img = test_images[i]
+    print(f"shape: {img.shape}, dtype: {img.dtype}")
+    print(img[0, 0], img[0, 1])
     prediction = model(test_images[i : i + 1])
     probs = tf.nn.softmax(prediction)
     predindices = tf.argmax(probs, axis=1).numpy()

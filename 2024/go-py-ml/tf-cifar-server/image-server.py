@@ -50,6 +50,49 @@ def recvall(sock, n):
     return data
 
 
+def img_to_numpy(imgdata):
+    """Translates an image (as received from the client) into a numpy array.
+
+    The received image is an array of 3072 bytes (32x32x3), where each byte
+    represents the intensity of a single color channel at a single pixel.
+    The array is in row-major order, with the red channel first, then green,
+    then blue.
+
+    The resulting Numpy array has shape (32, 32, 3) and dtype float64, in
+    a format expected by the model.
+    """
+    red = np.frombuffer(imgdata[:1024], dtype=np.uint8).reshape((32, 32))
+    green = np.frombuffer(imgdata[1024:2048], dtype=np.uint8).reshape((32, 32))
+    blue = np.frombuffer(imgdata[2048:], dtype=np.uint8).reshape((32, 32))
+    uints = np.stack([red, green, blue], axis=-1)
+    return uints.astype(np.float64) / 255.0
+
+
+def run_prediction(imgdata):
+    npdata = img_to_numpy(imgdata)
+    # Create a batch of 1 image to suit the model's API
+    batch = np.expand_dims(npdata, axis=0)
+    prediction = model(batch)
+    probs = tf.nn.softmax(prediction)
+    predindex = tf.argmax(probs, axis=1)
+    print(probs, predindex)
+
+    #                     time_start = time.time()
+    # prediction = model(test_images[i : i + 1])
+    # probs = tf.nn.softmax(prediction)
+    # predindices = tf.argmax(probs, axis=1).numpy()
+    # time_end = time.time()
+
+    # predidx = predindices[0]
+    # testidx = test_labels[i][0]
+    # plt.imshow(test_images[i])
+    # plt.savefig(f"test_image_{i}.png")
+
+    # print(
+    #     f"{i:2d} Predicted: {label_classes[predidx]}, Actual: {label_classes[testidx]}    (elapsed: {time_end - time_start:.6f} seconds)"
+    # )
+
+
 def server_main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -88,6 +131,8 @@ def server_main():
                 elif msgtype == MSGTYPE_ECHO:
                     # Echo: send the message back to the client
                     send_msg(conn, MSGTYPE_ECHO, msgbody)
+                elif msgtype == MSGTYPE_CLASSIFY:
+                    result = run_prediction(msgbody)
 
             conn.close()
     except KeyboardInterrupt:
