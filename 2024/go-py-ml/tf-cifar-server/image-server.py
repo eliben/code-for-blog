@@ -22,10 +22,12 @@ def recv_msg(sock):
     Returns a tuple (type, body) where type is a single-byte number.
     """
     raw_msglen = recvall(sock, 4)
-    if not raw_msglen:
+    if raw_msglen is None:
         return None, None
     msglen = struct.unpack(">I", raw_msglen)[0]
     payload = recvall(sock, msglen)
+    if payload is None:
+        return None, None
     return (int(payload[0]), payload[1:])
 
 
@@ -35,7 +37,7 @@ def recvall(sock, n):
     while len(data) < n:
         packet = sock.recv(n - len(data))
         if not packet:
-            raise ValueError("Incomplete message")
+            return None
         data.extend(packet)
     return data
 
@@ -71,15 +73,16 @@ def server_main():
         while True:
             # Wait for a connection
             connection, client_address = sock.accept()
+
             try:
                 print("Connection established:", connection, client_address)
 
-                msgtype, msgbody = recv_msg(connection)
-
-                print(f"Received message type={msgtype}, body={msgbody.decode()}")
-
-                if msgtype == MSGTYPE_ECHO:
-                    send_msg(connection, MSGTYPE_ECHO, msgbody)
+                while True:
+                    msgtype, msgbody = recv_msg(connection)
+                    if msgtype is None:
+                        break
+                    elif msgtype == MSGTYPE_ECHO:
+                        send_msg(connection, MSGTYPE_ECHO, msgbody)
 
             finally:
                 connection.close()
