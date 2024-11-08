@@ -14,6 +14,8 @@ import (
 const messageTypeEcho = 0
 const messageTypeClassify = 1
 
+// TODO: add function comments here
+
 func sendPacket(c net.Conn, ty int, body []byte) {
 	msglen := uint32(len(body)) + 1
 	buf := make([]byte, msglen+4)
@@ -86,9 +88,11 @@ func classify(c net.Conn, imgPath string) {
 		}
 	}
 
+	t1 := time.Now()
 	sendPacket(c, messageTypeClassify, imgBytes)
 	cmd, resp := readPacket(c)
-	fmt.Println(cmd, string(resp))
+	elapsed := time.Since(t1)
+	fmt.Printf("Response cmd=%d, class=%s (elapsed time: %v\n)", cmd, string(resp), elapsed)
 }
 
 func main() {

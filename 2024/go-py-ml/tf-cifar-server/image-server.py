@@ -8,19 +8,26 @@ from tensorflow.keras import models
 import tensorflow as tf
 
 
-# TODO: move this comment to the README?
-# Uses a simple length-prefix protocol over a Unix domain socket.
-# Message structure:
-# - 4 bytes: message length (not including these 4 bytes), in network byte order
-# - 1 byte: message type (one of MSGTYPE_*)
-# - N bytes: message body
-
+# For a description of the communication protocol, see the README file.
+# These are the supported message types:
+# Echo a message back to the client.
 MSGTYPE_ECHO = 0
+
+# Classify an image and return the predicted label.
+# The received image is an array of 3072 bytes (32x32x3), where each byte
+# represents the intensity of a single color channel at a single pixel
+# (0-255 inclusive).
+# The array is in row-major order, with the red channel first, then green,
+# then blue.
 MSGTYPE_CLASSIFY = 1
 
 
 def send_msg(sock, msgtype, msgbody):
-    """Send a message over a socket, using our protocol."""
+    """Send a message over a socket, using our protocol.
+
+    msgtype is one of the MSGTYPE_* constants.
+    msgbody is a bytes object containing the message body.
+    """
     msglen = len(msgbody) + 1
     msg = struct.pack(">I", msglen) + struct.pack("B", msgtype) + msgbody
     sock.sendall(msg)
@@ -71,6 +78,7 @@ def img_to_numpy(imgdata):
     return uints.astype(np.float64) / 255.0
 
 
+# These are the CIFAR-10 classes; the model outputs the index of the class.
 label_classes = [
     "airplane",
     "automobile",
@@ -86,6 +94,7 @@ label_classes = [
 
 
 def run_prediction(model, imgdata):
+    """Run the model on the image data and return the predicted class."""
     npdata = img_to_numpy(imgdata)
     # Create a batch of 1 image to suit the model's API
     batch = np.expand_dims(npdata, axis=0)
