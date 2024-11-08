@@ -16,6 +16,8 @@ const messageTypeClassify = 1
 
 // TODO: add function comments here
 
+// sendPacket sends an arbitrary data packet to the server using the
+// length-delimited protocol described in the README. ty is the type byte.
 func sendPacket(c net.Conn, ty int, body []byte) {
 	msglen := uint32(len(body)) + 1
 	buf := make([]byte, msglen+4)
@@ -28,6 +30,7 @@ func sendPacket(c net.Conn, ty int, body []byte) {
 	}
 }
 
+// readPacket reads a packet from c and returns the type byte and the body.
 func readPacket(c net.Conn) (int, []byte) {
 	var msglen uint32
 	err := binary.Read(c, binary.BigEndian, &msglen)
@@ -92,7 +95,7 @@ func classify(c net.Conn, imgPath string) {
 	sendPacket(c, messageTypeClassify, imgBytes)
 	cmd, resp := readPacket(c)
 	elapsed := time.Since(t1)
-	fmt.Printf("Response cmd=%d, class=%s (elapsed time: %v\n)", cmd, string(resp), elapsed)
+	fmt.Printf("Response cmd=%d, class=%s (elapsed time: %v)\n", cmd, string(resp), elapsed)
 }
 
 func main() {
