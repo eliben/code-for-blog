@@ -4,10 +4,15 @@ import (
 	"encoding/binary"
 	"flag"
 	"fmt"
+	"image/png"
 	"log"
 	"net"
+	"os"
 	"time"
 )
+
+const messageTypeEcho = 0
+const messageTypeClassify = 1
 
 func sendPacket(c net.Conn, ty int, body []byte) {
 	msglen := uint32(len(body)) + 1
@@ -44,7 +49,7 @@ func runBenchmark(c net.Conn, numIters int) {
 
 	t1 := time.Now()
 	for range numIters {
-		sendPacket(c, 0, body)
+		sendPacket(c, messageTypeEcho, body)
 		cmd, resp := readPacket(c)
 		if cmd != 0 || len(resp) != len(body) {
 			log.Fatal("bad response")
@@ -53,6 +58,37 @@ func runBenchmark(c net.Conn, numIters int) {
 	elapsed := time.Since(t1)
 	fmt.Printf("Num packets: %d, Elapsed time: %s\n", numIters, elapsed)
 	fmt.Printf("Average time per request: %d ns\n", elapsed.Nanoseconds()/int64(numIters))
+}
+
+func classify(c net.Conn, imgPath string) {
+	// Load the image from the file.
+	f, err := os.Open(imgPath)
+	if err != nil {
+		log.Fatal("open error:", err)
+	}
+	defer f.Close()
+
+	img, err := png.Decode(f)
+	if err != nil {
+		log.Fatal("decode error:", err)
+	}
+
+	// Convert the image to a byte slice, 32x32x3 where eaach color channel
+	// is in row-major. Red first, then green, then blue.
+	imgBytes := make([]byte, 32*32*3)
+	for y := range 32 {
+		for x := range 32 {
+			idx := y*32 + x
+			r, g, b, _ := img.At(x, y).RGBA()
+			imgBytes[idx] = byte(r / 256)
+			imgBytes[1024+idx] = byte(g / 256)
+			imgBytes[2048+idx] = byte(b / 256)
+		}
+	}
+
+	sendPacket(c, messageTypeClassify, imgBytes)
+	cmd, resp := readPacket(c)
+	fmt.Println(cmd, string(resp))
 }
 
 func main() {
@@ -73,7 +109,7 @@ func main() {
 	if *measureFlag > 0 {
 		runBenchmark(c, *measureFlag)
 	} else if len(*classifyFlag) > 0 {
-
+		classify(c, *classifyFlag)
 	} else {
 		log.Fatal("no command specified")
 	}

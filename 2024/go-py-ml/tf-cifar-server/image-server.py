@@ -3,7 +3,10 @@ import os
 import sys
 import socket
 import struct
+import numpy as np
 from tensorflow.keras import models
+import tensorflow as tf
+
 
 # TODO: move this comment to the README?
 # Uses a simple length-prefix protocol over a Unix domain socket.
@@ -68,29 +71,28 @@ def img_to_numpy(imgdata):
     return uints.astype(np.float64) / 255.0
 
 
-def run_prediction(imgdata):
+label_classes = [
+    "airplane",
+    "automobile",
+    "bird",
+    "cat",
+    "deer",
+    "dog",
+    "frog",
+    "horse",
+    "ship",
+    "truck",
+]
+
+
+def run_prediction(model, imgdata):
     npdata = img_to_numpy(imgdata)
     # Create a batch of 1 image to suit the model's API
     batch = np.expand_dims(npdata, axis=0)
     prediction = model(batch)
     probs = tf.nn.softmax(prediction)
-    predindex = tf.argmax(probs, axis=1)
-    print(probs, predindex)
-
-    #                     time_start = time.time()
-    # prediction = model(test_images[i : i + 1])
-    # probs = tf.nn.softmax(prediction)
-    # predindices = tf.argmax(probs, axis=1).numpy()
-    # time_end = time.time()
-
-    # predidx = predindices[0]
-    # testidx = test_labels[i][0]
-    # plt.imshow(test_images[i])
-    # plt.savefig(f"test_image_{i}.png")
-
-    # print(
-    #     f"{i:2d} Predicted: {label_classes[predidx]}, Actual: {label_classes[testidx]}    (elapsed: {time_end - time_start:.6f} seconds)"
-    # )
+    predindex = tf.argmax(probs, axis=1).numpy()[0]
+    return label_classes[predindex]
 
 
 def server_main():
@@ -132,7 +134,8 @@ def server_main():
                     # Echo: send the message back to the client
                     send_msg(conn, MSGTYPE_ECHO, msgbody)
                 elif msgtype == MSGTYPE_CLASSIFY:
-                    result = run_prediction(msgbody)
+                    result = run_prediction(model, msgbody)
+                    send_msg(conn, MSGTYPE_CLASSIFY, result.encode("utf-8"))
 
             conn.close()
     except KeyboardInterrupt:
