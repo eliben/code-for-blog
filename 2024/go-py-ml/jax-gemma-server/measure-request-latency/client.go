@@ -1,6 +1,9 @@
 // This is a REST client that measures the average roundtrip latency of
 // sending a request (and getting a response) to a prompt server in the parent
 // directory, using its /echo endpoint.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

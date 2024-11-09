@@ -5,6 +5,8 @@
 # Should be run with gunicorn; see the accompanying shell script for the
 # precise invocation.
 #
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 from dataclasses import dataclass
 import os
 

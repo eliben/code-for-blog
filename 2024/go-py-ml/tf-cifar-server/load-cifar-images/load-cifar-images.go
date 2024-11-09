@@ -1,7 +1,12 @@
+// A tool for exporting images from the CIFAR-10 dataset into PNG files.
+//
 // Downloaded "CIFAR-10 binary version (suitable for C programs)" from
 // https://www.cs.toronto.edu/~kriz/cifar.html
 //
 // The format is explained in Dataset Layout --> Binary version on that page.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

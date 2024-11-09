@@ -1,3 +1,11 @@
+// An image classification client for the image server.
+//
+// Flags:
+// -measure <n>: measure the time to send <n> packets
+// -classify <image-file>: classify the image in <image-file>
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -11,10 +19,9 @@ import (
 	"time"
 )
 
+// These values have to be kep in sync with the server in image-server.py
 const messageTypeEcho = 0
 const messageTypeClassify = 1
-
-// TODO: add function comments here
 
 // sendPacket sends an arbitrary data packet to the server using the
 // length-delimited protocol described in the README. ty is the type byte.
@@ -99,10 +106,6 @@ func classify(c net.Conn, imgPath string) {
 }
 
 func main() {
-	// Flags:
-	// -measure <n>: measure the time to send <n> packets
-	// -classify <image-file>: classify the image in <image-file>
-
 	measureFlag := flag.Int("measure", 0, "measure the time to send <n> packets")
 	classifyFlag := flag.String("classify", "", "classify the image in <image-file>")
 	flag.Parse()

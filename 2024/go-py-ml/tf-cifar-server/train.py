@@ -1,6 +1,11 @@
-# Follows tutorial here: https://www.tensorflow.org/tutorials/quickstart/beginner
-# Adds the model.save call at the end to serialize the model weights.
-
+# Train a simple CNN on CIFAR-10 data using TF+Keras.
+# Based on the tutorial: https://www.tensorflow.org/tutorials/quickstart/beginner
+#
+# Has to be run from inside a virtualenv created following the README
+# instructions.
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 import tensorflow as tf
 
 from tensorflow.keras import datasets, layers, models

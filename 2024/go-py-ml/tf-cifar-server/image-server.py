@@ -1,3 +1,11 @@
+# Image inference server. Follows the protocol described in the README to
+# serve on the Unix domain socket named with --socketfile.
+#
+# Has to be run from inside a virtualenv created following the README
+# instructions.
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 import argparse
 import os
 import sys
