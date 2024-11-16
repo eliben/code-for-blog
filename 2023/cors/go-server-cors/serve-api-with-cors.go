@@ -29,17 +29,17 @@ func checkCORS(next http.Handler) http.Handler {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
 				w.Header().Set("Access-Control-Allow-Methods", strings.Join(methodAllowlist, ", "))
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
-				w.Header().Add("Vary", "Origin")
 			}
 		} else {
 			// Not a preflight: regular request.
 			origin := r.Header.Get("Origin")
 			if slices.Contains(originAllowlist, origin) {
 				w.Header().Set("Access-Control-Allow-Origin", origin)
-				w.Header().Add("Vary", "Origin")
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
 			}
 		}
+		// Always set Vary: Origin to prevent caching issues
+		w.Header().Add("Vary", "Origin")
 		next.ServeHTTP(w, r)
 	})
 }
