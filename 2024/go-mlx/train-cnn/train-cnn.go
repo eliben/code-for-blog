@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"os"
 	"time"
 
 	"example.com/cnnmodel"
@@ -11,7 +10,6 @@ import (
 	"github.com/gomlx/gomlx/examples/cifar"
 	mlxcontext "github.com/gomlx/gomlx/ml/context"
 	"github.com/gomlx/gomlx/ml/context/checkpoints"
-	"github.com/gomlx/gomlx/ml/data"
 	"github.com/gomlx/gomlx/ml/layers"
 	"github.com/gomlx/gomlx/ml/layers/activations"
 	"github.com/gomlx/gomlx/ml/layers/regularizers"
@@ -27,16 +25,12 @@ import (
 )
 
 var (
-	flagDataDir    = flag.String("data", "/home/eliben/test/gomlx-cifar", "Directory to cache downloaded and generated dataset files.")
-	flagCheckpoint = flag.String("checkpoint", "/home/eliben/test/gomlx-cifar/checkpoints", "Directory save and load checkpoints from. If left empty, no checkpoints are created.")
+	flagDataDir    = flag.String("data", "", "directory to hold downloaded CIFAR data in")
+	flagCheckpoint = flag.String("checkpoint", "", "directory for training checkpoints")
 	flagNumSteps   = flag.Int("nsteps", 10000, "number of training steps to run")
 )
 
 func trainModel(mlxctx *mlxcontext.Context, dataDir, checkpointPath string) {
-	// Data directory: datasets and top-level directory holding checkpoints for different models.
-	if !data.FileExists(dataDir) {
-		must.M(os.MkdirAll(dataDir, 0777))
-	}
 	backend := backends.New()
 	fmt.Printf("Backend %q:\t%s\n", backend.Name(), backend.Description())
 

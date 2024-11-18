@@ -9,7 +9,7 @@ import (
 	"github.com/janpfeifer/must"
 )
 
-var flagDataDir = flag.String("data", "", "targe directory to download to")
+var flagDataDir = flag.String("data", "", "directory to hold downloaded CIFAR data in")
 
 func main() {
 	flag.Parse()

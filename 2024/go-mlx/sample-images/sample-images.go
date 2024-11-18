@@ -18,7 +18,7 @@ import (
 	"github.com/gomlx/gopjrt/dtypes"
 )
 
-var flagDataDir = flag.String("data", "/home/eliben/test/gomlx-cifar", "directory to cache downloaded and generated dataset files.")
+var flagDataDir = flag.String("data", "", "directory to hold downloaded CIFAR data in")
 var flagNum = flag.Int("num", 15, "number of images to emit")
 
 func writeImagePNG(img image.Image, filename string) {
