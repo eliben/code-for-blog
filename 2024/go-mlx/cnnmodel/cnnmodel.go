@@ -7,6 +7,10 @@ import (
 	"github.com/gomlx/gomlx/ml/layers/activations"
 )
 
+// C10ConvModel is a gomlx/train.ModelFn that defines a computational graph
+// for image recognition. It defines a convolutional model for 32x32 RGB
+// images; the output is a list of 10 probabilities, each for a class of
+// image.
 func C10ConvModel(mlxctx *mlxcontext.Context, spec any, inputs []*graph.Node) []*graph.Node {
 	batchedImages := inputs[0]
 	g := batchedImages.Graph()

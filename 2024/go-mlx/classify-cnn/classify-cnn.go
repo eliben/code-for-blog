@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"example.com/cnnmodel"
-	"github.com/gomlx/exceptions"
 	"github.com/gomlx/gomlx/backends"
 	_ "github.com/gomlx/gomlx/backends/xla"
 	"github.com/gomlx/gomlx/graph"
@@ -46,18 +45,14 @@ func main() {
 		return graph.Reshape(choice)
 	})
 
-	// Classify takes a 32x32 image and returns a Cifar-10 classification according
+	// classify takes a 32x32 image and returns a Cifar-10 classification according
 	// to the models. Use C10Labels to convert the returned class to a string
 	// name. The returned class is from 0 to 9.
-	classify := func(img image.Image) (int32, error) {
+	classify := func(img image.Image) int32 {
 		input := images.ToTensor(dtypes.Float32).Single(img)
-		var outputs []*tensors.Tensor
-		err := exceptions.TryCatch[error](func() { outputs = exec.Call(input) })
-		if err != nil {
-			return 0, err
-		}
+		outputs := exec.Call(input)
 		classID := tensors.ToScalar[int32](outputs[0])
-		return classID, nil
+		return classID
 	}
 
 	// Classify each .png image found in the given directory
@@ -79,10 +74,7 @@ func main() {
 			if err != nil {
 				log.Fatal("decode error:", err)
 			}
-			n, err := classify(img)
-			if err != nil {
-				panic(err)
-			}
+			n := classify(img)
 
 			fmt.Printf("path=%q, n=%d, label=%q\n", imgpath, n, C10Labels[n])
 		}

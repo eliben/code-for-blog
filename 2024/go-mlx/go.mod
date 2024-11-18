@@ -3,7 +3,6 @@ module example.com
 go 1.23.2
 
 require (
-	github.com/gomlx/exceptions v0.0.3
 	github.com/gomlx/gomlx v0.15.2
 	github.com/gomlx/gopjrt v0.4.7
 	github.com/janpfeifer/must v0.2.0
@@ -18,6 +17,7 @@ require (
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/gomlx/bsplines v0.2.0 // indirect
+	github.com/gomlx/exceptions v0.0.3 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/janpfeifer/gonb v0.10.6 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect

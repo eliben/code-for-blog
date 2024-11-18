@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"time"
 
 	"example.com/cnnmodel"
@@ -25,16 +26,16 @@ import (
 )
 
 var (
-	flagDataDir    = flag.String("data", "", "directory to hold downloaded CIFAR data in")
-	flagCheckpoint = flag.String("checkpoint", "", "directory for training checkpoints")
-	flagNumSteps   = flag.Int("nsteps", 10000, "number of training steps to run")
+	flagDataDir    = flag.String("data", "", "directory with downloaded CIFAR data")
+	flagCheckpoint = flag.String("checkpoint", "", "directory to store/load model checkpoints")
+	flagNumSteps   = flag.Int("nsteps", 10000, "number of training steps to reach")
 )
 
 func trainModel(mlxctx *mlxcontext.Context, dataDir, checkpointPath string) {
 	backend := backends.New()
 	fmt.Printf("Backend %q:\t%s\n", backend.Name(), backend.Description())
 
-	// Load training and test datasets.
+	// Load and prepare training and test datasets.
 	batchSize := mlxcontext.GetParamOr(mlxctx, "batch_size", int(64))
 	evalBatchSize := mlxcontext.GetParamOr(mlxctx, "eval_batch_size", int(128))
 
@@ -46,15 +47,12 @@ func trainModel(mlxctx *mlxcontext.Context, dataDir, checkpointPath string) {
 
 	paramsExcludedFromSaving := []string{"data_dir", "train_steps"}
 
-	// Checkpoints saving.
-	var checkpoint *checkpoints.Handler
-	if checkpointPath != "" {
-		checkpoint = must.M1(checkpoints.Build(mlxctx).
-			Dir(checkpointPath).
-			ExcludeParams(paramsExcludedFromSaving...).
-			Done())
-		fmt.Printf("Checkpointing model to %q\n", checkpoint.Dir())
-	}
+	// Configure checkpoining.
+	checkpoint := must.M1(checkpoints.Build(mlxctx).
+		Dir(checkpointPath).
+		ExcludeParams(paramsExcludedFromSaving...).
+		Done())
+	fmt.Printf("Checkpointing model to %q\n", checkpoint.Dir())
 	fmt.Println(commandline.SprintContextSettings(mlxctx))
 
 	meanAccuracyMetric := metrics.NewSparseCategoricalAccuracy("Mean Accuracy", "#acc")
@@ -73,14 +71,12 @@ func trainModel(mlxctx *mlxcontext.Context, dataDir, checkpointPath string) {
 	loop := train.NewLoop(trainer)
 	commandline.AttachProgressBar(loop)
 
-	// Checkpoint saving: every 3 minutes of training.
-	if checkpoint != nil {
-		period := time.Minute * 3
-		train.PeriodicCallback(loop, period, true, "saving checkpoint", 100,
-			func(loop *train.Loop, metrics []*tensors.Tensor) error {
-				return checkpoint.Save()
-			})
-	}
+	// Checkpoint saving: every 3 minutes of training, and also saves at the end.
+	period := time.Minute * 3
+	train.PeriodicCallback(loop, period, true, "saving checkpoint", 100,
+		func(loop *train.Loop, metrics []*tensors.Tensor) error {
+			return checkpoint.Save()
+		})
 
 	// Loop for given number of steps.
 	numTrainSteps := mlxcontext.GetParamOr(mlxctx, "train_steps", 0)
@@ -105,6 +101,9 @@ func trainModel(mlxctx *mlxcontext.Context, dataDir, checkpointPath string) {
 
 func main() {
 	flag.Parse()
+	if len(*flagDataDir) == 0 || len(*flagCheckpoint) == 0 {
+		log.Fatal("must provide -data and -checkpoint")
+	}
 
 	// Create a new GoMLX context, and set hyperparameters.
 	mlxctx := mlxcontext.New()
@@ -130,6 +129,6 @@ func main() {
 		regularizers.ParamL1:         0.0,
 	})
 
-	// Train a model - this saves checkpoints on disk
+	// Train a model - this saves checkpoints on disk.
 	trainModel(mlxctx, *flagDataDir, *flagCheckpoint)
 }
