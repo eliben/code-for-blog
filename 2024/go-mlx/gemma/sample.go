@@ -24,15 +24,20 @@ var (
 func main() {
 	flag.Parse()
 	ctx := context.New()
+
+	// Load model weights from the checkpoint downloaded from Kaggle.
 	err := kaggle.ReadConvertedWeights(ctx, *flagDataDir)
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Load tokenizer vocabulary.
 	vocab, err := sentencepiece.NewFromPath(*flagVocabFile)
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Create a Gemma sampler and start sampling tokens.
 	sampler, err := samplers.New(backends.New(), ctx, vocab, 256)
 	if err != nil {
 		log.Fatalf("%+v", err)
