@@ -1,5 +1,9 @@
 // Loads some random sample images and labels from the CIFAR-10 dataset and
 // emits them into .png files in the current dir.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// Much of this code is based on GoMLX samples, and follows its
+// Apache License 2.0 [https://github.com/gomlx/gomlx/blob/main/LICENSE]
 package main
 
 import (

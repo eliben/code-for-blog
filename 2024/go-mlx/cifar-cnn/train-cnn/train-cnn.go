@@ -1,3 +1,8 @@
+// Train a CNN model on CIFAR-10 data downloaded into a local directory.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// Much of this code is based on GoMLX samples, and follows its
+// Apache License 2.0 [https://github.com/gomlx/gomlx/blob/main/LICENSE]
 package main
 
 import (

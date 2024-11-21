@@ -18,4 +18,3 @@ extract some PNGs from the CIFAR test set first:
 This should dump a bunch of PNGs into $PWD. Now the classifier is ready to run:
 
     go run ./classify-cnn  -checkpoint $DIR/checkpoints .
-
