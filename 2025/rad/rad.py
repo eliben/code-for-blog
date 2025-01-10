@@ -18,6 +18,7 @@ class Predecessor:
     multiplier: float
     var: "Var"
 
+
 class Var:
     def __init__(self, v):
         self.v = v
@@ -78,6 +79,7 @@ class Var:
         for p in self.predecessors:
             p.var.grad(p.multiplier * gv)
 
+
 def exp(x):
     """e^x"""
     if is_number(x):
@@ -112,17 +114,17 @@ if __name__ == "__main__":
     # participating Vars should not be reused.
     xx = Var(0.5)
     sigmoid = 1 / (1 + exp(-xx))
-    print(f'xx={xx.v}, sigmoid={sigmoid.v}')
+    print(f"xx={xx.v}, sigmoid={sigmoid.v}")
 
     sigmoid.grad(1.0)
-    print(f'dsigmoid/dxx = {xx.gv}')
+    print(f"dsigmoid/dxx = {xx.gv}")
 
     # Example from the paper "Automatic Differentiation in Machine Learning:
     # a Survey" by Baydin et al.
     x1 = Var(2)
     x2 = Var(5)
     f = log(x1) + x1 * x2 - sin(x2)
-    print(f'x1={x1.v}, x2={x2.v}, f={f.v}')
-    
+    print(f"x1={x1.v}, x2={x2.v}, f={f.v}")
+
     f.grad(1.0)
-    print(f'df/dx1={x1.gv}, df/dx2={x2.gv}')
+    print(f"df/dx1={x1.gv}, df/dx2={x2.gv}")
