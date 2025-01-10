@@ -5,12 +5,7 @@
 # Eli Bendersky (https://eli.thegreenplace.net)
 # This code is in the public domain
 import math
-import numbers
 from dataclasses import dataclass
-
-
-def is_number(v):
-    return isinstance(v, numbers.Number)
 
 
 @dataclass
@@ -26,8 +21,7 @@ class Var:
         self.gv = 0.0
 
     def __add__(self, other):
-        if is_number(other):
-            other = Var(other)
+        other = ensure_var(other)
         out = Var(self.v + other.v)
         out.predecessors.append(Predecessor(1.0, self))
         out.predecessors.append(Predecessor(1.0, other))
@@ -48,8 +42,7 @@ class Var:
         return other + (-self)
 
     def __mul__(self, other):
-        if is_number(other):
-            other = Var(other)
+        other = ensure_var(other)
         out = Var(self.v * other.v)
         out.predecessors.append(Predecessor(other.v, self))
         out.predecessors.append(Predecessor(self.v, other))
@@ -59,20 +52,10 @@ class Var:
         return self * other
 
     def __truediv__(self, other):
-        if is_number(other):
-            other = Var(other)
-        out = Var(self.v / other.v)
-        out.predecessors.append(Predecessor(1.0 / other.v, self))
-        out.predecessors.append(Predecessor(-self.v / (other.v**2), other))
-        return out
+        return div(self, other)
 
     def __rtruediv__(self, other):
-        if is_number(other):
-            out = Var(other / self.v)
-            out.predecessors.append(Predecessor(-other / (self.v**2), self))
-            return out
-        else:
-            raise NotImplementedError
+        return div(other, self)
 
     def grad(self, gv):
         self.gv += gv
@@ -80,10 +63,25 @@ class Var:
             p.var.grad(p.multiplier * gv)
 
 
+def ensure_var(v):
+    if isinstance(v, Var):
+        return v
+    return Var(v)
+
+
+def div(x, y):
+    """x / y"""
+    x = ensure_var(x)
+    y = ensure_var(y)
+    out = Var(x.v / y.v)
+    out.predecessors.append(Predecessor(1.0 / y.v, x))
+    out.predecessors.append(Predecessor(-x.v / (y.v**2), y))
+    return out
+
+
 def exp(x):
     """e^x"""
-    if is_number(x):
-        x = Var(x)
+    x = ensure_var(x)
     out = Var(math.exp(x.v))
     out.predecessors.append(Predecessor(math.exp(x.v), x))
     return out
@@ -91,8 +89,7 @@ def exp(x):
 
 def log(x):
     """log(x) - natural logarithm of x"""
-    if is_number(x):
-        x = Var(x)
+    x = ensure_var(x)
     out = Var(math.log(x.v))
     out.predecessors.append(Predecessor(1.0 / x.v, x))
     return out
@@ -100,8 +97,7 @@ def log(x):
 
 def sin(x):
     """sin(x)"""
-    if is_number(x):
-        x = Var(x)
+    x = ensure_var(x)
     out = Var(math.sin(x.v))
 
     out.predecessors.append(Predecessor(math.cos(x.v), x))
