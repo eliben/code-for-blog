@@ -3,7 +3,7 @@
 //
 // This assumes that you ran:
 //
-//	$ gcloud auth application-default login
+//	$ gcloud auth application-default login --scopes=openid,https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/spreadsheets
 //
 // Also, the sheets API has to be enabled for your project:
 //
