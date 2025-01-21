@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <stack>
+#include <vector>
 
 #include "parser.h"
 #include "utils.h"
