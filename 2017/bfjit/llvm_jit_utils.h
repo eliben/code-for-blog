@@ -1,6 +1,6 @@
 // Helper utilities for launching LLVM-based JIts.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #ifndef LLVM_JIT_UTILS_H
 #define LLVM_JIT_UTILS_H

@@ -3,7 +3,7 @@
 // Note: the implementation is POSIX-specific, requiring mmap/munmap with
 // appropriate flags.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include "jit_utils.h"
 #include "utils.h"

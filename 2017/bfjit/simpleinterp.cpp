@@ -1,6 +1,6 @@
 // A simple (unoptimized) interpreter for BF.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <cstdint>
 #include <fstream>

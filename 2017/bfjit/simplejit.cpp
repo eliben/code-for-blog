@@ -1,7 +1,7 @@
 // A simple JIT for BF, without optimizations - translates BF operations to
 // assembly instructions.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <cstdio>
 #include <fstream>

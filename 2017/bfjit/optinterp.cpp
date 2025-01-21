@@ -3,7 +3,7 @@
 // Instead of finding the jump destinations by walking the program at runtime,
 // precomputes them in a "jump table" before the program is run.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <cstdint>
 #include <fstream>

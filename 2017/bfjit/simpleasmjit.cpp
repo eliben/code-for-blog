@@ -1,6 +1,6 @@
 // A simple JIT for BF, using the asmjit library. No optimizations.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <iomanip>
 #include <fstream>

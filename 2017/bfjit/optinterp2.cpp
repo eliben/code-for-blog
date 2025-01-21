@@ -6,7 +6,7 @@
 //
 // Compile with -DBFTRACE to enable tracing in verbose mode.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
 #include <fstream>

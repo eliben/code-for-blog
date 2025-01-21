@@ -1,7 +1,7 @@
 // An JIT for BF using LLVM. Compiles a BF program to LLVM IR, optimizes the IR
 // using LLVM's backend and JIT-executes it.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <fstream>
 #include <iomanip>

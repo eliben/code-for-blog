@@ -3,7 +3,7 @@
 // Parsing BF is trivial: the language's control characters in the stream
 // are collected together; all other characters are ignored.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include "parser.h"
 #include "utils.h"
