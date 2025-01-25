@@ -3,7 +3,7 @@
 # Tested with Python 3.5+; PeachPy installed into a virtualenv following the
 # installation steps in its README: https://github.com/Maratyszcza
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import argparse
 from collections import namedtuple

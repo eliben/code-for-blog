@@ -2,7 +2,7 @@
 #
 # Written for Python 3.5+
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import json
 import os
