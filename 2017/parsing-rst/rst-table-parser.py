@@ -2,7 +2,7 @@
 #
 # Run with Python 3.4+
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import docutils.statemachine
 import docutils.parsers.rst.tableparser

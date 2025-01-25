@@ -5,7 +5,7 @@
 # with an explicit state machine, using the technique discussed in:
 # https://eli.thegreenplace.net/2009/08/29/co-routines-as-an-alternative-to-state-machines
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import argparse
 from concurrent.futures import ThreadPoolExecutor

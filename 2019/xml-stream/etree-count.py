@@ -1,6 +1,6 @@
 # Using the standard library's xml.etree.ElementTree module.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import sys
 import xml.etree.ElementTree as ET

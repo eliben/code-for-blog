@@ -1,6 +1,6 @@
 # Sample Python client that sends commands to a server.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 from grpc.beta import implementations
 

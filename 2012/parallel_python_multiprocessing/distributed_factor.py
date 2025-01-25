@@ -10,7 +10,7 @@
 #
 # Tested with Python 2.7 and 3.6
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 from __future__ import print_function
 import sys

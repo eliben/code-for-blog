@@ -6,7 +6,7 @@ from images import get_logo_pixmap
 
 about_text = """\
 PyQtris is a simple, free Tetris clone, developed by
-Eli Bendersky (http://eli.thegreenplace.net) in Python
+Eli Bendersky (https://eli.thegreenplace.net) in Python
 using PyQt as the GUI toolkit.
 
 It was tested on Windows and Linux with Python 2.6
@@ -54,35 +54,35 @@ class AboutDialog(QDialog):
     def __init__(self, parent=None):
         super(AboutDialog, self).__init__(parent)
         self.setWindowTitle('About PyQtris')
-        
+
         #
         # About
         #
         about_page = QWidget(self)
         logo = QLabel()
         logo.setPixmap(get_logo_pixmap())
-        
+
         about_label = QLabel(about_text)
-        
+
         about_layout = QVBoxLayout()
         about_layout.addWidget(logo, 0, Qt.AlignCenter)
         about_layout.addWidget(about_label, 0, Qt.AlignCenter)
         about_page.setLayout(about_layout)
-        
+
         #
         # Keys
         #
         keys_page = QWidget(self)
         keys_layout = QGridLayout()
-        
+
         i = 0
         for key, desc in keys_desc:
             keys_layout.addWidget(QLabel(key), i, 0)
             keys_layout.addWidget(QLabel(desc), i, 1)
             i += 1
-        
+
         keys_page.setLayout(keys_layout)
-        
+
         #
         # Scoring
         #
@@ -91,32 +91,32 @@ class AboutDialog(QDialog):
         score_layout = QVBoxLayout()
         score_layout.addWidget(score_label)
         score_page.setLayout(score_layout)
-        
-        tabs = QTabWidget(self)        
+
+        tabs = QTabWidget(self)
         tabs.addTab(about_page, 'About')
         tabs.addTab(keys_page, 'Keys')
         tabs.addTab(score_page, 'Scoring')
-        
+
         #
         # Dialog layout
         #
         okbutton = QPushButton('&OK')
         self.connect(okbutton, SIGNAL('clicked()'), self, SLOT('accept()'))
-        
+
         bbox = QHBoxLayout()
         bbox.addStretch()
         bbox.addWidget(okbutton)
         bbox.addStretch()
-        
+
         layout = QVBoxLayout()
         layout.addWidget(tabs)
         layout.addLayout(bbox)
         self.setLayout(layout)
-        
+
 
 if __name__ == "__main__":
     import sys
     app = QApplication(sys.argv)
     dialog = AboutDialog()
     dialog.exec_()
-    
+

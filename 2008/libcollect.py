@@ -4,7 +4,7 @@ libcollect.py
 Provides the LibCollect class, used for collecting the various libraries
 your script uses for delivery as a self-contained distribution package.
 
-Author: Eli Bendersky (http://eli.thegreenplace.net)
+Author: Eli Bendersky (https://eli.thegreenplace.net)
 License: Same as Python
 
 Motivation:

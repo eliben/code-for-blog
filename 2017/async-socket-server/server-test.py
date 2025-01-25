@@ -3,7 +3,7 @@
 #
 # Run with -h for full usage.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import argparse
 import itertools

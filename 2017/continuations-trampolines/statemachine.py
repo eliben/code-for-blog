@@ -1,10 +1,10 @@
 # Frame decoding with a state machine.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 
 # The framing protocol is as described in
-# http://eli.thegreenplace.net/2009/08/29/co-routines-as-an-alternative-to-state-machines
+# https://eli.thegreenplace.net/2009/08/29/co-routines-as-an-alternative-to-state-machines
 # That article also discusses an alternative implementation using co-routines.
 HEADER = 0x61
 FOOTER = 0x62

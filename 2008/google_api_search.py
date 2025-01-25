@@ -6,7 +6,7 @@
 #   - demjson:
 #       For parsing the JSON results returned by the Google API
 #
-# Eli Bendersky (http://eli.thegreenplace.net)
+# Eli Bendersky (https://eli.thegreenplace.net)
 # This code is in the public domain
 #
 import logging

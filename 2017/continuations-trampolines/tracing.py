@@ -1,6 +1,6 @@
 # Tracing of function calls. Use @TraceCalls() as a decorator on functions.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import sys
 from functools import wraps

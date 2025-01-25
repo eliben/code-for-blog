@@ -3,7 +3,7 @@
 # Requires a Python installation with the full numeric stack (Numpy, Matplotlib)
 # including Seaborn (for prettier plots).
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import numpy as np
 import matplotlib.pyplot as plt

@@ -2,10 +2,10 @@
 #
 # This script runs on Python 2 or 3. Run it with --help for directions.
 #
-# See http://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
+# See https://eli.thegreenplace.net/2013/06/11/keeping-persistent-history-in-bash
 # for a description of the parsed file.
 #
-# Eli Bendersky (http://eli.thegreenplace.net)
+# Eli Bendersky (https://eli.thegreenplace.net)
 # This code is in the public domain
 
 from __future__ import print_function

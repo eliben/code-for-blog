@@ -1,7 +1,7 @@
 # Threaded socket server - accepting multiple clients concurrently, by
 # dispatching them into a thread pool.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import argparse
 from concurrent.futures import ThreadPoolExecutor

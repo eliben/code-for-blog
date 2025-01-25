@@ -9,7 +9,7 @@
 #   - mechanize:
 #       For executing Google search queries
 #
-# Eli Bendersky (http://eli.thegreenplace.net)
+# Eli Bendersky (https://eli.thegreenplace.net)
 # This code is in the public domain, given that you won't use it
 # for swamping Google with search queries, since this is against
 # Google's terms of service.

@@ -1,7 +1,7 @@
 # Imperative sequence processing in Python.
 # Tested with Python 3.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 
 def process(s):

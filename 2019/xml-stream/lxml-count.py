@@ -2,7 +2,7 @@
 # Make sure to install lxml first. I run this from a virtualenv where lxml is
 # installed with pip.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import sys
 from lxml import etree

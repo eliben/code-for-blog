@@ -1,6 +1,6 @@
 # Protocol for the serial port sample.
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import unittest, re, sys, random
 sys.path.insert(0, '..')

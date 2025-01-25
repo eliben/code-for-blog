@@ -19,7 +19,7 @@
 # ID: identifier
 # INT: an integer
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import ast
 import lexer

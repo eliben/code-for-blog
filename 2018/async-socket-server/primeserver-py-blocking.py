@@ -4,7 +4,7 @@
 #
 # Tested with Python 3.6 (requires the 'redis' package to be installed).
 #
-# Eli Bendersky [http://eli.thegreenplace.net]
+# Eli Bendersky [https://eli.thegreenplace.net]
 # This code is in the public domain.
 import math
 import redis
