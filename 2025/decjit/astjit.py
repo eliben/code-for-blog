@@ -2,7 +2,7 @@ import ast
 import functools
 import inspect
 
-from exprcode import VarExpr, ConstantExpr, BinOpExpr, Op
+from exprcode import VarExpr, ConstantExpr, BinOpExpr, Op, LLVMCodeGenerator
 
 
 class ASTJITError(Exception):
@@ -36,7 +36,7 @@ class ExprCodeEmitter(ast.NodeVisitor):
             raise ASTJITError(f"Unknown variable {node.id}")
         return VarExpr(node.id, idx)
 
-    def Visit_Constant(self, node):
+    def visit_Constant(self, node):
         return ConstantExpr(node.value)
 
     def visit_BinOp(self, node):
@@ -58,6 +58,11 @@ def astjit(func):
         emitter = ExprCodeEmitter()
         emitter.visit(tree)
         print(emitter.return_expr)
+
+        cg = LLVMCodeGenerator()
+        cg.codegen(emitter.return_expr, len(emitter.args))
+        print(str(cg.module))
+
         return func(*args, **kwargs)
 
     return wrapper
