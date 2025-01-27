@@ -2,7 +2,7 @@ import ast
 import functools
 import inspect
 
-from exprcode import VarExpr, ConstantExpr, BinOpExpr, Op, LLVMCodeGenerator
+from exprcode import VarExpr, ConstantExpr, BinOpExpr, Op, LLVMCodeGenerator, llvm_jit_evaluate
 
 
 class ASTJITError(Exception):
@@ -63,6 +63,8 @@ def astjit(func):
         cg.codegen(emitter.return_expr, len(emitter.args))
         print(str(cg.module))
 
+        print("Running code...")
+        print(llvm_jit_evaluate(emitter.return_expr, *args))
         return func(*args, **kwargs)
 
     return wrapper
