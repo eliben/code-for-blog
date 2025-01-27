@@ -2,27 +2,51 @@ import ast
 import functools
 import inspect
 
-from exprcode import VarExpr
+from exprcode import VarExpr, ConstantExpr, BinOpExpr, Op
+
+
+class ASTJITError(Exception):
+    pass
 
 
 class ExprCodeEmitter(ast.NodeVisitor):
     def __init__(self):
         self.args = []
         self.return_expr = None
+        self.op_map = {
+            ast.Add: Op.ADD,
+            ast.Sub: Op.SUB,
+            ast.Mult: Op.MUL,
+            ast.Div: Op.DIV,
+        }
 
     def visit_FunctionDef(self, node):
         self.args = [arg.arg for arg in node.args.args]
+        if len(node.body) != 1 or not isinstance(node.body[0], ast.Return):
+            raise ASTJITError("Function must consist of a single return statement")
         self.visit(node.body[0])
-        # todo verify the body has a single return
 
     def visit_Return(self, node):
         self.return_expr = self.visit(node.value)
-    
+
     def visit_Name(self, node):
-        return VarExpr(node.id)
+        try:
+            idx = self.args.index(node.id)
+        except ValueError:
+            raise ASTJITError(f"Unknown variable {node.id}")
+        return VarExpr(node.id, idx)
 
     def Visit_Constant(self, node):
-        return node.value
+        return ConstantExpr(node.value)
+
+    def visit_BinOp(self, node):
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+        try:
+            op = self.op_map[type(node.op)]
+            return BinOpExpr(left, right, op)
+        except KeyError:
+            raise ASTJITError(f"Unsupported operator {node.op}")
 
 
 def astjit(func):
@@ -31,5 +55,9 @@ def astjit(func):
         source = inspect.getsource(func)
         tree = ast.parse(source)
         print(ast.dump(tree, indent=4))
+        emitter = ExprCodeEmitter()
+        emitter.visit(tree)
+        print(emitter.return_expr)
         return func(*args, **kwargs)
+
     return wrapper
