@@ -2,6 +2,8 @@ import ast
 import functools
 import inspect
 
+from exprcode import VarNode
+
 def astjit(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
