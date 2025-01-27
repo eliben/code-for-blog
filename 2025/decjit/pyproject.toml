@@ -1,0 +1,17 @@
+[project]
+name = "decjit"
+version = "0.1.0"
+description = "Accompanying code for the 'decorator jit' post"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "llvmlite>=0.44.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
