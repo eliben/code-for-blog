@@ -1,15 +1,15 @@
 from dataclasses import dataclass
 from enum import Enum
 
-class Node:
+class Expr:
     pass
 
 @dataclass
-class ConstantNode(Node):
+class ConstantExpr(Expr):
     value: float
 
 @dataclass
-class VarNode(Node):
+class VarExpr(Expr):
     name: str
 
 
@@ -20,7 +20,7 @@ class Op(Enum):
     DIV = '/'
 
 @dataclass
-class BinOpNode(Node):
-    left: Node
-    right: Node
+class BinOpExpr(Expr):
+    left: Expr
+    right: Expr
     op: Op
