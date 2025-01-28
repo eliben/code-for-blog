@@ -63,7 +63,7 @@ class LLVMCodeGenerator:
         match expr:
             case ConstantExpr(value):
                 return ir.Constant(ir.DoubleType(), value)
-            case VarExpr(name, arg_idx):
+            case VarExpr(_, arg_idx):
                 return self.args[arg_idx]
             case BinOpExpr(left, right, op):
                 lval = self._codegen_expr(left)
@@ -85,7 +85,7 @@ class LLVMCodeGenerator:
 
 def llvm_jit_evaluate(expr, *args: float) -> float:
     """Use LLVM JIT to evaluate the given expression with *args.
-    
+
     expr is an instance of Expr. *args are the arguments to the expression, each
     a float. The arguments must match the arguments the expression expects.
 

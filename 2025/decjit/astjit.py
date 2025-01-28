@@ -63,13 +63,13 @@ def astjit(func):
             raise ASTJITError("Keyword arguments are not supported")
         source = inspect.getsource(func)
         tree = ast.parse(source)
-        
+
         emitter = ExprCodeEmitter()
         emitter.visit(tree)
-        
+
         cg = LLVMCodeGenerator()
         cg.codegen(emitter.return_expr, len(emitter.args))
-        
+
         return llvm_jit_evaluate(emitter.return_expr, *args)
 
     return wrapper

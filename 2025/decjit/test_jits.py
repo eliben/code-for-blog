@@ -5,6 +5,7 @@ from astjit import astjit
 def addwith2(a, b):
     return a + b + 2
 
+
 @astjit
 def expr(a, b, c):
     return (a + b) * c - 100 / (c - 1)
@@ -13,6 +14,7 @@ def expr(a, b, c):
 def test_astjit_add():
     assert addwith2(1, 2) == 5
     assert addwith2(10, 20) == 32
+
 
 def test_astjit_expr():
     assert expr(1, 2, 3) == -41.0
