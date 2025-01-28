@@ -17,11 +17,10 @@ class BytecodeJITError(Exception):
 
 def emit_exprcode(func):
     bc = func.__code__
-    print(f"co_varnames = {bc.co_varnames}")
-    print(f"co_argcount = {bc.co_argcount}")
-    for inst in dis.get_instructions(func):
-        print(inst)
-
+    # print(f"co_varnames = {bc.co_varnames}")
+    # print(f"co_argcount = {bc.co_argcount}")
+    # for inst in dis.get_instructions(func):
+    #     print(inst)
     stack = []
     for inst in dis.get_instructions(func):
         match inst.opname:
@@ -62,14 +61,6 @@ def bytecodejit(func):
             raise BytecodeJITError("Keyword arguments are not supported")
 
         expr = emit_exprcode(func)
-        print(expr)
-
-        # emitter = ExprCodeEmitter()
-        # emitter.visit(tree)
-
-        # cg = LLVMCodeGenerator()
-        # cg.codegen(emitter.return_expr, len(emitter.args))
-
-        # return llvm_jit_evaluate(emitter.return_expr, *args)
+        return llvm_jit_evaluate(expr, *args)
 
     return wrapper
