@@ -7,7 +7,6 @@ from exprcode import (
     ConstantExpr,
     BinOpExpr,
     Op,
-    LLVMCodeGenerator,
     llvm_jit_evaluate,
 )
 
@@ -66,10 +65,6 @@ def astjit(func):
 
         emitter = ExprCodeEmitter()
         emitter.visit(tree)
-
-        cg = LLVMCodeGenerator()
-        cg.codegen(emitter.return_expr, len(emitter.args))
-
         return llvm_jit_evaluate(emitter.return_expr, *args)
 
     return wrapper
