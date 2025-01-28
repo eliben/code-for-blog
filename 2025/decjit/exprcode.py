@@ -20,6 +20,12 @@ class ConstantExpr(Expr):
 # The argument index is used to reference positional function arguments.
 @dataclass
 class VarExpr(Expr):
+    """Variable reference.
+
+    arg_idx is the index of the positional argument in the expression evaluation
+    call.
+    name is optional - for debugging."""
+
     name: str
     arg_idx: int
 
@@ -64,6 +70,8 @@ class LLVMCodeGenerator:
             case ConstantExpr(value):
                 return ir.Constant(ir.DoubleType(), value)
             case VarExpr(_, arg_idx):
+                if arg_idx >= len(self.args):
+                    raise CodegenError(f"Invalid argument index {arg_idx}")
                 return self.args[arg_idx]
             case BinOpExpr(left, right, op):
                 lval = self._codegen_expr(left)
