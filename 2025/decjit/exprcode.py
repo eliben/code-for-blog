@@ -87,18 +87,24 @@ class LLVMCodeGenerator:
 
 
 def llvm_jit_evaluate(expr, *args):
+    """Use LLVM JIT to evaluate the given expression with *args.
+    
+    expr is an instance of Expr. *args are the arguments to the expression, each
+    a float. The arguments must match the arguments the expression expects.
+
+    Returns the result of evaluating the expression.
+    """
     llvm.initialize()
     llvm.initialize_native_target()
     llvm.initialize_native_asmprinter()
     llvm.initialize_native_asmparser()
 
     cg = LLVMCodeGenerator()
-    cg.codegen(expr, len(args))
-    mod = llvm.parse_assembly(str(cg.module))
+    modref = llvm.parse_assembly(str(cg.codegen(expr, len(args))))
 
     target = llvm.Target.from_default_triple()
     target_machine = target.create_target_machine()
-    with llvm.create_mcjit_compiler(mod, target_machine) as ee:
+    with llvm.create_mcjit_compiler(modref, target_machine) as ee:
         ee.finalize_object()
         cfptr = ee.get_function_address("func")
         cfunc = CFUNCTYPE(c_double, *([c_double] * len(args)))(cfptr)
