@@ -2,13 +2,13 @@
 
 These implement the different kinds of JIT:
 
-    astjit/
-    bytecodejit/
-    tracejit/
+    astjit
+    bytecodejit
+    tracejit
 
 All using the same package for running expressions via llvmlite:
 
-    exprcode/
+    exprcode
 
 To run unit tests:
 
