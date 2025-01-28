@@ -21,7 +21,7 @@ class ConstantExpr(Expr):
 @dataclass
 class VarExpr(Expr):
     name: str
-    arg_idx: int = None
+    arg_idx: int
 
 
 class Op(Enum):
@@ -64,10 +64,7 @@ class LLVMCodeGenerator:
             case ConstantExpr(value):
                 return ir.Constant(ir.DoubleType(), value)
             case VarExpr(name, arg_idx):
-                if arg_idx is not None:
-                    return self.args[arg_idx]
-                else:
-                    raise CodegenError(f"Unknown variable {name}")
+                return self.args[arg_idx]
             case BinOpExpr(left, right, op):
                 lval = self._codegen_expr(left)
                 rval = self._codegen_expr(right)
@@ -86,7 +83,7 @@ class LLVMCodeGenerator:
                 raise CodegenError(f"Unsupported expression {expr}")
 
 
-def llvm_jit_evaluate(expr, *args):
+def llvm_jit_evaluate(expr, *args: float) -> float:
     """Use LLVM JIT to evaluate the given expression with *args.
     
     expr is an instance of Expr. *args are the arguments to the expression, each
