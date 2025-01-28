@@ -2,7 +2,14 @@ import ast
 import functools
 import inspect
 
-from exprcode import VarExpr, ConstantExpr, BinOpExpr, Op, LLVMCodeGenerator, llvm_jit_evaluate
+from exprcode import (
+    VarExpr,
+    ConstantExpr,
+    BinOpExpr,
+    Op,
+    LLVMCodeGenerator,
+    llvm_jit_evaluate,
+)
 
 
 class ASTJITError(Exception):
@@ -52,19 +59,17 @@ class ExprCodeEmitter(ast.NodeVisitor):
 def astjit(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+        if kwargs:
+            raise ASTJITError("Keyword arguments are not supported")
         source = inspect.getsource(func)
         tree = ast.parse(source)
-        print(ast.dump(tree, indent=4))
+        
         emitter = ExprCodeEmitter()
         emitter.visit(tree)
-        print(emitter.return_expr)
-
+        
         cg = LLVMCodeGenerator()
         cg.codegen(emitter.return_expr, len(emitter.args))
-        print(str(cg.module))
-
-        print("Running code...")
-        print(llvm_jit_evaluate(emitter.return_expr, *args))
-        return func(*args, **kwargs)
+        
+        return llvm_jit_evaluate(emitter.return_expr, *args)
 
     return wrapper

@@ -85,6 +85,7 @@ class LLVMCodeGenerator:
             case _:
                 raise CodegenError(f"Unsupported expression {expr}")
 
+
 def llvm_jit_evaluate(expr, *args):
     llvm.initialize()
     llvm.initialize_native_target()
@@ -96,10 +97,9 @@ def llvm_jit_evaluate(expr, *args):
     mod = llvm.parse_assembly(str(cg.module))
 
     target = llvm.Target.from_default_triple()
-    target_machine = target.create_target_machine()    
+    target_machine = target.create_target_machine()
     with llvm.create_mcjit_compiler(mod, target_machine) as ee:
         ee.finalize_object()
         cfptr = ee.get_function_address("func")
         cfunc = CFUNCTYPE(c_double, *([c_double] * len(args)))(cfptr)
         return cfunc(*args)
-    
