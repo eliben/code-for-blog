@@ -3,7 +3,7 @@
 // Note: if your machine has fewer than 4 logical CPUs, you may need to adjust
 // the number of threads launched here (or change the affinity in CPU_SET).
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
 #include <chrono>

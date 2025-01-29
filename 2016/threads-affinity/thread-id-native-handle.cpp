@@ -1,6 +1,6 @@
 // Shows how to look at thread IDs and their native handles.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
 #include <chrono>

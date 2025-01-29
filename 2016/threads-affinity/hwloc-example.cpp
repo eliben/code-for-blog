@@ -1,7 +1,7 @@
 // Example of using the hwloc portable API to query the system's topology and
 // to pin the calling thread to a given logical CPU.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 //
 #include <chrono>

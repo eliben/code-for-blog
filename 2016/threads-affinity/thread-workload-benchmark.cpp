@@ -12,7 +12,7 @@
 // in parallel on CPU 1. Each workload is given its own (separately allocated)
 // vector of 100 million floats.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
 #include <chrono>

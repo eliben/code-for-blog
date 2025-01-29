@@ -1,7 +1,7 @@
 // Sample of launching C++11 threads and checking how many CPUs the host system
 // has.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <algorithm>
 #include <chrono>
