@@ -1,3 +1,7 @@
+# AST-analysis based JIT decorator.
+#
+# Eli Bendersky (https://eli.thegreenplace.net)
+# This code is in the public domain
 import ast
 import functools
 import inspect
@@ -15,7 +19,7 @@ class ASTJITError(Exception):
     pass
 
 
-class ExprCodeEmitter(ast.NodeVisitor):
+class _ExprCodeEmitter(ast.NodeVisitor):
     def __init__(self):
         self.args = []
         self.return_expr = None
@@ -63,7 +67,7 @@ def astjit(func):
         source = inspect.getsource(func)
         tree = ast.parse(source)
 
-        emitter = ExprCodeEmitter()
+        emitter = _ExprCodeEmitter()
         emitter.visit(tree)
         return llvm_jit_evaluate(emitter.return_expr, *args)
 

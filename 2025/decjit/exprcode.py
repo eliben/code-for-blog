@@ -1,3 +1,9 @@
+# A simple expression based "IR" with support for emitting LLVM IR and JIT.
+#
+# Expressions are trees of Expr nodes.
+#
+# Eli Bendersky (https://eli.thegreenplace.net)
+# This code is in the public domain
 from dataclasses import dataclass
 from enum import Enum
 
@@ -48,7 +54,7 @@ class CodegenError(Exception):
     pass
 
 
-class LLVMCodeGenerator:
+class _LLVMCodeGenerator:
     def __init__(self):
         self.module = ir.Module()
         self.builder = None
@@ -104,7 +110,7 @@ def llvm_jit_evaluate(expr, *args: float) -> float:
     llvm.initialize_native_asmprinter()
     llvm.initialize_native_asmparser()
 
-    cg = LLVMCodeGenerator()
+    cg = _LLVMCodeGenerator()
     modref = llvm.parse_assembly(str(cg.codegen(expr, len(args))))
 
     target = llvm.Target.from_default_triple()

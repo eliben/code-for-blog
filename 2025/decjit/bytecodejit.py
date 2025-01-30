@@ -1,6 +1,10 @@
+# Bytecode-analysis based JIT decorator.
+#
+# Eli Bendersky (https://eli.thegreenplace.net)
+# This code is in the public domain
+
 import functools
 import dis
-
 
 from exprcode import (
     VarExpr,
@@ -15,7 +19,7 @@ class BytecodeJITError(Exception):
     pass
 
 
-def emit_exprcode(func):
+def _emit_exprcode(func):
     bc = func.__code__
     # print(f"co_varnames = {bc.co_varnames}")
     # print(f"co_argcount = {bc.co_argcount}")
@@ -60,7 +64,7 @@ def bytecodejit(func):
         if kwargs:
             raise BytecodeJITError("Keyword arguments are not supported")
 
-        expr = emit_exprcode(func)
+        expr = _emit_exprcode(func)
         return llvm_jit_evaluate(expr, *args)
 
     return wrapper
