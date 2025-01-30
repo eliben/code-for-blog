@@ -4,9 +4,30 @@ from tracejit import tracejit
 @tracejit
 def some_expr(a, b, c):
     return b / (a + 2) - c * (b - a)
-    # return a + b + b + 2
-    # return 1 - b
-    # return b - 1
 
 
 print(some_expr(2, 16, 3))
+
+
+# The tracing approach "sees through" locals, etc.
+@tracejit
+def use_locals(a, b, c):
+    x = a + 2
+    y = b - a
+    z = c * x
+    return b / x - z
+
+
+print(use_locals(2, 8, 11))
+
+
+# ... and loops!
+@tracejit
+def use_loop(a, b, c):
+    result = 0
+    for i in range(1, 11):
+        result += i
+    return result + b * c
+
+
+print(use_loop(10, 2, 3))
