@@ -35,7 +35,31 @@ def _add(*args):
     return Box(BinOpExpr(boxes[0].expr, boxes[1].expr, Op.ADD))
 
 
-Box.__add__ = Box.__radd__ = _add
+def register_binary_op(opcode, reverse=False):
+    """Registers a binary opcode for Boxes.
+
+    If reverse is True, the operation is registered as arg2-arg1, instead of
+    arg1-arg2.
+    """
+
+    def _op(arg1, arg2):
+        if reverse:
+            arg1, arg2 = arg2, arg1
+        box1 = arg1 if isinstance(arg1, Box) else Box(ConstantExpr(arg1))
+        box2 = arg2 if isinstance(arg2, Box) else Box(ConstantExpr(arg2))
+        # Note: theoretically we could do constant folding here, if the only
+        # arguments are constants.
+        return Box(BinOpExpr(box1.expr, box2.expr, opcode))
+
+    return _op
+
+
+Box.__add__ = Box.__radd__ = register_binary_op(Op.ADD)
+Box.__sub__ = register_binary_op(Op.SUB)
+Box.__rsub__ = register_binary_op(Op.SUB, reverse=True)
+Box.__mul__ = Box.__rmul__ = register_binary_op(Op.MUL)
+Box.__truediv__ = register_binary_op(Op.DIV)
+Box.__rtruediv__ = register_binary_op(Op.DIV, reverse=True)
 
 
 def tracejit(func):
