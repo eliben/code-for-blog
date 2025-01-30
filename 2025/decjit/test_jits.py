@@ -15,6 +15,10 @@ def expr(a, b, c):
     return (a + b) * c - 100 / (c - 1)
 
 
+def expr2(a, b, c, d):
+    return (a + d) * (10 - c) + b + d / c
+
+
 @pytest.mark.parametrize("jitdec", [bytecodejit, astjit])
 def test_jits(jitdec):
     jit_add = jitdec(add)
@@ -27,3 +31,7 @@ def test_jits(jitdec):
     jit_expr = jitdec(expr)
     assert jit_expr(1, 2, 3) == -41.0
     assert jit_expr(2, -1, 201) == 200.5
+
+    jit_expr2 = jitdec(expr2)
+    assert jit_expr2(1, 2, 5, 10) == 59.0
+    assert jit_expr2(5, -5, 10, 40) == -1
