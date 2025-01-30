@@ -21,20 +21,6 @@ class Box:
     expr: Expr
 
 
-def _add(*args):
-    boxes = []
-    for arg in args:
-        if isinstance(arg, Box):
-            boxes.append(arg)
-        else:
-            boxes.append(Box(ConstantExpr(arg)))
-
-    # Note: theoretically we could do constant folding here, if the only
-    # arguments are constants.
-
-    return Box(BinOpExpr(boxes[0].expr, boxes[1].expr, Op.ADD))
-
-
 def register_binary_op(opcode, reverse=False):
     """Registers a binary opcode for Boxes.
 
@@ -76,8 +62,7 @@ def tracejit(func):
                 raise TraceJITError("Too many arguments")
             argboxes.append(Box(VarExpr(argspec.args[i], i)))
 
-        expr = func(*argboxes)
-        print(f"expr = {expr}")
-        # return llvm_jit_evaluate(emitter.return_expr, *args)
+        out_box = func(*argboxes)
+        return llvm_jit_evaluate(out_box.expr, *args)
 
     return wrapper
