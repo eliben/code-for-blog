@@ -21,10 +21,6 @@ class BytecodeJITError(Exception):
 
 def _emit_exprcode(func):
     bc = func.__code__
-    # print(f"co_varnames = {bc.co_varnames}")
-    # print(f"co_argcount = {bc.co_argcount}")
-    # for inst in dis.get_instructions(func):
-    #     print(inst)
     stack = []
     for inst in dis.get_instructions(func):
         match inst.opname:
