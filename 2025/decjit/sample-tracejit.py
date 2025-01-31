@@ -2,6 +2,14 @@ from tracejit import tracejit
 
 
 @tracejit
+def add(a, b):
+    return a + b
+
+
+print(add(1, 2))
+
+
+@tracejit
 def some_expr(a, b, c):
     return b / (a + 2) - c * (b - a)
 
@@ -15,7 +23,7 @@ def use_locals(a, b, c):
     x = a + 2
     y = b - a
     z = c * x
-    return b / x - z
+    return y / x - z
 
 
 print(use_locals(2, 8, 11))
