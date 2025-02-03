@@ -97,7 +97,7 @@ class _LLVMCodeGenerator:
                 raise CodegenError(f"Unsupported expression {expr}")
 
 
-def llvm_jit_evaluate(expr, *args: float) -> float:
+def llvm_jit_evaluate(expr: Expr, *args: float) -> float:
     """Use LLVM JIT to evaluate the given expression with *args.
 
     expr is an instance of Expr. *args are the arguments to the expression, each
