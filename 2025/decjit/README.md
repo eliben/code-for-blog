@@ -1,15 +1,16 @@
-"Decorator JITs - Python as a DSL" ?
-
 These implement the different kinds of JIT:
 
     astjit
     bytecodejit
     tracejit
 
+Each has its own `sample-<kind>jit.py` file for experiments. Run these with
+`uv run`.
+
 All using the same package for running expressions via llvmlite:
 
     exprcode
 
-To run unit tests:
+To run all unit tests:
 
     uv run pytest -v
