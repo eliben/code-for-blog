@@ -14,7 +14,7 @@ func dotProduct(a, b []float32) float32 {
 	return dot
 }
 
-const benchArrSize = 1024 * 1024
+const benchArrSize = 1000000
 
 func BenchmarkDot(b *testing.B) {
 	aa := make([]float32, benchArrSize)
