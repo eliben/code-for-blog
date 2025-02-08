@@ -3,17 +3,8 @@
 package main
 
 import (
-	"math/rand/v2"
 	"testing"
 )
-
-func makeRandSlice(sz int) []float32 {
-	s := make([]float32, sz)
-	for i := range sz {
-		s[i] = rand.Float32()
-	}
-	return s
-}
 
 func dotProduct(a, b []float32) float32 {
 	var dot float32
@@ -23,11 +14,11 @@ func dotProduct(a, b []float32) float32 {
 	return dot
 }
 
-const benchArrSize = 1 * 1024 * 1024
+const benchArrSize = 1024 * 1024
 
 func BenchmarkDot(b *testing.B) {
-	aa := makeRandSlice(benchArrSize)
-	bb := makeRandSlice(benchArrSize)
+	aa := make([]float32, benchArrSize)
+	bb := make([]float32, benchArrSize)
 
 	for b.Loop() {
 		dotProduct(aa, bb)
