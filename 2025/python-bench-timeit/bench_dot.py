@@ -15,3 +15,17 @@ print(timeit.repeat("dot.dotProductLoop(a, b)", globals=globals(), number=N, rep
 
 # Use auto-range to discover a reasonable number of iterations automatically.
 print(timeit.Timer("dot.dotProductLoop(a, b)", globals=globals()).autorange())
+
+
+def autobench(stmt, globals=None, repeat=5):
+    # Find the number of iterations to run
+    timer = timeit.Timer(stmt, globals=globals)
+    num, _ = timer.autorange()
+    raw_timings = timer.repeat(repeat=repeat, number=num)
+    best = min(raw_timings)
+    print(f"{num} loops, best of {repeat}: {best/num:.3f}s per loop")
+
+
+autobench("dot.dotProductLoop(a, b)", globals=globals())
+autobench("dot.dotProductZip(a, b)", globals=globals())
+autobench("dot.dotProductStarmap(a, b)", globals=globals())
