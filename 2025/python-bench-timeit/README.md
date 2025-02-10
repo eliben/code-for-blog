@@ -12,3 +12,5 @@ TODO Features needed:
 1) Maximum detection of loop count N
 2) Finding "best of K" (5 by default in both Go and Python)
 3) Divide total exec by N to get "per loop" time
+
+TODO: mention closure variant
