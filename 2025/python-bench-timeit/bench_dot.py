@@ -1,3 +1,8 @@
+# Bencmarking the dot product implementations in dot.py
+# Includes the autobench utility function.
+#
+# Eli Bendersky (https://eli.thegreenplace.net)
+# This code is in the public domain
 import dot
 import timeit
 
