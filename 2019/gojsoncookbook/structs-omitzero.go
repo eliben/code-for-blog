@@ -1,4 +1,4 @@
-// Encoding/decoding structs, omitting empty fields.
+// Encoding/decoding structs, omitting fields with default values.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -10,7 +10,7 @@ import (
 )
 
 type Food struct {
-	Id             int     `json:"id,omitempty"`
+	Id             int     `json:"id,omitzero"`
 	Name           string  `json:"name"`
 	FatPerServ     float64 `json:"fat_per_serv"`
 	ProteinPerServ float64 `json:"protein_per_serv"`
