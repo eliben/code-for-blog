@@ -6,7 +6,7 @@
 // 2. Use the _PRIVATE versions of system calls since these can be more
 //    efficient within a single process.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <errno.h>
 #include <linux/futex.h>

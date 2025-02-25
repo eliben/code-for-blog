@@ -1,6 +1,6 @@
 // Basic userspace handshake using futexes, for two processes.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <errno.h>
 #include <linux/futex.h>
