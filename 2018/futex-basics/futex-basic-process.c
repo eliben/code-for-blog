@@ -96,8 +96,9 @@ int main(int argc, char** argv) {
 
     // Wait for the child to terminate.
     wait(NULL);
-    shmdt(shared_data);
+    if (shmdt(shared_data) < 0) {
+      perror("shmdt");
+    }
   }
-
   return 0;
 }
