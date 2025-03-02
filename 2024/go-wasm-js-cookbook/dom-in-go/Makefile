@@ -6,7 +6,7 @@
 # before buildling.
 
 wasm_exec_go.js:
-	wget https://raw.githubusercontent.com/golang/go/release-branch.go1.22/misc/wasm/wasm_exec.js -O wasm_exec_go.js
+	wget https://raw.githubusercontent.com/golang/go/release-branch.go1.24/lib/wasm/wasm_exec.js -O wasm_exec_go.js
 	touch $@
 
 wasm_exec_tinygo.js:
