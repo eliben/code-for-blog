@@ -1,0 +1,17 @@
+[project]
+name = "einsum-impl"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.2.3",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+]
