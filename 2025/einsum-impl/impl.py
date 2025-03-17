@@ -2,6 +2,16 @@ import numpy as np
 
 def translate_einsum(subscript):
     """Translates an explicit np.einsum subscript into Python code.
+
+    Takes an explicit einsum subscript string and returns the string of a Python
+    function that computes the same result. The function's arity matches the
+    number of input parts in the subscript; for example, with 'ij,jk->ik', the
+    function will have the signature:
+
+        def calc(__a, __b):
+            ... return out
+    
+    And it will calculate the matmul of __a and __b.
     """
     # split by ->
     ins_s, out = map(str.strip, subscript.split('->'))
