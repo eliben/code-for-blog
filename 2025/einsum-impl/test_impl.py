@@ -33,6 +33,11 @@ def test_translate_einsum():
     # Not matmul because of different indices: this is a double loop sum
     run_test('ij,pk->ik', A, B)
 
+    # Outer product
+    v1 = np.arange(8)
+    v2 = np.arange(5)+2
+    run_test('i,j->ij', v1, v2)
+
     # Batched matmuls
     Ab = np.arange(6*6).reshape(6,2,3)
     Bb = np.arange(6*12).reshape(6,3,4)
