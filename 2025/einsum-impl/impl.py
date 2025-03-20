@@ -1,3 +1,7 @@
+# Implementing the einsum function using Python code generation.
+#
+# Eli Bendersky (https://eli.thegreenplace.net)
+# This code is in the public domain
 import numpy as np
 
 
