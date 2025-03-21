@@ -17,8 +17,11 @@ def translate_einsum(subscript):
             ... return out
 
     And it will calculate the matmul of __a and __b.
+
+    This function doesn't do much error checking on the subscript; it assumes
+    it's valid.
     """
-    # split by ->
+    # Split inputs from output
     ins_s, out = map(str.strip, subscript.split("->"))
     inputs = list(map(str.strip, ins_s.split(",")))
 
@@ -55,13 +58,17 @@ def translate_einsum(subscript):
                 emit_line(f"{dim_size} = {input_name}.shape[{i}]")
                 dim_sizes.add(dim_size)
 
-    # Output array: create an array of the correct shape to hold the result.
+    # Output array: create a zero array of the correct shape to hold the result.
     emit_line()
     emit_line(f"out = np.zeros(({', '.join(f'{label}_size' for label in out)}))")
 
     emit_line()
+
+    # Save the function-level indent level, because we'll want to come beack to
+    # it after emitting some number of nested loops.
     saved_indent = indent
-    # Loop over all indices in the output array
+
+    # Outer loops over the dimensions of the output array.
     for label in out:
         emit_line(f"for {label} in range({label}_size):")
         indent += 4
