@@ -7,8 +7,8 @@ plt.style.use("seaborn-v0_8-darkgrid")
 # Data
 labels = ["x$_1$", "x$_2$", "x$_3$", "x$_4$", "x$_5$"]
 p = [0.1, 0.2, 0.4, 0.2, 0.1]
-q = [0.2, 0.2, 0.2, 0.2, 0.2]
-# q = [0.15, 0.175, 0.35, 0.175, 0.15]
+# q = [0.2, 0.2, 0.2, 0.2, 0.2]
+q = [0.15, 0.175, 0.35, 0.175, 0.15]
 
 xent = -np.sum(np.where(p != 0, p * np.log2(q), 0))
 print(f"sum(p): {np.sum(p)}")
@@ -19,7 +19,7 @@ x = np.arange(len(labels))
 width = 0.25  # bar width
 
 # Smaller plot
-fig, ax = plt.subplots(figsize=(7, 4))
+fig, ax = plt.subplots(figsize=(5, 4))
 
 # Bars for p and q
 ax.bar(x - width / 2, p, width, label="p")
