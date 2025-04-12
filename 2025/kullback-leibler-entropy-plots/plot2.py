@@ -1,10 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Seaborn style
 plt.style.use("seaborn-v0_8-darkgrid")
 
-# Data
 labels = ["x$_1$", "x$_2$", "x$_3$", "x$_4$", "x$_5$"]
 p = [0.1, 0.2, 0.4, 0.2, 0.1]
 # q = [0.2, 0.2, 0.2, 0.2, 0.2]
@@ -18,14 +16,11 @@ print(f"Cross-entropy: {xent:.4f}")
 x = np.arange(len(labels))
 width = 0.25  # bar width
 
-# Smaller plot
 fig, ax = plt.subplots(figsize=(5, 4))
-
 # Bars for p and q
 ax.bar(x - width / 2, p, width, label="p")
 ax.bar(x + width / 2, q, width, label="q")
 
-# Axis labels and title
 ax.set_ylabel("Probability")
 ax.set_xlabel("Discrete Values")
 ax.set_title("Two Probability Distributions")
