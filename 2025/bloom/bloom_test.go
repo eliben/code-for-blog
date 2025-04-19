@@ -1,6 +1,7 @@
 package bloom
 
 import (
+	"crypto/rand"
 	"fmt"
 	"hash/maphash"
 	"slices"
@@ -23,6 +24,85 @@ func TestCalculateEps(t *testing.T) {
 	eps := CalculateEps(1000000, 100000)
 	if eps < 0.008 || eps > 0.0082 {
 		t.Errorf("got eps=%v", eps)
+	}
+}
+
+func TestFilter(t *testing.T) {
+	// Test the operation of the Bloom filter. We set parameters to get
+	// an extremely low error rate, and check that we don't get any false
+	// answers.
+	m := uint64(2000)
+	n, k := CalculateParams(m, 1e-15)
+
+	bf := New(n, k)
+
+	// Insert m random items, also holding them in fullSet.
+	// We assume that the chance of generating the same 256-byte random
+	// value is negligible.
+	buf := make([]byte, 256)
+	fullSet := make(map[string]bool)
+	for range m {
+		rand.Read(buf)
+		bf.Add(buf)
+		fullSet[string(buf)] = true
+	}
+
+	// Check that true is returned for all inserted items (this can never be
+	// false due to the guarantees of the Bloom filter)
+	for k := range fullSet {
+		if !bf.Test([]byte(k)) {
+			t.Errorf("Test(%v)=false", k)
+		}
+	}
+
+	// Now generate another 2000 random items; the chance of false positives is
+	// so low that we expect Test to return true for all of these.
+	for range m {
+		rand.Read(buf)
+		if bf.Test(buf) {
+			t.Errorf("Test(%v)=true", buf)
+		}
+	}
+}
+
+func TestErrorRate(t *testing.T) {
+	m := uint64(1000)
+	eps := 0.1
+	n, k := CalculateParams(m, eps)
+
+	bf := New(n, k)
+	buf := make([]byte, 256)
+	fullSet := make(map[string]bool)
+	for range m {
+		rand.Read(buf)
+		bf.Add(buf)
+		fullSet[string(buf)] = true
+	}
+
+	// Check that true is returned for all inserted items (this can never be
+	// false due to the guarantees of the Bloom filter)
+	for k := range fullSet {
+		if !bf.Test([]byte(k)) {
+			t.Errorf("Test(%v)=false", k)
+		}
+	}
+
+	// Now calculate the empirical error rate, by testing a large number of
+	// random items (that weren't previously inserted).
+	N := 100000
+	npos := 0
+	for range N {
+		rand.Read(buf)
+		if bf.Test(buf) {
+			npos++
+		}
+	}
+
+	// Expect the count to be within 25% of our requested eps
+	expectedFPs := float64(N) * eps
+	nposfp64 := float64(npos)
+	if nposfp64 < expectedFPs*0.75 || nposfp64 > expectedFPs*1.25 {
+		t.Errorf("got %v, expected %v", nposfp64, expectedFPs)
 	}
 }
 
