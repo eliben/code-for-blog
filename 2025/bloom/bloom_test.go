@@ -19,6 +19,13 @@ func TestCalculateParams(t *testing.T) {
 	}
 }
 
+func TestCalculateEps(t *testing.T) {
+	eps := CalculateEps(1000000, 100000)
+	if eps < 0.008 || eps > 0.0082 {
+		t.Errorf("got eps=%v", eps)
+	}
+}
+
 func TestNewBitset(t *testing.T) {
 	// Test length of new bitset
 	var tests = []struct {

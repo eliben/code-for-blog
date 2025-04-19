@@ -5,20 +5,6 @@ import (
 	"math"
 )
 
-// CalculateParams calculates optimal parameters for a Bloom filter that's
-// intended to contain n elements with error (false positive) rate eps.
-func CalculateParams(n uint64, eps float64) (m uint64, k uint64) {
-	// The formulae we derived are:
-	// (m/n) = -ln(eps)/(ln(2)*ln(2))
-	// k = (m/n)ln(2)
-
-	ln2 := math.Log(2)
-	mdivn := -math.Log(eps) / (ln2 * ln2)
-	m = uint64(math.Ceil(float64(n) * mdivn))
-	k = uint64(math.Ceil(mdivn * ln2))
-	return
-}
-
 func New(m uint64, k uint64) *BloomFilter {
 	return &BloomFilter{
 		m:      m,
@@ -75,4 +61,23 @@ func bitsetSet(bitset []uint64, i uint64) {
 func bitsetTest(bitset []uint64, i uint64) bool {
 	word, offset := i/64, i%64
 	return (bitset[word] & (1 << offset)) != 0
+}
+
+// CalculateParams calculates optimal parameters for a Bloom filter that's
+// intended to contain n elements with error (false positive) rate eps.
+func CalculateParams(n uint64, eps float64) (m uint64, k uint64) {
+	// The formulae we derived are:
+	// (m/n) = -ln(eps)/(ln(2)*ln(2))
+	// k = (m/n)ln(2)
+
+	ln2 := math.Log(2)
+	mdivn := -math.Log(eps) / (ln2 * ln2)
+	m = uint64(math.Ceil(float64(n) * mdivn))
+	k = uint64(math.Ceil(mdivn * ln2))
+	return
+}
+
+// Given m and n, calculate the error rate (assuming an optimal k).
+func CalculateEps(m uint64, n uint64) float64 {
+	return math.Pow(0.5, math.Log(2)*float64(m)/float64(n))
 }
