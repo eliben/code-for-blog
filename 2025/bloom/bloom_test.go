@@ -7,6 +7,18 @@ import (
 	"testing"
 )
 
+func TestCalculateParams(t *testing.T) {
+	// Estimations from the blog post with 100,000 elements and an error rate
+	// of 0.01
+	m, k := CalculateParams(100000, 0.01)
+	if m < 958000 || m > 959000 {
+		t.Errorf("got m=%v", m)
+	}
+	if k != 7 {
+		t.Errorf("got k=%v", k)
+	}
+}
+
 func TestNewBitset(t *testing.T) {
 	// Test length of new bitset
 	var tests = []struct {
