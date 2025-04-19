@@ -3,13 +3,14 @@ package bloom
 import (
 	"fmt"
 	"hash/maphash"
+	"slices"
 	"testing"
 )
 
 func TestNewBitset(t *testing.T) {
 	// Test length of new bitset
 	var tests = []struct {
-		m       uint
+		m       uint64
 		wantLen int
 	}{
 		{1, 1},
@@ -28,6 +29,23 @@ func TestNewBitset(t *testing.T) {
 				t.Errorf("got %v, want %v", len(bs), tt.wantLen)
 			}
 		})
+	}
+}
+
+func TestBitsetSetTest(t *testing.T) {
+	b := newBitset(68)
+	oneIndices := []uint64{1, 20, 33, 61, 67}
+
+	for _, idx := range oneIndices {
+		bitsetSet(b, idx)
+	}
+
+	for idx := range uint64(68) {
+		want := slices.Contains(oneIndices, idx)
+		got := bitsetTest(b, idx)
+		if got != want {
+			t.Errorf("idx=%v got %v, want %v", idx, got, want)
+		}
 	}
 }
 
