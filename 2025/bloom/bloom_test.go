@@ -66,6 +66,7 @@ func TestFilter(t *testing.T) {
 }
 
 func TestErrorRate(t *testing.T) {
+	// Test the error rate we get from a filter matches theoretical estimates.
 	m := uint64(1000)
 	eps := 0.1
 	n, k := CalculateParams(m, eps)

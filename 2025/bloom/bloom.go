@@ -23,6 +23,7 @@ type BloomFilter struct {
 	k      uint64
 	bitset []uint64
 
+	// These seeds are used for the double hashing scheme.
 	seed1, seed2 maphash.Seed
 }
 
@@ -54,6 +55,8 @@ func (bf *BloomFilter) Test(data []byte) bool {
 
 // newBitset creates a new bitset to store m bits.
 func newBitset(m uint64) []uint64 {
+	// blen is the length of the slice we need to represent all m bits.
+	// It's the integer version of ceil(m/64)
 	blen := (m + 63) / 64
 	return make([]uint64, blen)
 }
