@@ -5,6 +5,9 @@ import (
 	"math"
 )
 
+// New creates a new BloomFilter with capacity m, using k hash functions.
+// You can calcualte m and k from the number of elements you expect the
+// filter to hold and the desired error rate using CalculateParams.
 func New(m uint64, k uint64) *BloomFilter {
 	return &BloomFilter{
 		m:      m,
@@ -23,6 +26,7 @@ type BloomFilter struct {
 	seed1, seed2 maphash.Seed
 }
 
+// Add a data item to the bloom filter.
 func (bf *BloomFilter) Add(data []byte) {
 	h1 := maphash.Bytes(bf.seed1, data)
 	h2 := maphash.Bytes(bf.seed2, data)
@@ -32,6 +36,10 @@ func (bf *BloomFilter) Add(data []byte) {
 	}
 }
 
+// Test if the given data item is in the bloom filter. If Test returns false,
+// it's guaranteed that data was never added to the filter. If it returns true,
+// there's an eps probability of this being a false positive. eps depends on
+// the parameters the filter was created with (see CalculateParams).
 func (bf *BloomFilter) Test(data []byte) bool {
 	h1 := maphash.Bytes(bf.seed1, data)
 	h2 := maphash.Bytes(bf.seed2, data)
