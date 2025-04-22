@@ -27,8 +27,8 @@ type BloomFilter struct {
 	seed1, seed2 maphash.Seed
 }
 
-// Add a data item to the bloom filter.
-func (bf *BloomFilter) Add(data []byte) {
+// Insert a data item to the bloom filter.
+func (bf *BloomFilter) Insert(data []byte) {
 	h1 := maphash.Bytes(bf.seed1, data)
 	h2 := maphash.Bytes(bf.seed2, data)
 	for i := range bf.k {

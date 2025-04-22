@@ -43,7 +43,7 @@ func TestFilter(t *testing.T) {
 	fullSet := make(map[string]bool)
 	for range m {
 		rand.Read(buf)
-		bf.Add(buf)
+		bf.Insert(buf)
 		fullSet[string(buf)] = true
 	}
 
@@ -76,7 +76,7 @@ func TestErrorRate(t *testing.T) {
 	fullSet := make(map[string]bool)
 	for range m {
 		rand.Read(buf)
-		bf.Add(buf)
+		bf.Insert(buf)
 		fullSet[string(buf)] = true
 	}
 
