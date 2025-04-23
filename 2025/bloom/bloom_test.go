@@ -2,6 +2,7 @@ package bloom
 
 import (
 	"crypto/rand"
+	"encoding/binary"
 	"fmt"
 	"hash/maphash"
 	"slices"
@@ -171,5 +172,28 @@ func TestMaphash(t *testing.T) {
 	b2 := maphash.Bytes(s2, data)
 	if b1 == b2 {
 		t.Errorf("got equality at %v", b1)
+	}
+}
+
+func BenchmarkBillionItems(b *testing.B) {
+	n := uint64(10000000)
+	eps := 0.01
+	m, k := CalculateParams(n, 0.01)
+	fmt.Printf("With n=%v, eps=%v ===> m=%v, k=%v\n", n, eps, m, k)
+	bf := New(m, k)
+
+	// Insert some random data.
+	for i := range n {
+		buf := make([]byte, 64)
+		binary.PutUvarint(buf, i)
+		bf.Insert(buf)
+	}
+
+	rbuf := make([]byte, 64)
+	for m := range byte(64) {
+		rbuf[m] = m
+	}
+	for b.Loop() {
+		bf.Test(rbuf)
 	}
 }
