@@ -189,11 +189,18 @@ func BenchmarkBillionItems(b *testing.B) {
 		bf.Insert(buf)
 	}
 
-	rbuf := make([]byte, 64)
-	for m := range byte(64) {
-		rbuf[m] = m
+	// We'll cycle lookups between a large number of different data (to account
+	// for cache effects).
+	numRbufs := 100000
+	rbufs := make([][]byte, numRbufs)
+	for i := range numRbufs {
+		rbufs[i] = make([]byte, 64)
+		rand.Read(rbufs[i])
 	}
+
+	i := 0
 	for b.Loop() {
-		bf.Test(rbuf)
+		bf.Test(rbufs[i])
+		i = (i + 1) % numRbufs
 	}
 }
