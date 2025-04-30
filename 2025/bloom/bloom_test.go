@@ -191,7 +191,7 @@ func BenchmarkBillionItems(b *testing.B) {
 
 	// We'll cycle lookups between a large number of different data (to account
 	// for cache effects).
-	numRbufs := 100000
+	numRbufs := 1024 * 1024
 	rbufs := make([][]byte, numRbufs)
 	for i := range numRbufs {
 		rbufs[i] = make([]byte, 64)
