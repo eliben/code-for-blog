@@ -1,3 +1,7 @@
+// Bloom filter implementation in Go.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package bloom
 
 import (
@@ -23,7 +27,7 @@ type BloomFilter struct {
 	k      uint64
 	bitset []uint64
 
-	// These seeds are used for the double hashing scheme.
+	// seeds for the double hashing scheme.
 	seed1, seed2 maphash.Seed
 }
 
