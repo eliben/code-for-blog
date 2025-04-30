@@ -2,7 +2,6 @@ package bloom
 
 import (
 	"crypto/rand"
-	"encoding/binary"
 	"fmt"
 	"hash/maphash"
 	"slices"
@@ -183,9 +182,9 @@ func BenchmarkBillionItems(b *testing.B) {
 	bf := New(m, k)
 
 	// Insert some random data.
-	for i := range n {
-		buf := make([]byte, 64)
-		binary.PutUvarint(buf, i)
+	buf := make([]byte, 64)
+	for range n {
+		rand.Read(buf)
 		bf.Insert(buf)
 	}
 

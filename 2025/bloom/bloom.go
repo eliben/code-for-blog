@@ -10,7 +10,7 @@ import (
 )
 
 // New creates a new BloomFilter with capacity m, using k hash functions.
-// You can calcualte m and k from the number of elements you expect the
+// You can calculate m and k from the number of elements you expect the
 // filter to hold and the desired error rate using CalculateParams.
 func New(m uint64, k uint64) *BloomFilter {
 	return &BloomFilter{
