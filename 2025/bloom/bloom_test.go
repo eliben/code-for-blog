@@ -174,8 +174,10 @@ func TestMaphash(t *testing.T) {
 	}
 }
 
+// Warning: this benchmark takes a long time to run (~4-5 minutes) when
+// n is set to one billion.
 func BenchmarkBillionItems(b *testing.B) {
-	n := uint64(10000000)
+	n := uint64(1000 * 1000 * 1000)
 	eps := 0.01
 	m, k := CalculateParams(n, 0.01)
 	fmt.Printf("With n=%v, eps=%v ===> m=%v, k=%v\n", n, eps, m, k)
@@ -190,7 +192,7 @@ func BenchmarkBillionItems(b *testing.B) {
 
 	// We'll cycle lookups between a large number of different data (to account
 	// for cache effects).
-	numRbufs := 1024 * 1024
+	numRbufs := 32 * 1024 * 1024
 	rbufs := make([][]byte, numRbufs)
 	for i := range numRbufs {
 		rbufs[i] = make([]byte, 64)
