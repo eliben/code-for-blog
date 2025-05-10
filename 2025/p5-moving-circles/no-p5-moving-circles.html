@@ -1,0 +1,83 @@
+<html>
+
+<body>
+    <canvas id="myCanvas"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let circles = [];
+        const canvasWidth = 400;
+        const canvasHeight = 400;
+
+        function getRandom(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function randomCircleAtPos(x, y) {
+            return {
+                x: x,
+                y: y,
+                size: getRandom(20, 80),
+                color: `rgb(${getRandom(0, 255)}, ${getRandom(0, 255)}, ${getRandom(0, 255)})`,
+                xSpeed: getRandom(-2, 2),
+                ySpeed: getRandom(-2, 2)
+            };
+        }
+
+        function setup() {
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
+
+            for (let i = 0; i < 5; i++) {
+                circles.push(randomCircleAtPos(
+                    canvas.width / 2 + getRandom(-100, 100),
+                    canvas.height / 2 + getRandom(-100, 100)));
+            }
+
+            // Start the animation loop
+            requestAnimationFrame(draw);
+        }
+
+        function draw() {
+            // Set background color (similar to p5's background())
+            ctx.fillStyle = 'rgb(240, 240, 240)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let c of circles) {
+                c.x += c.xSpeed;
+                c.y += c.ySpeed;
+
+                // Bounce off the walls
+                if (c.x + c.size / 2 > canvas.width || c.x - c.size / 2 < 0) {
+                    c.xSpeed *= -1;
+                }
+                if (c.y + c.size / 2 > canvas.height || c.y - c.size / 2 < 0) {
+                    c.ySpeed *= -1;
+                }
+
+                // Draw the circle
+                ctx.fillStyle = c.color;
+                ctx.beginPath();
+                ctx.arc(c.x, c.y, c.size / 2, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            requestAnimationFrame(draw);
+        }
+
+        function handleMousePressed(event) {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            circles.push(randomCircleAtPos(mouseX, mouseY));
+        }
+
+        canvas.addEventListener('mousedown', handleMousePressed);
+
+        // Initialize the canvas and start the animation
+        setup();
+    </script>
+</body>
+
+</html>

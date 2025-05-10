@@ -1,0 +1,60 @@
+<html>
+
+<head>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
+
+    <!-- Uncomment this to use the local p5min shim instead  -->
+    <!-- <script type="text/javascript" src="p5min/p5min.js"></script> -->
+</head>
+
+<body>
+    <script>
+        let circles = [];
+
+        function setup() {
+            createCanvas(400, 400);
+
+            for (let i = 0; i < 5; i++) {
+                circles.push(randomCircleAtPos(
+                    width / 2 + random(-100, 100),
+                    height / 2 + random(-100, 100)));
+            }
+
+        }
+
+        function draw() {
+            background(240);
+
+            for (let c of circles) {
+                c.x += c.xSpeed;
+                c.y += c.ySpeed;
+
+                // Bounce off the walls
+                if (c.x + c.size / 2 > width || c.x - c.size / 2 < 0) {
+                    c.xSpeed *= -1;
+                }
+                if (c.y + c.size / 2 > height || c.y - c.size / 2 < 0) {
+                    c.ySpeed *= -1;
+                }
+                fill(c.color);
+                circle(c.x, c.y, c.size);
+            }
+        }
+
+        function mousePressed() {
+            circles.push(randomCircleAtPos(mouseX, mouseY));
+        }
+
+        function randomCircleAtPos(x, y) {
+            return {
+                x: x,
+                y: y,
+                size: random(20, 80),
+                color: color(random(255), random(255), random(255)),
+                xSpeed: random(-2, 2),
+                ySpeed: random(-2, 2)
+            };
+        }
+    </script>
+</body>
+</html>
