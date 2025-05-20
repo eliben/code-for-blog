@@ -2,6 +2,10 @@ To run tests using Node.js:
 
     $ node test/test.js
 
+With the new node test runner, can also run:
+
+    $ node --test
+
 To see it in action in the browser, the local directory needs to be served in
 a real HTTP server (using file:/// will cause CORS errors when loading the
 local JS modules). For example, using https://github.com/eliben/static-server:
