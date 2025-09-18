@@ -1,26 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"hash/fnv"
 )
 
-func hash_item(item []byte, n uint32) uint32 {
+// hashItem computes the bucket an item hashes to, given a total number of
+// buckets.
+func hashItem(item []byte, nbuckets uint32) uint32 {
 	h := fnv.New32a()
 	h.Write(item)
-	return h.Sum32() % n
+	return h.Sum32() % nbuckets
 }
 
 func main() {
-	items := []string{"hello", "go", "don't stop me now"}
-
-	var n uint32 = 32
-	for _, item := range items {
-		fmt.Printf("%v (n=%v): %v\n", item, n, hash_item([]byte(item), n))
-	}
-
-	n = 33
-	for _, item := range items {
-		fmt.Printf("%v (n=%v): %v\n", item, n, hash_item([]byte(item), n))
-	}
+	demo1()
 }
