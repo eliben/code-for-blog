@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"hash/fnv"
 	"slices"
 )
@@ -28,6 +29,7 @@ func NewConsistentHasher(ringSize uint32) *ConsistentHasher {
 	}
 }
 
+// TODO: note, only call this if there are nodes already
 func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	ih := hashItem(item, ch.ringSize)
 
@@ -44,6 +46,27 @@ func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	}
 
 	return ch.nodes[slotIndex]
+}
+
+func (ch *ConsistentHasher) AddNode(node string) error {
+	if len(ch.nodes) == int(ch.ringSize) {
+		return fmt.Errorf("ringSize (%v) exceeded", ch.ringSize)
+	}
+
+	// Hash the new node and find where its index fits in the existing ring of
+	// slots. If there's a collision, report an error.
+	nh := hashItem(node, ch.ringSize)
+	slotIndex, found := slices.BinarySearch(ch.slots, nh)
+
+	if found {
+		return fmt.Errorf("collision: node %v maps to the same slot (%v)", ch.nodes[slotIndex], nh)
+	}
+
+	// No collision, so slotIndex points to the index in ch.nodes where the node
+	// should be inserted.
+	ch.slots = slices.Insert(ch.slots, slotIndex, nh)
+	ch.nodes = slices.Insert(ch.nodes, slotIndex, node)
+	return nil
 }
 
 func main() {
