@@ -29,7 +29,6 @@ func NewConsistentHasher(ringSize uint32) *ConsistentHasher {
 	}
 }
 
-// TODO: note, only call this if there are nodes already
 func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	ih := hashItem(item, ch.ringSize)
 
@@ -37,11 +36,14 @@ func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	// binary search is what we need here. ih is mapped to the node that has the
 	// same or the next larger slot index. slices.BinarySearch does exactly this,
 	// by returning the index where the value would be inserted.
-	//
-	// When the returned index is >= len(slots), it means the search wrapped
+	slotIndex, found := slices.BinarySearch(ch.slots, ih)
+	if slotIndex == 0 && !found {
+		panic("FindNodeFor called when ConsistentHasher has no nodes")
+	}
+
+	// When the returned index is len(slots), it means the search wrapped
 	// around and should be inserted at 0.
-	slotIndex, _ := slices.BinarySearch(ch.slots, ih)
-	if slotIndex >= len(ch.slots) {
+	if slotIndex == len(ch.slots) {
 		slotIndex = 0
 	}
 
