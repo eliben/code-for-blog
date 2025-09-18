@@ -7,12 +7,12 @@ func demo1() {
 
 	var n uint32 = 32
 	for _, item := range items {
-		fmt.Printf("%v (n=%v): %v\n", item, n, hashItem([]byte(item), n))
+		fmt.Printf("%v (n=%v): %v\n", item, n, hashItem(item, n))
 	}
 
 	fmt.Println("")
 	n = 33
 	for _, item := range items {
-		fmt.Printf("%v (n=%v): %v\n", item, n, hashItem([]byte(item), n))
+		fmt.Printf("%v (n=%v): %v\n", item, n, hashItem(item, n))
 	}
 }
