@@ -23,9 +23,8 @@ func generateRandomString(rnd *rand.Rand, length int) string {
 	return string(b)
 }
 
-func TestConsistentHasher(t *testing.T) {
-	rnd := makeLoggedRand(t)
-	ch := NewConsistentHasher(16 * 1024)
+func TestSmokeConsistentHasher(t *testing.T) {
+	ch := NewConsistentHasher(1024)
 
 	// Add nodes named "node-N"
 	var nodes []string
@@ -37,12 +36,32 @@ func TestConsistentHasher(t *testing.T) {
 		}
 	}
 
-	fmt.Println(ch)
+	s := "blobs"
+	ch.FindNodeFor(s)
+}
 
-	for range 10 {
+func TestConsistentHasher(t *testing.T) {
+	rnd := makeLoggedRand(t)
+	ch := NewConsistentHasher(1024 * 1024)
+
+	// Add nodes named "node-N"
+	var nodes []string
+	for i := range 256 {
+		n := fmt.Sprintf("node-%03d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			t.Error(err)
+		}
+	}
+
+	// Repeat many times:
+	// - generate a random item
+	// - ask the ConsistentHasher which node it maps to
+	// - run a manual search process using ConsistentHasher's internals to verify
+	//   that the item was mapped to the right node
+	for range 1000 {
 		str := generateRandomString(rnd, 16)
 		sh := hashItem(str, ch.ringSize)
-		fmt.Printf("hash = %v\n", sh)
 
 		nn := ch.FindNodeFor(str)
 
@@ -66,11 +85,8 @@ func TestConsistentHasher(t *testing.T) {
 			}
 		}
 
-		fmt.Printf("%v  ---  %v\n", nn, ch.nodes[bestSlot])
+		if nn != ch.nodes[bestSlot] {
+			t.Errorf("mismatch; ch returned %v, manual search %v", nn, ch.nodes[bestSlot])
+		}
 	}
-
-	//fmt.Println(counts)
-	//for k, v := range counts {
-	//fmt.Printf("  %v: %v\n", k, v)
-	//}
 }

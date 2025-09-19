@@ -2,15 +2,15 @@ package main
 
 import (
 	"fmt"
-	"hash/maphash"
+	"hash/fnv"
 	"slices"
 )
 
 // hashItem computes the bucket an item hashes to, given a total number of
 // buckets.
 func hashItem(item string, nbuckets uint64) uint64 {
-	var h maphash.Hash
-	h.WriteString(item)
+	h := fnv.New64a()
+	h.Write([]byte(item))
 	return h.Sum64() % nbuckets
 }
 
@@ -58,7 +58,6 @@ func (ch *ConsistentHasher) AddNode(node string) error {
 	// Hash the new node and find where its index fits in the existing ring of
 	// slots. If there's a collision, report an error.
 	nh := hashItem(node, ch.ringSize)
-	fmt.Printf("%v --> %v\n", node, nh)
 	slotIndex, found := slices.BinarySearch(ch.slots, nh)
 
 	if found {
