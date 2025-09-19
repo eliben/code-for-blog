@@ -23,7 +23,7 @@ func generateRandomString(rnd *rand.Rand, length int) string {
 	return string(b)
 }
 
-func TestSmokeConsistentHasher(t *testing.T) {
+func TestSmoke(t *testing.T) {
 	ch := NewConsistentHasher(1024)
 
 	// Add nodes named "node-N"
@@ -40,7 +40,7 @@ func TestSmokeConsistentHasher(t *testing.T) {
 	ch.FindNodeFor(s)
 }
 
-func TestConsistentHasher(t *testing.T) {
+func TestFindsCorrectNode(t *testing.T) {
 	rnd := makeLoggedRand(t)
 	ch := NewConsistentHasher(1024 * 1024)
 
@@ -90,3 +90,6 @@ func TestConsistentHasher(t *testing.T) {
 		}
 	}
 }
+
+// TODO: tests for consistency - (same nodes assigned after nodes are added,
+// etc)
