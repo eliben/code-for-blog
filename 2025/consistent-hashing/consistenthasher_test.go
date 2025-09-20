@@ -138,7 +138,6 @@ func TestConsistentAfterAdd(t *testing.T) {
 }
 
 func TestRemoveWorks(t *testing.T) {
-	//rnd := makeLoggedRand(t)
 	ch := NewConsistentHasher(1024 * 1024)
 
 	// Add nodes named "node-N"
@@ -169,5 +168,51 @@ func TestRemoveWorks(t *testing.T) {
 	// ch should be empty now
 	if len(ch.slots) != 0 || len(ch.nodes) != 0 {
 		t.Errorf("got %v slots, %v nodes; want empty", len(ch.slots), len(ch.nodes))
+	}
+}
+
+func TestConsistentAfterRemove(t *testing.T) {
+	rnd := makeLoggedRand(t)
+	ch := NewConsistentHasher(1024 * 1024)
+
+	// Add nodes named "node-N"
+	var nodes []string
+	for i := range 32 {
+		n := fmt.Sprintf("node-%03d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			t.Error(err)
+		}
+	}
+
+	// Generate random items and write down which nodes they hashed to
+	mapBefore := make(map[string]string)
+	for range 100000 {
+		str := generateRandomString(rnd, 16)
+		nn := ch.FindNodeFor(str)
+		mapBefore[str] = nn
+	}
+
+	// Now remove a node
+	removedNode := "node-009"
+	if err := ch.RemoveNode(removedNode); err != nil {
+		t.Error(err)
+	}
+
+	// Hash the same items again; the node they are hashed to shouldn't have
+	// changed, unless it was removedNode. Also, expect that at least some items
+	// were rehashed.
+	rehashedCount := 0
+	for item, n := range mapBefore {
+		nn := ch.FindNodeFor(item)
+		if nn != n {
+			if n != removedNode {
+				t.Errorf("%v rehashed from %v to %v", item, n, nn)
+			}
+			rehashedCount += 1
+		}
+	}
+	if rehashedCount == 0 {
+		t.Errorf("got rehashedCount=0")
 	}
 }
