@@ -13,16 +13,6 @@ func makeLoggedRand(t *testing.T) *rand.Rand {
 	return rand.New(rand.NewPCG(s1, s2))
 }
 
-const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-
-func generateRandomString(rnd *rand.Rand, length int) string {
-	b := make([]byte, length)
-	for i := range b {
-		b[i] = charset[rnd.IntN(len(charset))]
-	}
-	return string(b)
-}
-
 func TestSmoke(t *testing.T) {
 	ch := NewConsistentHasher(1024)
 

@@ -26,12 +26,16 @@ type ConsistentHasher struct {
 	ringSize uint64
 }
 
+// NewConsistentHasher creates a new consistent hasher with a given maximal
+// ring size.
 func NewConsistentHasher(ringSize uint64) *ConsistentHasher {
 	return &ConsistentHasher{
 		ringSize: ringSize,
 	}
 }
 
+// FindNodeFor finds the node an item hashes to. It's an error to call this
+// method if the hasher doesn't have any nodes.
 func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	if len(ch.nodes) == 0 {
 		panic("FindNodeFor called when ConsistentHasher has no nodes")
@@ -53,6 +57,7 @@ func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	return ch.nodes[slotIndex]
 }
 
+// AddNode adds a node to the hasher.
 func (ch *ConsistentHasher) AddNode(node string) error {
 	if len(ch.nodes) == int(ch.ringSize) {
 		return fmt.Errorf("ringSize (%v) exceeded", ch.ringSize)
@@ -74,10 +79,11 @@ func (ch *ConsistentHasher) AddNode(node string) error {
 	return nil
 }
 
+// RemoveNode removes a node from the hasher.
 func (ch *ConsistentHasher) RemoveNode(node string) error {
+	// Find the node we want to remove. We expect to find it in the list.
 	nh := hashItem(node, ch.ringSize)
 	slotIndex, found := slices.BinarySearch(ch.slots, nh)
-
 	if !found {
 		return fmt.Errorf("removing node %v that doesn't exist", node)
 	}
