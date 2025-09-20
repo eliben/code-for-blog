@@ -16,6 +16,8 @@ func hashItem(item string, nbuckets uint64) uint64 {
 }
 
 type ConsistentHasher struct {
+	// nodes is a list of nodes in the hash ring; it's sorted in the same order
+	// as slots: for each i, the node at index slots[i] is nodes[i].
 	nodes []string
 
 	// slots is a sorted slice of node indices.
@@ -69,5 +71,18 @@ func (ch *ConsistentHasher) AddNode(node string) error {
 	// should be inserted.
 	ch.slots = slices.Insert(ch.slots, slotIndex, nh)
 	ch.nodes = slices.Insert(ch.nodes, slotIndex, node)
+	return nil
+}
+
+func (ch *ConsistentHasher) RemoveNode(node string) error {
+	nh := hashItem(node, ch.ringSize)
+	slotIndex, found := slices.BinarySearch(ch.slots, nh)
+
+	if !found {
+		return fmt.Errorf("removing node %v that doesn't exist", node)
+	}
+
+	ch.slots = slices.Delete(ch.slots, slotIndex, slotIndex+1)
+	ch.nodes = slices.Delete(ch.nodes, slotIndex, slotIndex+1)
 	return nil
 }

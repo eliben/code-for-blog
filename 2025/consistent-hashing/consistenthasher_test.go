@@ -136,3 +136,38 @@ func TestConsistentAfterAdd(t *testing.T) {
 		t.Errorf("got rehashedCount=0")
 	}
 }
+
+func TestRemoveWorks(t *testing.T) {
+	//rnd := makeLoggedRand(t)
+	ch := NewConsistentHasher(1024 * 1024)
+
+	// Add nodes named "node-N"
+	var nodes []string
+	for i := range 256 {
+		n := fmt.Sprintf("node-%03d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			t.Error(err)
+		}
+	}
+
+	// Nodes that don't exist
+	for _, n := range []string{"node-300", "anode", "node-0000"} {
+		err := ch.RemoveNode(n)
+		if err == nil {
+			t.Errorf("got no error removing non-existing node")
+		}
+	}
+
+	// Remove all existing nodes
+	for _, n := range nodes {
+		if err := ch.RemoveNode(n); err != nil {
+			t.Error(err)
+		}
+	}
+
+	// ch should be empty now
+	if len(ch.slots) != 0 || len(ch.nodes) != 0 {
+		t.Errorf("got %v slots, %v nodes; want empty", len(ch.slots), len(ch.nodes))
+	}
+}
