@@ -56,9 +56,9 @@ func TestFindsCorrectNode(t *testing.T) {
 
 	// Repeat many times:
 	// - generate a random item
-	// - ask the ConsistentHasher which node it maps to
+	// - ask the ConsistentHasher which node it hashes to
 	// - run a manual search process using ConsistentHasher's internals to verify
-	//   that the item was mapped to the right node
+	//   that the item was hashed to the right node
 	for range 1000 {
 		str := generateRandomString(rnd, 16)
 		sh := hashItem(str, ch.ringSize)
@@ -91,5 +91,48 @@ func TestFindsCorrectNode(t *testing.T) {
 	}
 }
 
-// TODO: tests for consistency - (same nodes assigned after nodes are added,
-// etc)
+func TestConsistentAfterAdd(t *testing.T) {
+	rnd := makeLoggedRand(t)
+	ch := NewConsistentHasher(1024 * 1024)
+
+	// Add nodes named "node-N"
+	var nodes []string
+	for i := range 32 {
+		n := fmt.Sprintf("node-%03d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			t.Error(err)
+		}
+	}
+
+	// Generate random items and write down which nodes they hashed to
+	mapBeforeAdd := make(map[string]string)
+	for range 100000 {
+		str := generateRandomString(rnd, 16)
+		nn := ch.FindNodeFor(str)
+		mapBeforeAdd[str] = nn
+	}
+
+	// Now add a new node.
+	newNode := "anewnode"
+	if err := ch.AddNode(newNode); err != nil {
+		t.Error(err)
+	}
+
+	// Hash the same items again; the node they are hashed to shouldn't have
+	// changed, unless it's to newNode. Also, expect that at least some items
+	// were rehashed.
+	rehashedCount := 0
+	for item, n := range mapBeforeAdd {
+		nn := ch.FindNodeFor(item)
+		if nn != n {
+			if nn != newNode {
+				t.Errorf("%v rehashed from %v to %v", item, n, nn)
+			}
+			rehashedCount += 1
+		}
+	}
+	if rehashedCount == 0 {
+		t.Errorf("got rehashedCount=0")
+	}
+}

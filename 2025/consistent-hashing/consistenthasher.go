@@ -1,17 +1,18 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/binary"
 	"fmt"
-	"hash/fnv"
 	"slices"
 )
 
 // hashItem computes the bucket an item hashes to, given a total number of
 // buckets.
 func hashItem(item string, nbuckets uint64) uint64 {
-	h := fnv.New64a()
-	h.Write([]byte(item))
-	return h.Sum64() % nbuckets
+	digest := md5.Sum([]byte(item))
+	digestUint64 := binary.BigEndian.Uint64(digest[:8])
+	return digestUint64 % nbuckets
 }
 
 type ConsistentHasher struct {
