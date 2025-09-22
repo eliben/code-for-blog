@@ -9,17 +9,17 @@ import (
 )
 
 func demo1() {
-	items := []string{"hello", "go", "don't stop me now"}
+	items := []string{"hello", "consistent", "marmot"}
 
 	var n uint64 = 32
 	for _, item := range items {
-		fmt.Printf("%v (n=%v): %v\n", item, n, hashItem(item, n))
+		fmt.Printf("%-11v (n=%v): %v\n", item, n, hashItem(item, n))
 	}
 
 	fmt.Println("")
 	n = 33
 	for _, item := range items {
-		fmt.Printf("%v (n=%v): %v\n", item, n, hashItem(item, n))
+		fmt.Printf("%-11v (n=%v): %v\n", item, n, hashItem(item, n))
 	}
 }
 
@@ -103,6 +103,7 @@ func dumpNodesCircleTikz() {
 }
 
 func main() {
-	//dumpDistribution()
-	dumpNodesCircleTikz()
+	//demo1()
+	dumpDistribution()
+	//dumpNodesCircleTikz()
 }
