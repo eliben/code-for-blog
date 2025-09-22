@@ -78,7 +78,7 @@ func dumpNodesCircleTikz() {
 	ch := NewConsistentHasher(1024 * 1024)
 
 	var nodes []string
-	for i := range 64 {
+	for i := range 16 {
 		n := fmt.Sprintf("n%003d", i)
 		nodes = append(nodes, n)
 		if err := ch.AddNode(n); err != nil {
