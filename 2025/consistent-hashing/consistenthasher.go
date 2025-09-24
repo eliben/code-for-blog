@@ -50,7 +50,7 @@ func (ch *ConsistentHasher) FindNodeFor(item string) string {
 	slotIndex, _ := slices.BinarySearch(ch.slots, ih)
 
 	// When the returned index is len(slots), it means the search wrapped
-	// around and should be inserted at 0.
+	// around.
 	if slotIndex == len(ch.slots) {
 		slotIndex = 0
 	}

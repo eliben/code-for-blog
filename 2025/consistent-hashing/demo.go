@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"math/rand/v2"
 	"os"
+	"slices"
 	"strings"
 )
 
@@ -74,6 +75,49 @@ var tikzTemplate = template.Must(template.New("t").Parse(`
 \end{document}
 `))
 
+func dumpRandomNodesTikz() {
+	var fullSize uint = 1024 * 1024
+	var angles []float32
+
+	for range 20 {
+		n := rand.UintN(fullSize)
+		fraction := float32(n) / float32(fullSize)
+		angle := fraction * 360.0
+		angles = append(angles, angle)
+	}
+	slices.Sort(angles)
+	fmt.Println(angles)
+
+	var deltas []float32
+	var sum float32
+
+	for i, ang := range angles {
+		var delta float32
+		if i == 0 {
+			delta = 360.0 + ang - angles[len(angles)-1]
+		} else {
+			delta = ang - angles[i-1]
+		}
+		deltas = append(deltas, delta)
+		sum += delta
+	}
+
+	avg := sum / float32(len(deltas))
+	mn := slices.Min(deltas)
+	mx := slices.Max(deltas)
+
+	fmt.Printf("%% average=%f, min=%v, max=%v\n", avg, mn, mx)
+
+	var sangles []string
+	for _, ang := range angles {
+		sangles = append(sangles, fmt.Sprintf("%d", int(ang)))
+	}
+	tikzTemplate.Execute(os.Stdout, map[string]string{
+		"Angles":   strings.Join(sangles, `\or `),
+		"RangeEnd": fmt.Sprintf("%d", len(sangles)-1),
+	})
+}
+
 func dumpNodesCircleTikz() {
 	ch := NewConsistentHasher(1024 * 1024)
 
@@ -104,6 +148,7 @@ func dumpNodesCircleTikz() {
 
 func main() {
 	//demo1()
-	dumpDistribution()
+	//dumpDistribution()
 	//dumpNodesCircleTikz()
+	dumpRandomNodesTikz()
 }
