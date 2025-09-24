@@ -50,6 +50,41 @@ func dumpDistribution() {
 	}
 }
 
+func dumpNodeVarianceStats() {
+	ch := NewConsistentHasher(1024 * 1024)
+
+	var nodes []string
+	for i := range 20 {
+		n := fmt.Sprintf("node%02d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			panic(err)
+		}
+	}
+
+	var sum float32
+	var mn float32 = 1.0
+	var mx float32 = 0.0
+	for i := range ch.slots {
+		var gap uint64
+		if i == 0 {
+			gap = ch.ringSize + ch.slots[0] - ch.slots[len(ch.slots)-1]
+		} else {
+			gap = ch.slots[i] - ch.slots[i-1]
+		}
+
+		gapf := float32(gap) / float32(ch.ringSize)
+		sum += gapf
+		mn = min(gapf, mn)
+		mx = max(gapf, mx)
+	}
+	avg := 360.0 * sum / float32(len(ch.slots))
+	mn = 360.0 * mn
+	mx = 360.0 * mx
+
+	fmt.Printf("In degrees, avg=%.2f, min=%.2f, max=%.2f\n", avg, mn, mx)
+}
+
 var tikzTemplate = template.Must(template.New("t").Parse(`
 \documentclass[tikz]{standalone}
 \usepackage{tikz}
@@ -150,5 +185,6 @@ func main() {
 	//demo1()
 	//dumpDistribution()
 	//dumpNodesCircleTikz()
-	dumpRandomNodesTikz()
+	//dumpRandomNodesTikz()
+	dumpNodeVarianceStats()
 }
