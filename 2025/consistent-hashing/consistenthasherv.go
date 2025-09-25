@@ -30,7 +30,7 @@ func NewConsistentHasherV(ringSize uint64) *ConsistentHasherV {
 
 func (ch *ConsistentHasherV) FindNodeFor(item string) string {
 	if len(ch.nodes) == 0 {
-		panic("FindNodeFor called when ConsistentHasher has no nodes")
+		panic("FindNodeFor called when ConsistentHasherV has no nodes")
 	}
 	ih := hashItem(item, ch.ringSize)
 
@@ -68,7 +68,7 @@ func (ch *ConsistentHasherV) AddNode(node string) error {
 		slotIndex, found := slices.BinarySearch(ch.slots, nh)
 
 		if found {
-			return fmt.Errorf("collision: vnode %v maps to the same slot (%v)", ch.nodes[slotIndex], nh)
+			return fmt.Errorf("collision: vnode '%v' maps to the same slot as '%v' (%v)", vnode, ch.nodes[slotIndex], nh)
 		}
 
 		ch.slots = slices.Insert(ch.slots, slotIndex, nh)

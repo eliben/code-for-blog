@@ -187,4 +187,5 @@ func main() {
 	//dumpNodesCircleTikz()
 	//dumpRandomNodesTikz()
 	dumpNodeVarianceStats()
+
 }

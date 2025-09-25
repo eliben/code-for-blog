@@ -7,6 +7,13 @@ import (
 	"testing"
 )
 
+// CHI is an interface ConsistentHasher types implement, for common testing
+type CHI interface {
+	FindNodeFor(string) string
+	AddNode(string) error
+	RemoveNode(string) error
+}
+
 func makeLoggedRand(t *testing.T) *rand.Rand {
 	s1, s2 := rand.Uint64(), rand.Uint64()
 	log.Printf("%s seed: %v, %v", t.Name(), s1, s2)
@@ -14,9 +21,17 @@ func makeLoggedRand(t *testing.T) *rand.Rand {
 }
 
 func TestSmoke(t *testing.T) {
-	ch := NewConsistentHasher(1024)
+	t.Run("smokeCH", func(t *testing.T) {
+		ch := NewConsistentHasher(10000)
+		doTestSmoke(t, ch)
+	})
+	t.Run("smokeCHV", func(t *testing.T) {
+		ch := NewConsistentHasherV(10000)
+		doTestSmoke(t, ch)
+	})
+}
 
-	// Add nodes named "node-N"
+func doTestSmoke(t *testing.T, ch CHI) {
 	var nodes []string
 	for i := range 8 {
 		n := fmt.Sprintf("node-%03d", i)
@@ -82,8 +97,18 @@ func TestFindsCorrectNode(t *testing.T) {
 }
 
 func TestConsistentAfterAdd(t *testing.T) {
+	t.Run("consistentCH", func(t *testing.T) {
+		ch := NewConsistentHasher(1000000)
+		doTestConsistentAfterAdd(t, ch)
+	})
+	t.Run("consistentCHV", func(t *testing.T) {
+		ch := NewConsistentHasherV(1000000)
+		doTestConsistentAfterAdd(t, ch)
+	})
+}
+
+func doTestConsistentAfterAdd(t *testing.T, ch CHI) {
 	rnd := makeLoggedRand(t)
-	ch := NewConsistentHasher(128 * 1024 * 1024)
 
 	// Add nodes named "node-N"
 	var nodes []string
@@ -127,9 +152,25 @@ func TestConsistentAfterAdd(t *testing.T) {
 	}
 }
 
-func TestRemoveWorks(t *testing.T) {
-	ch := NewConsistentHasher(128 * 1024 * 1024)
+func TestRemove(t *testing.T) {
+	var size uint64 = 100000000
+	t.Run("removeCH", func(t *testing.T) {
+		ch := NewConsistentHasher(size)
+		doTestRemoveWorks(t, ch)
 
+		ch = NewConsistentHasher(size)
+		doTestConsistentAfterRemove(t, ch)
+	})
+	t.Run("removeCHV", func(t *testing.T) {
+		ch := NewConsistentHasherV(size)
+		doTestRemoveWorks(t, ch)
+
+		ch = NewConsistentHasherV(size)
+		doTestConsistentAfterRemove(t, ch)
+	})
+}
+
+func doTestRemoveWorks(t *testing.T, ch CHI) {
 	// Add nodes named "node-N"
 	var nodes []string
 	for i := range 256 {
@@ -154,16 +195,10 @@ func TestRemoveWorks(t *testing.T) {
 			t.Error(err)
 		}
 	}
-
-	// ch should be empty now
-	if len(ch.slots) != 0 || len(ch.nodes) != 0 {
-		t.Errorf("got %v slots, %v nodes; want empty", len(ch.slots), len(ch.nodes))
-	}
 }
 
-func TestConsistentAfterRemove(t *testing.T) {
+func doTestConsistentAfterRemove(t *testing.T, ch CHI) {
 	rnd := makeLoggedRand(t)
-	ch := NewConsistentHasher(1024 * 1024)
 
 	// Add nodes named "node-N"
 	var nodes []string
