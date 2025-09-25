@@ -32,7 +32,7 @@ func TestSmoke(t *testing.T) {
 
 func TestFindsCorrectNode(t *testing.T) {
 	rnd := makeLoggedRand(t)
-	ch := NewConsistentHasher(1024 * 1024)
+	ch := NewConsistentHasher(128 * 1024 * 1024)
 
 	// Add nodes named "node-N"
 	var nodes []string
@@ -83,7 +83,7 @@ func TestFindsCorrectNode(t *testing.T) {
 
 func TestConsistentAfterAdd(t *testing.T) {
 	rnd := makeLoggedRand(t)
-	ch := NewConsistentHasher(1024 * 1024)
+	ch := NewConsistentHasher(128 * 1024 * 1024)
 
 	// Add nodes named "node-N"
 	var nodes []string
@@ -128,7 +128,7 @@ func TestConsistentAfterAdd(t *testing.T) {
 }
 
 func TestRemoveWorks(t *testing.T) {
-	ch := NewConsistentHasher(1024 * 1024)
+	ch := NewConsistentHasher(128 * 1024 * 1024)
 
 	// Add nodes named "node-N"
 	var nodes []string
