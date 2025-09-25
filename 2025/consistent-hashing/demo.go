@@ -51,7 +51,7 @@ func dumpDistribution() {
 }
 
 func dumpNodeVarianceStats() {
-	ch := NewConsistentHasher(1024 * 1024)
+	ch := NewConsistentHasher(10000000)
 
 	var nodes []string
 	for i := range 20 {
@@ -81,6 +81,54 @@ func dumpNodeVarianceStats() {
 	avg := 360.0 * sum / float32(len(ch.slots))
 	mn = 360.0 * mn
 	mx = 360.0 * mx
+
+	fmt.Printf("In degrees, avg=%.2f, min=%.2f, max=%.2f\n", avg, mn, mx)
+}
+
+func dumpNodeVarianceStatsV() {
+	ch := NewConsistentHasherV(10000000)
+
+	var nodes []string
+	for i := range 20 {
+		n := fmt.Sprintf("n%02d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			panic(err)
+		}
+	}
+
+	// For each node, holds a list of the gaps for its vnodes
+	gaps := make(map[string][]float32)
+	for i := range ch.slots {
+		var gap uint64
+		if i == 0 {
+			gap = ch.ringSize + ch.slots[0] - ch.slots[len(ch.slots)-1]
+		} else {
+			gap = ch.slots[i] - ch.slots[i-1]
+		}
+
+		gapf := float32(gap) / float32(ch.ringSize)
+		node := nodeFromVnode(ch.nodes[i])
+		gaps[node] = append(gaps[node], gapf)
+	}
+
+	var sum float32
+	var mn float32 = 1.0
+	var mx float32 = 0.0
+
+	for _, gs := range gaps {
+		var total float32
+		for _, g := range gs {
+			total += g
+		}
+
+		sum += total
+		mn = min(mn, total)
+		mx = max(mx, total)
+	}
+	avg := 360 * sum / float32(len(gaps))
+	mn = 360 * mn
+	mx = 360 * mx
 
 	fmt.Printf("In degrees, avg=%.2f, min=%.2f, max=%.2f\n", avg, mn, mx)
 }
@@ -186,6 +234,6 @@ func main() {
 	//dumpDistribution()
 	//dumpNodesCircleTikz()
 	//dumpRandomNodesTikz()
-	dumpNodeVarianceStats()
-
+	//dumpNodeVarianceStats()
+	dumpNodeVarianceStatsV()
 }

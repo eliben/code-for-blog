@@ -6,6 +6,12 @@ import (
 	"strings"
 )
 
+// ConsistentHasherV is just like ConsistentHasher, but it implements virtual
+// nodes. For each inserted node, we instead insert N (vnodesPerNode) "virtual
+// nodes". Each virtual node is named by appending "@i" to the node name, where
+// i is in range [0, vnodesPerNode).
+// This is transparent to the user of ConsistentHasherV: all public methods
+// just take node names.
 type ConsistentHasherV struct {
 	// nodes is a list of nodes in the hash ring; it's sorted in the same order
 	// as slots: for each i, the node at index slots[i] is nodes[i].
