@@ -96,6 +96,62 @@ func TestFindsCorrectNode(t *testing.T) {
 	}
 }
 
+// Similar to TestFindsCorrectNode, but for the V variant - with similar
+// checking of the internal slots slice
+func TestFindsCorrectNodeV(t *testing.T) {
+	rnd := makeLoggedRand(t)
+	ch := NewConsistentHasherV(100000000)
+
+	// Add nodes named "node-N"
+	var nodes []string
+	for i := range 256 {
+		n := fmt.Sprintf("node-%03d", i)
+		nodes = append(nodes, n)
+		if err := ch.AddNode(n); err != nil {
+			t.Error(err)
+		}
+	}
+
+	// Repeat many times:
+	// - generate a random item
+	// - ask the ConsistentHasherV which node it hashes to
+	// - run a manual search process using ConsistentHasherV's internals to verify
+	//   that the item was hashed to the right node
+	for range 1000 {
+		str := generateRandomString(rnd, 16)
+		sh := hashItem(str, ch.ringSize)
+
+		nn := ch.FindNodeFor(str)
+
+		// Now find the closest (from above) node in the ConsistentHasherV,
+		// and verify that's what we got.
+		bestDiff := ch.ringSize
+		bestSlot := 0
+		for i, s := range ch.slots {
+			if s >= sh && (s-sh) < bestDiff {
+				bestDiff = s - sh
+				bestSlot = i
+			}
+		}
+
+		// Special case if wrap around
+		if sh > ch.slots[len(ch.slots)-1] {
+			diff := ch.ringSize - sh + ch.slots[0]
+			if diff < bestDiff {
+				bestDiff = diff
+				bestSlot = 0
+			}
+		}
+
+		vnode := ch.nodes[bestSlot]
+		node := nodeFromVnode(vnode)
+
+		if nn != node {
+			t.Errorf("mismatch; ch returned %v, manual search %v", nn, node)
+		}
+	}
+}
+
 func TestConsistentAfterAdd(t *testing.T) {
 	t.Run("consistentCH", func(t *testing.T) {
 		ch := NewConsistentHasher(1000000)
