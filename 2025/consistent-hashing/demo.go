@@ -55,7 +55,7 @@ func dumpNodeVarianceStats() {
 
 	var nodes []string
 	for i := range 20 {
-		n := fmt.Sprintf("n-%02d", i)
+		n := fmt.Sprintf("n%02d", i)
 		nodes = append(nodes, n)
 		if err := ch.AddNode(n); err != nil {
 			panic(err)
