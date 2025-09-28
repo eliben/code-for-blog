@@ -17,7 +17,7 @@ func hashItem(item string, nslots uint64) uint64 {
 	digest := md5.Sum([]byte(item))
 	digestHigh := binary.BigEndian.Uint64(digest[8:16])
 	digestLow := binary.BigEndian.Uint64(digest[:8])
-	return (digestHigh | digestLow) % nslots
+	return (digestHigh ^ digestLow) % nslots
 }
 
 type ConsistentHasher struct {
