@@ -10,7 +10,5 @@ unsigned pair_add(struct Pair pair) {
 
 unsigned do_work(unsigned x, unsigned y){
     struct Pair pp = {.x = x, .y = y};
-    /*pp.x = x;*/
-    /*pp.y = y;*/
     return pair_add(pp);
 }
