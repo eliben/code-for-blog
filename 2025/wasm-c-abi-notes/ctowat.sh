@@ -14,7 +14,7 @@ base="${src%.*}"
 # Linking is needed to construct the names section in WASM.
 clang \
   --target=wasm32-unknown-unknown \
-  -O2 -g \
+  -O -g \
   -nostdlib \
   -Wl,--no-entry \
   -Wl,--export-all \
