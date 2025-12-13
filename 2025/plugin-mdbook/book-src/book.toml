@@ -1,0 +1,8 @@
+[book]
+title = "Plugin Sample"
+authors = ["John Doe"]
+language = "en"
+src = "src"
+
+[build]
+build-dir = "_book"
