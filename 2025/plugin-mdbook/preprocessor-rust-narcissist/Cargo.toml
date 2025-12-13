@@ -1,0 +1,15 @@
+[package]
+name = "preprocessor-rust-narcissist"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "preprocessor-rust-narcissist"
+# This is tested through a separate test from the main package.
+test = false
+
+[dependencies]
+mdbook-markdown = "0.5.1"
+mdbook-preprocessor = "0.5.1"
+regex = "1.12.2"
+serde_json = "1.0.145"

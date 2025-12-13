@@ -6,3 +6,9 @@ src = "src"
 
 [build]
 build-dir = "_book"
+
+#[preprocessor.narcissistpy]
+#command = "python3 ../preprocessor-python-narcissist/narcissist.py"
+
+[preprocessor.narcissistrs]
+command = "../preprocessor-rust-narcissist/target/debug/preprocessor-rust-narcissist"
