@@ -7,7 +7,7 @@
 # This code is in the public domain
 #-------------------------------------------------------------------------------
 
-class Post(object):
+class Post:
     def __init__(self, id, author, date, title, contents):
         self.id = id
         self.author = author
@@ -16,7 +16,7 @@ class Post(object):
         self.contents = contents
 
 
-class DB(object):
+class DB:
     def __init__(self):
         self.posts = {}
         self.id = 0
@@ -31,8 +31,6 @@ class DB(object):
         return self.posts[id]
 
     def get_post_by_title(self, title):
-        # In a realistic implementation this would probably be indexes if
-        # frequent access by title is required.
         for id, post in self.posts.items():
             if post.title == title:
                 return post

@@ -9,6 +9,10 @@
 from collections import namedtuple
 import re
 
+from htmlize import hookspecs
+
+import pluggy
+
 
 # Regex for matching/capturing role text.
 # E.g. :name:`text` - first capture group is "name", second group is "text"
@@ -18,13 +22,8 @@ ROLE_REGEX = re.compile(r':(\w+):`([^`]*)`')
 RoleMatch = namedtuple('RoleMatch', 'name contents')
 
 
-def htmlize(post, db, plugins=[]):
-    """ pass
-    """
+def htmlize(post, db, plugin_manager):
     contents = post.contents
-
-    # Plugins are classes - we need to instantiate them to get objects.
-    plugins = [P(post, db) for P in plugins]
 
     # Split the contents to paragraphs
     paragraphs = re.split(r'\n\n+', contents)
@@ -50,28 +49,19 @@ def htmlize(post, db, plugins=[]):
     # Ask plugins to act on roles
     for i, part in enumerate(parts):
         if isinstance(part, RoleMatch):
-            parts[i] = _plugin_replace_role(
-                            part.name, part.contents, plugins)
+            parts[i] = _plugin_replace_role(part.name, part.contents, plugin_manager)
 
     # Build full contents back again, and ask plugins to act on
     # contents.
     contents = ''.join(parts)
-    for p in plugins:
-        contents_hook = p.get_contents_hook()
-        if contents_hook:
-            contents = contents_hook(contents)
-
+    for handler in pm.hook.htmlize_contents():
+        contents = handler(contents)
     return contents
 
 
-def _plugin_replace_role(name, contents, plugins):
-    """ The first plugin that handles this role is used.
-    """
-    for p in plugins:
-        role_hook = p.get_role_hook(name)
-        if role_hook:
-            return role_hook(contents)
+def _plugin_replace_role(name, contents, plugin_manager):
+    role_handler = pm.hook.htmlize_role_handler(name)
+    if role_handler is not None:
+        return role_handler(contents)
     # If no plugin handling this role is found, return its original form
     return ':{0}:`{1}`'.format(name, contents)
-
-
