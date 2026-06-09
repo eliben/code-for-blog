@@ -6,14 +6,15 @@
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
 #-------------------------------------------------------------------------------
-from htmlize.iplugin import IPlugin
+import htmlize
 
 
-class TtFormatter(IPlugin):
-    """ Acts on the 'tt' role, placing the contents inside <tt> tags.
-    """
-    def get_role_hook(self, role_name):
-        return self._tt_hook if role_name == 'tt' else None
+@htmlize.hookimpl
+def htmlize_role_handler(role_name):
+    def hook(contents):
+        return f'<tt>{contents}</tt>'
 
-    def _tt_hook(self, contents):
-        return '<tt>' + contents + '</tt>'
+    if role_name == 'tt':
+        return hook
+    else:
+        return None
