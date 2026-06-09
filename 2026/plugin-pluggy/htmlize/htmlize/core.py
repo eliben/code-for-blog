@@ -54,13 +54,13 @@ def htmlize(post, db, plugin_manager):
     # Build full contents back again, and ask plugins to act on
     # contents.
     contents = ''.join(parts)
-    for handler in pm.hook.htmlize_contents():
+    for handler in plugin_manager.hook.htmlize_contents():
         contents = handler(contents)
     return contents
 
 
 def _plugin_replace_role(name, contents, plugin_manager):
-    role_handler = pm.hook.htmlize_role_handler(name)
+    role_handler = plugin_manager.hook.htmlize_role_handler(role_name=name)
     if role_handler is not None:
         return role_handler(contents)
     # If no plugin handling this role is found, return its original form

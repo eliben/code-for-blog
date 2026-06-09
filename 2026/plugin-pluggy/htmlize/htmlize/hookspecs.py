@@ -10,8 +10,8 @@ import pluggy
 
 hookspec = pluggy.HookspecMarker("htmlize")
 
-@hookspec(firstrole=True)
-def htmlize_role_handler(self, role_name):
+@hookspec(firstresult=True)
+def htmlize_role_handler(role_name):
     """Return a function accepting role contents.
 
     The function will be called with a single argument - the role contents, and
@@ -20,7 +20,7 @@ def htmlize_role_handler(self, role_name):
     pass
 
 @hookspec
-def htmlize_contents(self):
+def htmlize_contents():
     """Return a function accepting full document contents.
 
     The function will be called with a single argument - the document contents

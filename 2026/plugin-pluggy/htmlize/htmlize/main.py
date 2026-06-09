@@ -1,6 +1,8 @@
 from datetime import datetime
 import os, sys
 
+import pluggy
+
 from htmlize import hookspecs
 from htmlize.core import htmlize
 from htmlize.db import DB, Post
@@ -24,4 +26,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
