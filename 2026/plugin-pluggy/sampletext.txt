@@ -1,0 +1,8 @@
+this is first :uno:`some text` paragraph.
+
+
+
+second I paragraph followIed Iby a single line
+that will be I, pasted :dos:`no way jose : ok?`
+
+third and final is :tt:`captured or is it?` by tt
