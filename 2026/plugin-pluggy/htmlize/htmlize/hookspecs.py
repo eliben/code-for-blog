@@ -20,7 +20,7 @@ def htmlize_role_handler(role_name):
     pass
 
 @hookspec
-def htmlize_contents():
+def htmlize_contents(post, db):
     """Return a function accepting full document contents.
 
     The function will be called with a single argument - the document contents

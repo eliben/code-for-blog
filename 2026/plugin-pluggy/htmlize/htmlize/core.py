@@ -54,7 +54,9 @@ def htmlize(post, db, plugin_manager):
     # Build full contents back again, and ask plugins to act on
     # contents.
     contents = ''.join(parts)
-    for handler in plugin_manager.hook.htmlize_contents():
+    print('got contents...')
+    for handler in plugin_manager.hook.htmlize_contents(post=post, db=db):
+        print('got handler')
         contents = handler(contents)
     return contents
 

@@ -8,17 +8,14 @@
 # This code is in the public domain
 #-------------------------------------------------------------------------------
 import re
-from htmlize.iplugin import IPlugin
+import htmlize
 
 
-class Narcissist(IPlugin):
-    def __init__(self, post, db):
-        super().__init__(post, db)
-        self.repl = '<b>I ({0})</b>'.format(self.post.author)
+@htmlize.hookimpl
+def htmlize_contents(post, db):
+    repl = f'<b>I ({post.author})</b>'
 
-    def get_contents_hook(self):
-        return self._contents_hook
+    def hook(contents):
+        return re.sub(r'\bI\b', repl, contents)
 
-    def _contents_hook(self, contents):
-        return re.sub(r'\bI\b', self.repl, contents)
-
+    return hook
