@@ -12,7 +12,6 @@ import pluggy
 
 # Regex for matching/capturing role text.
 # E.g. :name:`text` - first capture group is "name", second group is "text"
-#
 ROLE_REGEX = re.compile(r':(\w+):`([^`]*)`')
 
 RoleMatch = namedtuple('RoleMatch', 'name contents')
@@ -50,9 +49,7 @@ def htmlize(post, db, plugin_manager):
     # Build full contents back again, and ask plugins to act on
     # contents.
     contents = ''.join(parts)
-    print('got contents...')
     for handler in plugin_manager.hook.htmlize_contents(post=post, db=db):
-        print('got handler')
         contents = handler(contents)
     return contents
 
