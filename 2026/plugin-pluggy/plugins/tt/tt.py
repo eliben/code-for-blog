@@ -1,11 +1,7 @@
-#-------------------------------------------------------------------------------
-# htmlize: plugin/tt.py
-#
 # A htmlize plugin that handles the "tt" role.
 #
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
-#-------------------------------------------------------------------------------
 import htmlize
 
 

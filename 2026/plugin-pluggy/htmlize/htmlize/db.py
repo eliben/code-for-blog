@@ -1,12 +1,7 @@
-#-------------------------------------------------------------------------------
-# htmlize: htmlize/db.py
-#
 # A simplistic DB holding posts with some metadata.
 #
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
-#-------------------------------------------------------------------------------
-
 class Post:
     def __init__(self, id, author, date, title, contents):
         self.id = id

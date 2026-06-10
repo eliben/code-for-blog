@@ -1,12 +1,8 @@
-#-------------------------------------------------------------------------------
-# htmlize: plugin/narcissist.py
-#
 # A htmlize plugin that places all occurrences of "I" in bold, adding the
 # username.
 #
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
-#-------------------------------------------------------------------------------
 import re
 import htmlize
 

@@ -1,11 +1,7 @@
-#-------------------------------------------------------------------------------
-# htmlize: htmlize/core.py
-#
 # The core functionality of htmlize.
 #
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
-#-------------------------------------------------------------------------------
 from collections import namedtuple
 import re
 

@@ -1,3 +1,7 @@
+# Command-line entry point for htmlize.
+#
+# Eli Bendersky (eliben@gmail.com)
+# This code is in the public domain
 from datetime import datetime
 import os, sys
 

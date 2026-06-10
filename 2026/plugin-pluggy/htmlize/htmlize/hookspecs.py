@@ -1,11 +1,7 @@
-#-------------------------------------------------------------------------------
-# htmlize: plugin hook specs.
-#
-# These are the hooks plugins may want to implement.
+# Hook specifications that plugins may want to implement.
 #
 # Eli Bendersky (eliben@gmail.com)
 # This code is in the public domain
-#-------------------------------------------------------------------------------
 import pluggy
 
 hookspec = pluggy.HookspecMarker("htmlize")
