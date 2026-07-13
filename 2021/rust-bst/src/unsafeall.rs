@@ -155,7 +155,7 @@ impl Tree {
             }
             // node is unused now, so we can deallocate it by assigning it to
             // an owning Box that will be automatically dropped.
-            Box::from_raw(node);
+            let _ = Box::from_raw(node);
         }
     }
 }
