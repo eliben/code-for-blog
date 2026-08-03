@@ -53,26 +53,20 @@ impl Tree {
     fn insert_at(&self, atnode: &NodeLink, data: i32) -> bool {
         let mut node = atnode.borrow_mut();
         if data == node.data {
-            false
-        } else if data < node.data {
-            match &node.left {
-                None => {
-                    let new_node = Node::new_with_parent(data, atnode);
-                    node.left = Some(new_node);
-                    true
-                }
-                Some(lnode) => self.insert_at(lnode, data),
-            }
+            return false;
+        };
+
+        let child = if data < node.data {
+            &mut node.left
         } else {
-            match &node.right {
-                None => {
-                    let new_node = Node::new_with_parent(data, atnode);
-                    node.right = Some(new_node);
-                    true
-                }
-                Some(rnode) => self.insert_at(rnode, data),
-            }
-        }
+            &mut node.right
+        };
+
+        let Some(child_node) = child else {
+            *child = Some(Node::new_with_parent(data, atnode));
+            return true;
+        };
+        self.insert_at(child_node, data)
     }
 
     /// Find the item in the tree; returns `true` iff the item is found.
@@ -101,12 +95,10 @@ impl Tree {
     /// Find the successor of the given item in the tree; the successor is the
     /// next item in an inorder traversal.
     pub fn successor(&self, data: i32) -> Option<i32> {
-        if let Some(root) = &self.root {
-            if let Some(node) = self.find_node(root, data) {
-                return self.successor_of_node(&node).map(|succ| succ.borrow().data);
-            }
-        }
-        None
+        let root = self.root.as_ref()?;
+        let node = self.find_node(root, data)?;
+        let succ = self.successor_of_node(&node)?;
+        Some(succ.borrow().data)
     }
 
     // Find the successor of `node` in the tree.
@@ -169,14 +161,15 @@ impl Tree {
     /// Remove the given item from the tree; returns `true` if such a node was
     /// found and removed, `false` otherwise.
     pub fn remove(&mut self, data: i32) -> bool {
-        if let Some(root) = &self.root {
-            if let Some(mut node) = self.find_node(root, data) {
-                self.remove_node(&mut node);
-                self.count -= 1;
-                return true;
-            }
-        }
-        false
+        let Some(root) = self.root.as_ref() else {
+            return false;
+        };
+        let Some(mut node) = self.find_node(root, data) else {
+            return false;
+        };
+        self.remove_node(&mut node);
+        self.count -= 1;
+        true
     }
 
     // Remove the given node from the tree.

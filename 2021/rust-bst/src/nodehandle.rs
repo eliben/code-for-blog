@@ -132,10 +132,10 @@ impl Tree {
             let mut node = self.leftmost_child(self.root);
             loop {
                 v.push(self.nodes[node].data);
-                match self.successor_of_node(node) {
-                    Some(succ) => node = succ,
-                    _ => break,
+                let Some(succ) = self.successor_of_node(node) else {
+                    break;
                 };
+                node = succ;
             }
         }
         v
