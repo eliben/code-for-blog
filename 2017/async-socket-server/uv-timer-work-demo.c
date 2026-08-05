@@ -1,6 +1,6 @@
 // Demo of dispatching sleeping/blocking in a callback to a work queue.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <inttypes.h>
 #include <stdio.h>

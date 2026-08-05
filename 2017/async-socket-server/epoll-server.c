@@ -1,7 +1,7 @@
 // Asynchronous socket server - accepting multiple clients concurrently,
 // multiplexing the connections with epoll.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <assert.h>
 #include <errno.h>

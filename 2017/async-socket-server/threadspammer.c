@@ -7,7 +7,7 @@
 //
 // And watch the process's resource usage via top or other tools.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <pthread.h>
 #include <stdio.h>

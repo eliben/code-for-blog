@@ -4,7 +4,7 @@
 // Can be configured via an environment variable to do this in a blocking way,
 // without using libuv's work queue (MODE=BLOCK).
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <assert.h>
 #include <ctype.h>

@@ -1,6 +1,6 @@
 // Simple non-blocking socket listener.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <errno.h>
 #include <fcntl.h>

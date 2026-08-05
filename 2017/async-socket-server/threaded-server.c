@@ -1,7 +1,7 @@
 // Threaded socket server - accepting multiple clients concurrently, by creating
 // a new thread for each connecting client.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 #include <pthread.h>
 #include <stdint.h>
