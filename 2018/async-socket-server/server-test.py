@@ -49,7 +49,7 @@ def server_runner(path, args, stop_event):
     elif path.endswith('.py'):
         runcmd = ['python', path]
     else:
-        runcmd = path
+        runcmd = [path]
     runcmd.extend(args)
     logging.info('server_runner: executing subprocess "{0}"'.format(runcmd))
     proc = subprocess.Popen(runcmd)
