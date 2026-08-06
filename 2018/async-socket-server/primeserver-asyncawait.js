@@ -3,7 +3,7 @@
 // Requires a Redis server to run in the background, listening on the default
 // port.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 var child_process = require('child_process');
 var net = require('net');

@@ -5,7 +5,7 @@
 // are/aren't prime. It exits once it returns the answer. It also emulates a
 // delay proportional to the number in milliseconds.
 //
-// Eli Bendersky [http://eli.thegreenplace.net]
+// Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
 var utils = require('./utils.js');
 
