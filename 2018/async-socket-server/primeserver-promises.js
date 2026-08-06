@@ -11,9 +11,13 @@ var redis = require('redis');
 var utils = require('./utils.js');
 const {promisify} = require('util');
 
-// Create a Redis client. This connects to a Redis server running on the local
-// machine at the default port.
-var redis_client = redis.createClient();
+// Create a Redis client and connect it to a server running on the local
+// machine, at the default port.
+// Note that this uses a legacy, non-async Redis client.
+var client = redis.createClient();
+client.on('error', err => console.log('redis client error', err));
+var redis_client = client.legacy();
+client.connect();
 
 const redisGetAsync = promisify(redis_client.get).bind(redis_client);
 const redisSetAsync = promisify(redis_client.set).bind(redis_client);

@@ -11,9 +11,13 @@ var net = require('net');
 var redis = require('redis');
 var utils = require('./utils.js');
 
-// Create a Redis client. This connects to a Redis server running on the local
-// machine at the default port.
-var redis_client = redis.createClient();
+// Create a Redis client and connect it to a server running on the local
+// machine, at the default port.
+// Note that this uses a legacy, non-async Redis client.
+var client = redis.createClient();
+client.on('error', err => console.log('redis client error', err));
+var redis_client = client.legacy();
+client.connect();
 
 var portnum = 8070;
 if (process.argv.length > 2) {
