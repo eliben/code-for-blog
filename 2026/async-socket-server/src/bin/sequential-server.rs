@@ -1,13 +1,13 @@
-use std::net::TcpListener;
+// Sequential version of the server: each client is served in turn, one
+// at a time.
 use std::io::{Read, Write};
+use std::net::{TcpListener, TcpStream};
 
 fn main() -> std::io::Result<()> {
-    let mut port = "9090";
-    let args: Vec<String> = std::env::args().collect();
-    eprintln!("{:?}", args);
-    if args.len() >= 2 {
-        port = &args[1];
-    }
+    let port = match std::env::args().nth(1) {
+        Some(s) => s,
+        None => "9090".to_string(),
+    };
     let addr = format!("127.0.0.1:{port}");
 
     let listener = TcpListener::bind(addr)?;
@@ -16,8 +16,11 @@ fn main() -> std::io::Result<()> {
     loop {
         let (stream, addr) = listener.accept()?;
         println!("connection received from {}", addr);
-        serve_connection(stream)?;
-        println!("peer done {addr}");
+        if let Err(e) = serve_connection(stream) {
+            println!("error serving connection: {}", e);
+        } else {
+            println!("peer done {addr}");
+        }
     }
 }
 
@@ -26,7 +29,8 @@ enum ProcessingState {
     InMsg,
 }
 
-fn serve_connection(mut stream: std::net::TcpStream) -> std::io::Result<()> {
+// Implements the serial protocol.
+fn serve_connection(mut stream: TcpStream) -> std::io::Result<()> {
     stream.write_all(b"*")?;
 
     let mut state = ProcessingState::WaitForMsg;
@@ -49,7 +53,7 @@ fn serve_connection(mut stream: std::net::TcpStream) -> std::io::Result<()> {
                     if *byte == b'$' {
                         state = ProcessingState::WaitForMsg;
                     } else {
-                        let newbyte = *byte + 1;
+                        let newbyte = byte.wrapping_add(1);
                         stream.write_all(&[newbyte])?;
                     }
                 }
