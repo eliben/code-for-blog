@@ -19,14 +19,14 @@ fn main() -> std::io::Result<()> {
 
         let res = thread::Builder::new().spawn(move || {
             if let Err(e) = serve_connection(stream) {
-                println!("error serving connection: {}", e);
+                eprintln!("error serving connection: {}", e);
             } else {
                 println!("peer done {addr}");
             }
         });
 
         if let Err(e) = res {
-            println!("error spawning thread: {}", e);
+            eprintln!("error spawning thread: {}", e);
         }
     }
 }

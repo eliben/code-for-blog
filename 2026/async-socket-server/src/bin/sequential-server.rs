@@ -17,7 +17,7 @@ fn main() -> std::io::Result<()> {
         let (stream, addr) = listener.accept()?;
         println!("connection received from {}", addr);
         if let Err(e) = serve_connection(stream) {
-            println!("error serving connection: {}", e);
+            eprintln!("error serving connection: {}", e);
         } else {
             println!("peer done {addr}");
         }
