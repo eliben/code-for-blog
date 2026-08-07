@@ -14,13 +14,8 @@ fn main() -> std::io::Result<()> {
     let listener = TcpListener::bind(addr)?;
     println!("Serving on port {port}");
 
-    let num_threads = match std::thread::available_parallelism() {
-        Ok(n) => n.get(),
-        Err(_) => 4,
-    };
-
     let pool = rayon::ThreadPoolBuilder::new()
-        .num_threads(num_threads)
+        .num_threads(256)
         .build()
         .unwrap();
 
