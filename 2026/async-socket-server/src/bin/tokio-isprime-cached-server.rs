@@ -102,6 +102,9 @@ fn isprime(n: u64, delay: bool) -> bool {
         std::thread::sleep(std::time::Duration::from_millis(n));
     }
 
+    if n < 2 {
+        return false;
+    }
     if n % 2 == 0 {
         return n == 2;
     }
