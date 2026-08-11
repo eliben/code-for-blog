@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 crossbeam-channel = "0.5.16"
 tokio = { version = "1.53.1", features = ["full"] }
+redis = { version = "1.5", features = ["tokio-comp"] }
