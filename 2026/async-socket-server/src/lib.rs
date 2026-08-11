@@ -1,6 +1,6 @@
 use std::io::{Read, Write};
 use std::net::TcpStream;
-enum ProcessingState {
+pub enum ProcessingState {
     WaitForMsg,
     InMsg,
 }
