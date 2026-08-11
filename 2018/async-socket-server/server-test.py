@@ -92,8 +92,11 @@ def test_main():
     argparser.add_argument('server_path', help='path to the server executable')
     argparser.add_argument('-n', '--num-clients', default=4, type=int,
                            help='number of clients to launch simultaneously; ')
+    argparser.add_argument('-d', '--numbers', default=10, type=int,
+                           help='how many numbers to send in total')
     args = argparser.parse_args()
     assert args.num_clients >= 1
+    assert args.numbers >= 4
 
     logging.basicConfig(
         level=logging.DEBUG,
@@ -111,7 +114,7 @@ def test_main():
 
     # Generate some pseudo-random numbers, with guaranteed repetition to hit
     # the caches.
-    nums = [random.randint(20, 1990) // 2 for i in range(8)]
+    nums = [random.randint(20, 1990) // 2 for i in range(args.numbers - 2)]
     nums.extend(nums[0:2])
 
     for i in range(args.num_clients):
