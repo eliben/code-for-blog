@@ -37,14 +37,17 @@ async fn serve_client(mut stream: tokio::net::TcpStream) -> std::io::Result<()> 
         }
 
         // Parse read buf into u64.
-        let s = std::str::from_utf8(&buf[..n])
+        let num = std::str::from_utf8(&buf[..n])
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?
-            .trim();
-        let n = s
+            .trim()
             .parse::<u64>()
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
 
-        let answer = if isprime(n, true) { "prime" } else { "composite" };
+        let answer = if isprime(num, true) {
+            "prime"
+        } else {
+            "composite"
+        };
         stream
             .write_all((answer.to_string() + "\n").as_bytes())
             .await?;

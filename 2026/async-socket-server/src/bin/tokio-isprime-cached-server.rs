@@ -8,6 +8,8 @@ struct AppState {
     redis_connection: MultiplexedConnection,
 }
 
+const REDIS_URL: &str = "redis://127.0.0.1";
+
 #[tokio::main]
 async fn main() -> io::Result<()> {
     let port = match std::env::args().nth(1) {
@@ -18,12 +20,11 @@ async fn main() -> io::Result<()> {
 
     let app_state = AppState {
         redis_connection: {
-            let client =
-                redis::Client::open("redis://127.0.0.1").expect("Failed to create Redis client");
-            client
+            redis::Client::open(REDIS_URL)
+                .map_err(io::Error::other)?
                 .get_multiplexed_async_connection()
                 .await
-                .expect("Failed to connect to Redis")
+                .map_err(io::Error::other)?
         },
     };
 
@@ -68,12 +69,18 @@ async fn serve_client(
         // Try the redis cache first. If found in cache, send the cached
         // answer.
         let cachekey = format!("primecache:{num}");
-        if let Ok(result) = app_state.redis_connection.get(cachekey.clone()).await
-            && let Some(cached) = result
-        {
-            stream.write_all((cached.clone() + "\n").as_bytes()).await?;
-            println!("cached num {num} is {cached}");
-            continue;
+        match app_state.redis_connection.get(cachekey.clone()).await {
+            Ok(Some(cached)) => {
+                stream.write_all((cached.clone() + "\n").as_bytes()).await?;
+                println!("cached num {num} is {cached}");
+                continue;
+            }
+            Ok(None) => {
+                // Not found in cache, continue to compute.
+            }
+            Err(error) => {
+                return Err(io::Error::other(error));
+            }
         }
 
         let answer = if isprime(num, true) {
@@ -87,7 +94,7 @@ async fn serve_client(
             .redis_connection
             .set(cachekey, answer)
             .await
-            .map_err(|error| io::Error::new(io::ErrorKind::Other, error))?;
+            .map_err(io::Error::other)?;
         stream
             .write_all((answer.to_string() + "\n").as_bytes())
             .await?;
