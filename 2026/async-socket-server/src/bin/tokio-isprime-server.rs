@@ -44,14 +44,21 @@ async fn serve_client(mut stream: tokio::net::TcpStream) -> std::io::Result<()> 
             .parse::<u64>()
             .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
 
-        let answer = if isprime(n) { "prime" } else { "composite" };
+        let answer = if isprime(n, true) { "prime" } else { "composite" };
         stream
             .write_all((answer.to_string() + "\n").as_bytes())
             .await?;
     }
 }
 
-fn isprime(n: u64) -> bool {
+// Check if n is prime, returning a boolean. The delay parameter is optional;
+// if true, the function will block for n milliseconds before computing the
+// answer. This is useful for simulating a long-running computation.
+fn isprime(n: u64, delay: bool) -> bool {
+    if delay {
+        std::thread::sleep(std::time::Duration::from_millis(n));
+    }
+
     if n % 2 == 0 {
         return n == 2;
     }
