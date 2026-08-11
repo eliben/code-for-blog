@@ -1,5 +1,8 @@
 // Sequential version of the server: each client is served in turn, one
 // at a time.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use async_socket_server::serve_connection;
 use std::net::TcpListener;
 

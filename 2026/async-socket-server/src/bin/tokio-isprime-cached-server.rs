@@ -1,3 +1,8 @@
+// Asynchronous server for primality checking with Redis caching;
+// simulates delays in computation. Uses tokio for async I/O.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use redis::AsyncTypedCommands;
 use redis::aio::MultiplexedConnection;
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};

@@ -1,5 +1,8 @@
 // Threaded socket server - accepting multiple clients concurrently, by
 // creating a new thread for each connecting client.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use async_socket_server::serve_connection;
 use std::{net::TcpListener, thread};
 

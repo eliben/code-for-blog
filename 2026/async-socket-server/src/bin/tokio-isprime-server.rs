@@ -1,3 +1,8 @@
+// Asynchronous server for primality checking; simulates delays in computation.
+// Uses tokio for async I/O.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
 

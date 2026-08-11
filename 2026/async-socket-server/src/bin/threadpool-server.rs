@@ -1,5 +1,8 @@
 // Threaded socket server - accepting multiple clients concurrently, by
 // dispatching them into a thread pool.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use async_socket_server::serve_connection;
 use crossbeam_channel::{Receiver, bounded};
 use std::{

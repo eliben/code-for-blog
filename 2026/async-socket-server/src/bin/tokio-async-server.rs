@@ -1,3 +1,7 @@
+// Asynchronous version of the server using tokio.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use async_socket_server::ProcessingState;
 use tokio::io::{self, AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
