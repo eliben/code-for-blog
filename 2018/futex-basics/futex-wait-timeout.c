@@ -1,8 +1,7 @@
 // Futex sample that uses the timeout parameter.
 //
 // Basic userspace handshake using futexes, for two processes.
-// Try with timeout > 500 ms to see timeouts in the child.
-// Then try with timeout < 500 ms to see wait returning without a timeout.
+// Try with parent delay > 500 ms to see timeouts in the child.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
 // This code is in the public domain.
@@ -33,17 +32,13 @@ static inline unsigned long long time_ns() {
          (long long unsigned)ts.tv_nsec;
 }
 
-// A blocking wrapper for waking a futex. Only returns when a waiter has been
-// woken up.
-void wake_futex_blocking(int* futex_addr) {
-  while (1) {
-    int futex_rc = futex(futex_addr, FUTEX_WAKE, 1, NULL, NULL, 0);
-    if (futex_rc == -1) {
-      perror("futex wake");
-      exit(1);
-    } else if (futex_rc > 0) {
-      return;
-    }
+// Attempt to wake a futex; this doesn't guarantee anything was woken - it's
+// possible that nobody is waiting on the futex yet.
+void wake_futex(int* futex_addr) {
+  int futex_rc = futex(futex_addr, FUTEX_WAKE, 1, NULL, NULL, 0);
+  if (futex_rc == -1) {
+    perror("futex wake");
+    exit(1);
   }
 }
 
@@ -59,6 +54,10 @@ int main(int argc, char** argv) {
     exit(1);
   }
   int* shared_data = shmat(shm_id, NULL, 0);
+  if (shared_data == (void*)-1) {
+    perror("shmat");
+    exit(1);
+  }
   *shared_data = 0;
 
   int forkstatus = fork();
@@ -74,23 +73,30 @@ int main(int argc, char** argv) {
     struct timespec timeout = {.tv_sec = 0, .tv_nsec = 500000000};
     while (1) {
       unsigned long long t1 = time_ns();
-      int futex_rc = futex(shared_data, FUTEX_WAIT, 0xA, &timeout, NULL, 0);
-      printf("child woken up rc=%d errno=%s, elapsed=%llu\n", futex_rc,
-             futex_rc ? strerror(errno) : "", time_ns() - t1);
-      if (futex_rc == 0 && *shared_data == 0xA) {
+      int observed_val = *shared_data;
+      if (observed_val == 0xA) {
         break;
+      }
+      int futex_rc =
+          futex(shared_data, FUTEX_WAIT, observed_val, &timeout, NULL, 0);
+      printf("child wait returned rc=%d errno=%s, elapsed=%llu\n", futex_rc,
+             futex_rc ? strerror(errno) : "", time_ns() - t1);
+      if (futex_rc == -1 && errno != EAGAIN && errno != EINTR &&
+          errno != ETIMEDOUT) {
+        perror("FUTEX_WAIT");
+        exit(1);
       }
     }
   } else {
     // Parent process.
 
-    printf("parent writin A\n");
-    *shared_data = 0xA;
+    printf("parent writing A\n");
     usleep(atoi(argv[1]) * 1000);
+    *shared_data = 0xA;
 
     printf("parent waking child\n");
     // Wake up child.
-    wake_futex_blocking(shared_data);
+    wake_futex(shared_data);
 
     // Wait for the child to terminate.
     wait(NULL);
