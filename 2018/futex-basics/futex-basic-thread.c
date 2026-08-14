@@ -11,14 +11,10 @@
 #include <errno.h>
 #include <linux/futex.h>
 #include <pthread.h>
-#include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/shm.h>
 #include <sys/syscall.h>
-#include <sys/time.h>
-#include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -29,39 +25,40 @@ int futex(int* uaddr, int futex_op, int val, const struct timespec* timeout,
   return syscall(SYS_futex, uaddr, futex_op, val, timeout, uaddr2, val3);
 }
 
-// Waits for the futex at futex_addr to have the value val, ignoring spurious
-// wakeups. This function only returns when the condition is fulfilled; the only
-// other way out is aborting with an error.
-void wait_on_futex_value(int* futex_addr, int val) {
+// Waits for the futex at futex_addr to have the value desired_val, ignoring
+// spurious wakeups. This function only returns when the condition is fulfilled;
+// the only other way out is aborting with an error.
+void wait_on_futex_value(int* futex_addr, int desired_val) {
   while (1) {
-    int futex_rc = futex(futex_addr, FUTEX_WAIT_PRIVATE, val, NULL, NULL, 0);
-    if (futex_rc == -1) {
-      if (errno != EAGAIN) {
-        perror("futex");
-        exit(1);
-      }
-    } else if (futex_rc == 0) {
-      if (*futex_addr == val) {
-        // This is a real wakeup.
-        return;
-      }
-    } else {
-      abort();
+    int observed_val = *futex_addr;
+
+    if (observed_val == desired_val) {
+      return;
     }
+
+    // Sleep only if the value is still what we just observed.
+    //
+    // If it changed between the read and FUTEX_WAIT, the kernel returns
+    // EAGAIN instead of putting us to sleep. This prevents a lost wakeup.
+    int futex_rc =
+        futex(futex_addr, FUTEX_WAIT_PRIVATE, observed_val, NULL, NULL, 0);
+
+    if (futex_rc == -1 && errno != EAGAIN && errno != EINTR) {
+      perror("FUTEX_WAIT");
+      exit(1);
+    }
+
+    // Check value after (potentially spurious) wakeup.
   }
 }
 
-// A blocking wrapper for waking a futex. Only returns when a waiter has been
-// woken up.
-void wake_futex_blocking(int* futex_addr) {
-  while (1) {
-    int futex_rc = futex(futex_addr, FUTEX_WAKE_PRIVATE, 1, NULL, NULL, 0);
-    if (futex_rc == -1) {
-      perror("futex wake");
-      exit(1);
-    } else if (futex_rc > 0) {
-      return;
-    }
+// Attempt to wake a futex; this doesn't guarantee anything was woken - it's
+// possible that nobody is waiting on the futex yet.
+void wake_futex(int* futex_addr) {
+  int futex_rc = futex(futex_addr, FUTEX_WAKE_PRIVATE, 1, NULL, NULL, 0);
+  if (futex_rc == -1) {
+    perror("futex wake");
+    exit(1);
   }
 }
 
@@ -73,7 +70,7 @@ void* threadfunc(void* p) {
   printf("child writing B\n");
   // Write 0xB to the shared data and wake up parent.
   *shared_data = 0xB;
-  wake_futex_blocking(shared_data);
+  wake_futex(shared_data);
   return NULL;
 }
 
@@ -89,7 +86,7 @@ int main(int argc, char** argv) {
   printf("parent writing A\n");
   // Write 0xA to the shared data and wake up child.
   *shared_data = 0xA;
-  wake_futex_blocking(shared_data);
+  wake_futex(shared_data);
 
   printf("parent waiting for B\n");
   wait_on_futex_value(shared_data, 0xB);
