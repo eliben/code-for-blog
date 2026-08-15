@@ -1,3 +1,7 @@
+// Shared code implementing the serial protocol for synchronous servers.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 use std::io::{Read, Write};
 use std::net::TcpStream;
 pub enum ProcessingState {
