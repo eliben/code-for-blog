@@ -3,7 +3,6 @@ package server
 import (
 	"errors"
 	"io"
-	"log"
 	"net"
 )
 
@@ -26,16 +25,7 @@ func ServeSerialProtocol(conn net.Conn) error {
 	buf := make([]byte, 1024)
 	for {
 		n, err := conn.Read(buf)
-		if err != nil {
-			if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
-				return nil
-			} else {
-				return err
-			}
-		}
-
 		for _, b := range buf[:n] {
-			log.Printf("got b='%v'", b)
 			switch state {
 			case waitForMsg:
 				if b == '^' {
@@ -52,6 +42,14 @@ func ServeSerialProtocol(conn net.Conn) error {
 				}
 			}
 		}
-	}
 
+		// Check error after processing the bytes received along with it.
+		if err != nil {
+			if errors.Is(err, io.EOF) || errors.Is(err, net.ErrClosed) {
+				return nil
+			} else {
+				return err
+			}
+		}
+	}
 }
