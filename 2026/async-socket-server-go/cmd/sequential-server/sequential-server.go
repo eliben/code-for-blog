@@ -23,6 +23,8 @@ func main() {
 
 	for {
 		conn, err := listener.Accept()
+		log.Println("connection received from", conn.RemoteAddr())
+
 		if err != nil {
 			log.Printf("Error accepting %v: %v", conn, err)
 			continue
@@ -30,6 +32,8 @@ func main() {
 
 		if err := server.ServeSerialProtocol(conn); err != nil {
 			log.Printf("Error serving %v: %v", conn, err)
+		} else {
+			log.Println("peer done", conn.RemoteAddr())
 		}
 	}
 }
