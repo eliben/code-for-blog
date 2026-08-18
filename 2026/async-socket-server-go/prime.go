@@ -1,10 +1,48 @@
 package server
 
-import "time"
+import (
+	"net"
+	"strconv"
+	"strings"
+	"time"
+)
 
-// IsPrime returns true if n is prime, false otherwise. If delay is true, it
+// ServePrimeProtocol serves our prime protocol to a single TCP connection.
+func ServePrimeProtocol(conn net.Conn) error {
+	defer conn.Close()
+	buf := make([]byte, 1024)
+
+	for {
+		n, readerr := conn.Read(buf)
+		if n == 0 {
+			return nil
+		}
+
+		// Parse the read buffer to an i64
+		num, err := strconv.ParseInt(strings.TrimSpace(string(buf[:n])), 10, 64)
+		if err != nil {
+			return err
+		}
+
+		var response string
+		if isPrime(num, true) {
+			response = "prime"
+		} else {
+			response = "composite"
+		}
+		if _, err := conn.Write([]byte(response + "\n")); err != nil {
+			return err
+		}
+
+		if readerr != nil {
+			return readerr
+		}
+	}
+}
+
+// isPrime returns true if n is prime, false otherwise. If delay is true, it
 // will sleep for n milliseconds before calculating.
-func IsPrime(n int64, delay bool) bool {
+func isPrime(n int64, delay bool) bool {
 	if delay {
 		time.Sleep(time.Duration(n) * time.Millisecond)
 	}
