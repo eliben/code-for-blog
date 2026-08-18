@@ -21,6 +21,8 @@ func main() {
 	}
 	defer listener.Close()
 
+	// Not using a WaitGroup here, because the server is designed to
+	// run indefinitely, and there's nothing to wait for.
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
