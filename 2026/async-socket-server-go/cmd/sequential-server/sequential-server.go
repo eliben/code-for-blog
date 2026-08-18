@@ -23,12 +23,11 @@ func main() {
 
 	for {
 		conn, err := listener.Accept()
-		log.Println("connection received from", conn.RemoteAddr())
-
 		if err != nil {
-			log.Printf("Error accepting %v: %v", conn, err)
+			log.Printf("Error accepting connection: %v", err)
 			continue
 		}
+		log.Println("connection received from", conn.RemoteAddr())
 
 		if err := server.ServeSerialProtocol(conn); err != nil {
 			log.Printf("Error serving %v: %v", conn, err)
