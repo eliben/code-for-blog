@@ -31,7 +31,7 @@ func main() {
 
 		go func() {
 			if err := server.ServeSerialProtocol(conn); err != nil {
-				log.Printf("Error serving %v: %v", conn, err)
+				log.Printf("Error serving %v: %v", conn.RemoteAddr(), err)
 			}
 			log.Println("peer done", conn.RemoteAddr())
 		}()
