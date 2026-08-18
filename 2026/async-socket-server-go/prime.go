@@ -1,6 +1,8 @@
 package server
 
 import (
+	"errors"
+	"io"
 	"net"
 	"strconv"
 	"strings"
@@ -14,27 +16,26 @@ func ServePrimeProtocol(conn net.Conn) error {
 
 	for {
 		n, readerr := conn.Read(buf)
-		if n == 0 {
-			return nil
-		}
+		if n > 0 {
+			// Parse the read buffer to an i64
+			num, err := strconv.ParseInt(strings.TrimSpace(string(buf[:n])), 10, 64)
+			if err != nil {
+				return err
+			}
 
-		// Parse the read buffer to an i64
-		num, err := strconv.ParseInt(strings.TrimSpace(string(buf[:n])), 10, 64)
-		if err != nil {
-			return err
-		}
-
-		var response string
-		if isPrime(num, true) {
-			response = "prime"
-		} else {
-			response = "composite"
-		}
-		if _, err := conn.Write([]byte(response + "\n")); err != nil {
-			return err
+			response := "composite"
+			if isPrime(num, true) {
+				response = "prime"
+			}
+			if _, err := conn.Write([]byte(response + "\n")); err != nil {
+				return err
+			}
 		}
 
 		if readerr != nil {
+			if errors.Is(readerr, io.EOF) || errors.Is(readerr, net.ErrClosed) {
+				return nil
+			}
 			return readerr
 		}
 	}
