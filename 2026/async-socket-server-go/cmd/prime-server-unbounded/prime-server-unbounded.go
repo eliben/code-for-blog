@@ -1,3 +1,8 @@
+// Concurrent primes server. Creates a goroutine per connection, without
+// any limit on the number of concurrent connections.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

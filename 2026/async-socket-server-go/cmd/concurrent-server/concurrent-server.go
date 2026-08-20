@@ -1,3 +1,8 @@
+// Concurrent socket server - accepting multiple clients concurrently, by
+// creating a new goroutine for each connecting client.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (

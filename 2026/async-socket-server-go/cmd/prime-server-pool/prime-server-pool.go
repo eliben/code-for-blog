@@ -1,3 +1,7 @@
+// Concurrent primes server - limits concurrency using a worker pool.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -32,6 +36,8 @@ func main() {
 	}
 	defer listener.Close()
 
+	// The channel is unbuffered, so it will block when there are no available
+	// workers to accept a new connection.
 	jobs := make(chan net.Conn)
 	maxConcurrency := runtime.NumCPU()
 	for i := 0; i < maxConcurrency; i++ {

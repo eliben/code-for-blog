@@ -1,3 +1,6 @@
+// Basic sequential server that serves one connection at a time, in a loop.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
 package main
 
 import (

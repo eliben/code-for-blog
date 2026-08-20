@@ -1,3 +1,7 @@
+// Shared code for the prime protocol samples.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package server
 
 import (
