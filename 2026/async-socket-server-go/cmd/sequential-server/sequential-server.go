@@ -1,6 +1,7 @@
 // Basic sequential server that serves one connection at a time, in a loop.
 //
 // Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 package main
 
 import (
@@ -24,8 +25,6 @@ func main() {
 	}
 	defer listener.Close()
 
-	// Not using a WaitGroup here, because the server is designed to
-	// run indefinitely, and there's nothing to wait for.
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
