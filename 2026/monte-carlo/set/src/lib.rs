@@ -14,5 +14,5 @@
 mod card;
 mod render;
 
-pub use card::{Card, Color, Number, Shading, Shape, has_set, is_set, make_full_deck};
+pub use card::*;
 pub use render::{render_card, render_grid};

@@ -5,3 +5,4 @@ edition = "2024"
 description = "Dependency-free SVG rendering of SET cards"
 
 [dependencies]
+fastrand = "2.5"

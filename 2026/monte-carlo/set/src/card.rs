@@ -133,6 +133,21 @@ pub fn has_set(cards: &[Card]) -> bool {
     false
 }
 
+// Counts the number of valid SETs in a collection of cards.
+pub fn count_sets(cards: &[Card]) -> usize {
+    let mut count = 0;
+    for i in 0..cards.len() {
+        for j in (i + 1)..cards.len() {
+            for k in (j + 1)..cards.len() {
+                if is_set(cards[i], cards[j], cards[k]) {
+                    count += 1;
+                }
+            }
+        }
+    }
+    count
+}
+
 // Creates a full deck of 81 unique SET cards.
 pub fn make_full_deck() -> Vec<Card> {
     let mut deck = Vec::with_capacity(81);
