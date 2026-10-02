@@ -78,13 +78,13 @@
   </head>
   <body>
     <main>
-      <canvas id="plot" width="400" height="400" role="img" aria-label="A quarter circle of radius 1 inside a square, with x and y coordinates from 0 to 1.">
+      <canvas id="plot" width="400" height="400" role="img" aria-label="Quarter circle of radius 1 inside a unit square.">
         A quarter circle of radius 1 inside a unit square.
       </canvas>
 
       <div class="controls">
         <div class="slider">
-          <label for="samples">Samples <output id="sample-count" for="samples">1000</output></label>
+          <label for="samples">Samples <output id="sample-count" for="samples">200</output></label>
           <input id="samples" type="range" min="10" max="1000" step="1" value="200">
           <div class="range-labels"><span>10</span><span>1000</span></div>
         </div>
@@ -102,19 +102,13 @@
       const samples = document.getElementById("samples");
       const sampleCount = document.getElementById("sample-count");
       const estimateValue = document.getElementById("estimate-value");
-      let points = [];
 
-      function draw() {
-        // Draw in CSS pixels, with a sharper backing image on high-DPI screens.
-        const width = canvas.getBoundingClientRect().width;
-        const scale = window.devicePixelRatio || 1;
-        canvas.width = Math.round(width * scale);
-        canvas.height = Math.round(width * scale);
-        ctx.setTransform(scale, 0, 0, scale, 0, 0);
+      function runSimulation() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const left = 46;
         const top = 22;
-        const size = width - left - 24;
+        const size = canvas.width - left - 24;
         const bottom = top + size;
 
         ctx.fillStyle = "#eaf5f6";
@@ -162,10 +156,17 @@
         ctx.beginPath();
         ctx.rect(left, top, size, size);
         ctx.clip();
-        for (const point of points) {
-          ctx.fillStyle = point.inside ? "#087f8c" : "#d16b27";
+        const total = Number(samples.value);
+        let inside = 0;
+        for (let i = 0; i < total; i++) {
+          const x = Math.random();
+          const y = Math.random();
+          const inCircle = x * x + y * y <= 1;
+          if (inCircle) inside++;
+
+          ctx.fillStyle = inCircle ? "#087f8c" : "#d16b27";
           ctx.beginPath();
-          ctx.arc(left + point.x * size, bottom - point.y * size, 2.5, 0, 2 * Math.PI);
+          ctx.arc(left + x * size, bottom - y * size, 2.5, 0, 2 * Math.PI);
           ctx.fill();
         }
         ctx.restore();
@@ -176,31 +177,15 @@
         ctx.textBaseline = "middle";
         ctx.fillText("x", left + size + 16, bottom);
         ctx.fillText("y", left, top - 13);
+
+        estimateValue.textContent = (4 * inside / total).toFixed(4);
       }
 
       samples.addEventListener("input", () => {
         sampleCount.value = samples.value;
       });
 
-      function runSimulation() {
-        const total = Number(samples.value);
-        let inside = 0;
-        points = Array.from({ length: total }, () => {
-          const x = Math.random();
-          const y = Math.random();
-          const inCircle = x * x + y * y <= 1;
-          if (inCircle) inside++;
-          return { x, y, inside: inCircle };
-        });
-
-        const pi = (4 * inside / total).toFixed(4);
-        estimateValue.textContent = pi;
-        canvas.setAttribute("aria-label", `${total} random points in a unit square: ${inside} inside the quarter circle and ${total - inside} outside. Estimated pi: ${pi}.`);
-        draw();
-      }
-
       document.getElementById("go").addEventListener("click", runSimulation);
-      new ResizeObserver(draw).observe(canvas);
       runSimulation();
     </script>
   </body>
