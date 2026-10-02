@@ -1,0 +1,7 @@
+[package]
+name = "set-cards"
+version = "0.1.0"
+edition = "2024"
+description = "Dependency-free SVG rendering of SET cards"
+
+[dependencies]
