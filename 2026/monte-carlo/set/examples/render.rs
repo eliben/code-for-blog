@@ -12,16 +12,7 @@ fn main() -> io::Result<()> {
     );
     fs::create_dir_all(&output)?;
 
-    let mut deck = Vec::new();
-    for color in [Color::Red, Color::Green, Color::Purple] {
-        for number in [Number::One, Number::Two, Number::Three] {
-            for shading in [Shading::Empty, Shading::Striped, Shading::Solid] {
-                for shape in [Shape::Diamond, Shape::Oval, Shape::Squiggle] {
-                    deck.push(Card::new(number, color, shading, shape));
-                }
-            }
-        }
-    }
+    let deck = set_cards::make_full_deck();
 
     let card = Card::new(
         Number::Three,
