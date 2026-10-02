@@ -16,7 +16,7 @@
       }
 
       main {
-        max-width: 620px;
+        max-width: 458px;
         margin: 0 auto;
         padding: 28px;
         background: white;
@@ -25,7 +25,7 @@
       }
 
       p { margin: 0; line-height: 1.5; }
-      canvas { display: block; width: 100%; aspect-ratio: 1; }
+      canvas { display: block; width: 400px; max-width: 100%; aspect-ratio: 1; margin: 0 auto; }
 
       .controls {
         display: flex;
@@ -78,14 +78,14 @@
   </head>
   <body>
     <main>
-      <canvas id="plot" role="img" aria-label="A quarter circle of radius 1 inside a square, with x and y coordinates from 0 to 1.">
+      <canvas id="plot" width="400" height="400" role="img" aria-label="A quarter circle of radius 1 inside a square, with x and y coordinates from 0 to 1.">
         A quarter circle of radius 1 inside a unit square.
       </canvas>
 
       <div class="controls">
         <div class="slider">
-          <label for="samples">Samples <output id="sample-count" for="samples">250</output></label>
-          <input id="samples" type="range" min="10" max="1000" step="1" value="250">
+          <label for="samples">Samples <output id="sample-count" for="samples">1000</output></label>
+          <input id="samples" type="range" min="10" max="1000" step="1" value="200">
           <div class="range-labels"><span>10</span><span>1000</span></div>
         </div>
         <button id="go" type="button">Go</button>
@@ -182,7 +182,7 @@
         sampleCount.value = samples.value;
       });
 
-      document.getElementById("go").addEventListener("click", () => {
+      function runSimulation() {
         const total = Number(samples.value);
         let inside = 0;
         points = Array.from({ length: total }, () => {
@@ -197,9 +197,11 @@
         estimateValue.textContent = pi;
         canvas.setAttribute("aria-label", `${total} random points in a unit square: ${inside} inside the quarter circle and ${total - inside} outside. Estimated pi: ${pi}.`);
         draw();
-      });
+      }
 
+      document.getElementById("go").addEventListener("click", runSimulation);
       new ResizeObserver(draw).observe(canvas);
+      runSimulation();
     </script>
   </body>
 </html>
