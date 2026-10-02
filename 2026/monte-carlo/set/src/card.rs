@@ -108,7 +108,6 @@ impl Card {
     }
 }
 
-
 // Determines if three cards form a valid SET.
 pub fn is_set(card1: Card, card2: Card, card3: Card) -> bool {
     let c1 = card1.to_coord();
@@ -116,21 +115,6 @@ pub fn is_set(card1: Card, card2: Card, card3: Card) -> bool {
     let c3 = card3.to_coord();
 
     (0..4).all(|i| (c1[i] + c2[i] + c3[i]) % 3 == 0)
-}
-
-
-// Determines if a collection of cards contains at least one valid SET.
-pub fn has_set(cards: &[Card]) -> bool {
-    for i in 0..cards.len() {
-        for j in (i + 1)..cards.len() {
-            for k in (j + 1)..cards.len() {
-                if is_set(cards[i], cards[j], cards[k]) {
-                    return true;
-                }
-            }
-        }
-    }
-    false
 }
 
 // Counts the number of valid SETs in a collection of cards.

@@ -1,28 +1,29 @@
-
-use std::{fs, io, path::PathBuf};
 use set_cards::{Card, Color, Number, Shading, Shape, render_card, render_grid};
-
+use std::{fs, io, path::PathBuf};
 
 fn main() -> io::Result<()> {
-    let output = PathBuf::from(
-        std::env::args_os()
-            .nth(1)
-            .unwrap_or_else(|| "/tmp".into()),
-    );
+    let output = PathBuf::from(std::env::args_os().nth(1).unwrap_or_else(|| "/tmp".into()));
     fs::create_dir_all(&output)?;
 
-    let deck = set_cards::make_full_deck();
-
-    // Generate a set of 12 cards with a single SET.
-    // Generate random hand, count sets; repeat until found.
     let mut rng = fastrand::Rng::new();
+    let mut attempt = 0;
 
     loop {
-        // Select 12 random cards from the deck.
-        let hand: Vec<_> = (0..12).map(|_| deck[rng.usize(..deck.len())]).collect();
+        let mut deck = set_cards::make_full_deck();
 
-        if set_cards::count_sets(&hand) == 1 {
-            let path = output.join("one-set-hand.svg");
+        // Select 12 random cards from the deck.
+        let mut hand: Vec<Card> = Vec::with_capacity(12);
+        for i in 0..12 {
+            // Select a random card from the deck and add it to the hand,
+            // removing it from the deck.
+            let index = rng.usize(..deck.len());
+            hand.push(deck.swap_remove(index));
+        }
+        println!("Attempt {:3}", attempt);
+        attempt += 1;
+
+        if set_cards::count_sets(&hand) == 0 {
+            let path = output.join("no-set-hand.svg");
             let svg = render_grid(&hand, 4);
             fs::write(&path, svg)?;
             println!("Wrote {}", path.display());
