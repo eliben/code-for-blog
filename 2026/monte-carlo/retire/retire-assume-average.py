@@ -14,7 +14,6 @@ Balances on the plot are measured immediately after each withdrawal.
 import argparse
 from pathlib import Path
 
-
 INITIAL_BALANCE = 1_000_000
 ANNUAL_WITHDRAWAL = 30_000
 ANNUAL_RETURN = 0.04
@@ -59,7 +58,7 @@ def main():
     if not args.show:
         matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import StrMethodFormatter
+    from matplotlib.ticker import MultipleLocator, StrMethodFormatter
 
     balances, depletion_year = simulate()
     years = range(len(balances))
@@ -76,7 +75,7 @@ def main():
     else:
         print(f"Money does not run out within {MAX_YEARS} years.")
 
-    fig, ax = plt.subplots(figsize=(10, 6), layout="constrained")
+    fig, ax = plt.subplots(figsize=(10, 6), dpi=80, layout="constrained")
     ax.plot(years, balances, linewidth=2)
     if depletion_year is not None:
         ax.axvline(depletion_year, color="tab:red", linestyle=":")
@@ -99,9 +98,13 @@ def main():
         xlim=(0, len(balances) - 1),
         ylim=(0, None),
     )
+    ax.title.set_fontsize(14)
+    ax.xaxis.label.set_fontsize(12)
+    ax.yaxis.label.set_fontsize(12)
+    ax.xaxis.set_major_locator(MultipleLocator(5))
     ax.yaxis.set_major_formatter(StrMethodFormatter("${x:,.0f}"))
     ax.grid(alpha=0.25)
-    fig.savefig(args.output, dpi=160)
+    fig.savefig(args.output, dpi=80)
     print(f"Plot saved to {args.output}")
     if args.show:
         plt.show()

@@ -111,18 +111,15 @@ def main() -> None:
     parser.add_argument("--show", action="store_true", help="Open the plot window")
     args = parser.parse_args()
 
-    try:
-        balances = simulate(
-            trials=args.trials,
-            years=args.years,
-            return_mean=args.return_mean,
-            return_std=args.return_std,
-            inflation_mean=args.inflation_mean,
-            inflation_std=args.inflation_std,
-            seed=args.seed,
-        )
-    except ValueError as exc:
-        parser.error(str(exc))
+    balances = simulate(
+        trials=args.trials,
+        years=args.years,
+        return_mean=args.return_mean,
+        return_std=args.return_std,
+        inflation_mean=args.inflation_mean,
+        inflation_std=args.inflation_std,
+        seed=args.seed,
+    )
 
     # At each year, summarize all trials, including those that ran out of money.
     # For example, the 10th percentile is the balance below which 10% of trials lie.
@@ -162,7 +159,7 @@ def main() -> None:
     if not args.show:
         matplotlib.use("Agg")
     import matplotlib.pyplot as plt
-    from matplotlib.ticker import PercentFormatter, StrMethodFormatter
+    from matplotlib.ticker import MultipleLocator, PercentFormatter, StrMethodFormatter
 
     years = np.arange(args.years + 1)
     # Compare with fixed annual rates equal to the normal distribution means.
@@ -176,7 +173,7 @@ def main() -> None:
     )[:, 0]
 
     fig, (balance_ax, risk_ax) = plt.subplots(
-        2, 1, figsize=(10, 9), sharex=True, layout="constrained"
+        2, 1, figsize=(10, 9), dpi=80, sharex=True, layout="constrained"
     )
     balance_ax.fill_between(
         years,
@@ -194,7 +191,7 @@ def main() -> None:
         color="tab:blue",
         label="25th–75th percentiles",
     )
-    balance_ax.plot(years, percentiles[2], color="tab:blue", label="Median")
+
     balance_ax.plot(
         years,
         constant_balances,
@@ -204,28 +201,22 @@ def main() -> None:
     )
     balance_ax.set(ylabel="Balance (today's dollars)", ylim=(0, None))
     balance_ax.yaxis.set_major_formatter(StrMethodFormatter("${x:,.0f}"))
-    balance_ax.legend()
+    balance_ax.legend(loc="upper right", fontsize=14)
 
     risk_ax.step(years, depleted_fraction, where="post", color="tab:red")
-    if median_crossing.size:
-        median_year = median_crossing[0]
-        risk_ax.axvline(
-            median_year,
-            color="gray",
-            linestyle=":",
-            label=f"Median depletion year: {median_year}",
-        )
-        risk_ax.legend()
     risk_ax.set(
         xlabel="Years since retirement (after year-end withdrawal)",
         ylabel="Fraction of trials depleted",
         xlim=(0, args.years),
         ylim=(0, 1),
     )
+    risk_ax.xaxis.set_major_locator(MultipleLocator(5))
     risk_ax.yaxis.set_major_formatter(PercentFormatter(1))
     for ax in (balance_ax, risk_ax):
+        ax.xaxis.label.set_fontsize(14)
+        ax.yaxis.label.set_fontsize(14)
         ax.grid(alpha=0.25)
-    fig.savefig(args.output, dpi=160)
+    fig.savefig(args.output, dpi=80)
     print(f"Plot saved to {args.output}")
     if args.show:
         plt.show()
