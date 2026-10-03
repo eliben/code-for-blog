@@ -1,4 +1,4 @@
-use set_cards::{Card, Color, Number, Shading, Shape, render_card, render_grid};
+use set_cards::{Card, render_grid};
 use std::{fs, io, path::PathBuf};
 
 fn main() -> io::Result<()> {
@@ -13,7 +13,7 @@ fn main() -> io::Result<()> {
 
         // Select 12 random cards from the deck.
         let mut hand: Vec<Card> = Vec::with_capacity(12);
-        for i in 0..12 {
+        for _ in 0..12 {
             // Select a random card from the deck and add it to the hand,
             // removing it from the deck.
             let index = rng.usize(..deck.len());
