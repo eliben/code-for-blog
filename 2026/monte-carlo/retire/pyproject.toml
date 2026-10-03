@@ -5,6 +5,7 @@ description = "Retirement simulation scripts"
 requires-python = ">=3.10"
 dependencies = [
     "matplotlib",
+    "numpy",
 ]
 
 [tool.uv]
