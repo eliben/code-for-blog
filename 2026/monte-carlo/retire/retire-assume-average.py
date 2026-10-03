@@ -1,10 +1,6 @@
-# /// script
-# requires-python = ">=3.10"
-# dependencies = ["matplotlib"]
-# ///
 """Plot a retirement portfolio entirely in today's dollars.
 
-Run with `python3 retire.py` (requires matplotlib), or `uv run retire.py`.
+Run with `uv run retire-assume-average.py` using the shared project dependencies.
 Add `--show` to open the plot as well as saving it to /tmp/retirement.png.
 
 At the end of each year, apply the inflation-adjusted return to the portfolio,
