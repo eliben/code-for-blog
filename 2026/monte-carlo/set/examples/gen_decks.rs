@@ -1,3 +1,8 @@
+// Generate interesting decks for blog post.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 use set_cards::{Card, render_grid};
 use std::{fs, io, path::PathBuf};
 

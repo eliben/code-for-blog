@@ -1,3 +1,8 @@
+// Monte-Carlo simulation for calculating the value of Pi via relative area
+// of a quarter circle to square and random throws.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 fn main() {
     let runs: u64 = std::env::args()
         .nth(1)

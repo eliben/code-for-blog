@@ -1,15 +1,17 @@
-"""Plot a retirement portfolio entirely in today's dollars.
-
-Run with `uv run retire-assume-average.py` using the shared project dependencies.
-Add `--show` to open the plot as well as saving it to /tmp/retirement.png.
-
-At the end of each year, apply the inflation-adjusted return to the portfolio,
-then withdraw a fixed $30,000 in today's dollars. The recurrence is:
-
-    balance[n] = balance[n - 1] * (1.04 / 1.02) - 30_000
-
-Balances on the plot are measured immediately after each withdrawal.
-"""
+# Plot a retirement portfolio entirely in today's dollars.
+#
+# Run with `uv run retire-assume-average.py` using the shared project
+# dependencies. Add `--show` to open the plot as well as saving it to a file.
+#
+# At the end of each year, apply the inflation-adjusted return to the portfolio,
+# then withdraw a fixed $30,000 in today's dollars. The recurrence is:
+#
+#    balance[n] = balance[n - 1] * (1.04 / 1.02) - 30_000
+#
+# Balances on the plot are measured immediately after each withdrawal.
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 
 import argparse
 from pathlib import Path

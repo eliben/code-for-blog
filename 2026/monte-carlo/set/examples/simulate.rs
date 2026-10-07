@@ -1,4 +1,9 @@
-use set_cards::{Card};
+// Simulations for blog post.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
+use set_cards::Card;
 use std::io;
 
 fn main() -> io::Result<()> {
@@ -6,7 +11,7 @@ fn main() -> io::Result<()> {
     let ngames = 10000000;
     let mut ncount = 0;
     let full_deck = set_cards::make_full_deck();
-    
+
     for _ in 0..ngames {
         let mut deck = full_deck.clone();
 

@@ -1,18 +1,21 @@
-"""Simulate retirement balances in today's dollars.
-
-Run with `uv run retire-monte-carlo.py`; add --show to open the saved plot.
-Rates are decimals: 0.04 means 4%, and 0.18 means 18 percentage points of
-spread.
-
-Each year, draw a return and an inflation rate from normal distributions and
-clamp both to at least -99%. Apply the real growth factor
-(1 + return) / (1 + inflation), then take out $30,000.
-A depleted portfolio stays at zero.
-
-The normal distributions have mean annual return of 4% and inflation of 2%, with
-standard deviations of 18 and 1.5 percentage points. These are illustrative
-assumptions for a mostly stock portfolio. All draws are independent.
-"""
+# Simulate retirement balances in today's dollars.
+#
+# Run with `uv run retire-monte-carlo.py`; add --show to open the saved plot.
+# Rates are decimals: 0.04 means 4%, and 0.18 means 18 percentage points of
+# spread.
+#
+# Each year, draw a return and an inflation rate from normal distributions and
+# clamp both to at least -99%. Apply the real growth factor
+# (1 + return) / (1 + inflation), then take out $30,000.
+# A depleted portfolio stays at zero.
+#
+# The normal distributions have mean annual return of 4% and inflation of 2%,
+# with standard deviations of 18 and 1.5 percentage points. These are
+# illustrative assumptions for a mostly stock portfolio. All draws are
+# independent.
+#
+# Eli Bendersky [https://eli.thegreenplace.net]
+# This code is in the public domain.
 
 import argparse
 from pathlib import Path

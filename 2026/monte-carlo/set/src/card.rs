@@ -1,4 +1,8 @@
-/// The number of symbols on a card.
+// SET cards logic.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Number {
     One,

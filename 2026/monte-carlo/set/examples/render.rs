@@ -1,15 +1,14 @@
-//! Run with `cargo run --example render -- [output-directory]`.
+// Example of rendering a card or a deck to SVG.
+//
+// Eli Bendersky [https://eli.thegreenplace.net]
+// This code is in the public domain.
 
 use std::{fs, io, path::PathBuf};
 
 use set_cards::{Card, Color, Number, Shading, Shape, render_card, render_grid};
 
 fn main() -> io::Result<()> {
-    let output = PathBuf::from(
-        std::env::args_os()
-            .nth(1)
-            .unwrap_or_else(|| "/tmp".into()),
-    );
+    let output = PathBuf::from(std::env::args_os().nth(1).unwrap_or_else(|| "/tmp".into()));
     fs::create_dir_all(&output)?;
 
     let deck = set_cards::make_full_deck();
